@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SafeStat Financial Sustainability Model</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  :root {
+    --blue: #185FA5;
+    --blue-light: #D6E4F5;
+    --blue-mid: #378ADD;
+    --green: #1D9E75;
+    --green-light: #D6F0E2;
+    --amber: #BA7517;
+    --amber-light: #FDF0D5;
+    --purple: #7F77DD;
+    --coral: #D4537E;
+    --gray-50: #F8F8F6;
+    --gray-100: #F2F2F0;
+    --gray-200: #E0DFD8;
+    --gray-400: #888780;
+    --gray-700: #444441;
+    --text: #1A1A1A;
+    --text-muted: #5F5E5A;
+    --text-light: #888780;
+    --border: rgba(0,0,0,0.10);
+    --border-med: rgba(0,0,0,0.18);
+    --radius: 10px;
+    --radius-sm: 6px;
+    --shadow: 0 1px 4px rgba(0,0,0,0.07), 0 0 0 0.5px rgba(0,0,0,0.07);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    background: var(--gray-50);
+    line-height: 1.6;
+  }
+
+  .app-header {
+    background: white;
+    border-bottom: 1px solid var(--border);
+    padding: 18px 32px;
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+  }
+  .app-header h1 { font-size: 18px; font-weight: 600; color: var(--blue); }
+  .app-header .subtitle { font-size: 12px; color: var(--text-light); }
+
+  .app-body { display: flex; min-height: calc(100vh - 57px); }
+
+  .sidebar {
+    width: 220px;
+    flex-shrink: 0;
+    background: white;
+    border-right: 1px solid var(--border);
+    padding: 20px 0;
+    position: sticky;
+    top: 57px;
+    height: calc(100vh - 57px);
+    overflow-y: auto;
+  }
+  .sidebar-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-light);
+    padding: 0 16px;
+    margin-bottom: 6px;
+    margin-top: 16px;
+  }
+  .sidebar-label:first-child { margin-top: 0; }
+  .nav-btn {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 8px 16px;
+    font-size: 13px;
+    color: var(--text-muted);
+    border: none;
+    background: none;
+    cursor: pointer;
+    border-left: 3px solid transparent;
+    transition: all 0.15s;
+  }
+  .nav-btn:hover { background: var(--gray-50); color: var(--text); }
+  .nav-btn.active { color: var(--blue); border-left-color: var(--blue); background: var(--blue-light); font-weight: 500; }
+
+  .main { flex: 1; padding: 28px 32px; max-width: 960px; }
+
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  .page-title { font-size: 22px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+  .page-sub { font-size: 13px; color: var(--text-light); margin-bottom: 24px; }
+
+  .scen-bar {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px;
+  }
+  .scen-bar-label { font-size: 11px; font-weight: 600; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.06em; align-self: center; margin-right: 4px; white-space: nowrap; }
+  .sb {
+    font-size: 12px;
+    padding: 6px 14px;
+    border: 1px solid var(--border-med);
+    border-radius: 20px;
+    background: white;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .sb:hover { border-color: var(--blue); color: var(--blue); }
+  .sb.active { background: var(--blue); color: white; border-color: var(--blue); font-weight: 500; }
+
+  .metrics-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+  .metric-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    box-shadow: var(--shadow);
+  }
+  .metric-label { font-size: 11px; color: var(--text-light); margin-bottom: 4px; font-weight: 500; }
+  .metric-value { font-size: 22px; font-weight: 600; color: var(--text); line-height: 1.2; }
+  .metric-sub { font-size: 11px; color: var(--text-light); margin-top: 3px; }
+
+  .card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow);
+  }
+  .card-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+  .card-sub { font-size: 12px; color: var(--text-light); margin-bottom: 14px; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 10px; }
+  .li { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--text-muted); }
+  .ls { width: 11px; height: 11px; border-radius: 3px; flex-shrink: 0; }
+
+  .narr {
+    background: var(--blue-light);
+    border-left: 3px solid var(--blue);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    padding: 12px 16px;
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.65;
+    margin-bottom: 16px;
+  }
+  .narr strong { color: var(--text); font-weight: 600; }
+
+  .pc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+  .pros { background: var(--green-light); border-radius: var(--radius); padding: 14px 16px; font-size: 13px; color: #0E5C38; line-height: 1.55; }
+  .cons { background: #FEEDED; border-radius: var(--radius); padding: 14px 16px; font-size: 13px; color: #8B2020; line-height: 1.55; }
+  .pros strong, .cons strong { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; display: block; margin-bottom: 8px; }
+  .pros ul, .cons ul { padding-left: 14px; }
+  .pros li, .cons li { margin-bottom: 4px; }
+
+  .assm-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+  .assm-card { background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow); }
+  .assm-card h3 { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+
+  .ar { display: grid; grid-template-columns: 1fr 90px; align-items: center; gap: 8px; margin-bottom: 9px; }
+  .ar3 { display: grid; grid-template-columns: 1fr 90px 52px; align-items: center; gap: 6px; margin-bottom: 9px; }
+  .al { font-size: 12px; color: var(--text-muted); }
+  .ai {
+    font-size: 12px;
+    padding: 5px 8px;
+    border: 1px solid var(--border-med);
+    border-radius: var(--radius-sm);
+    background: var(--gray-50);
+    color: var(--text);
+    text-align: right;
+    width: 100%;
+    transition: border-color 0.15s;
+  }
+  .ai:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 2px rgba(24,95,165,0.12); }
+  .az {
+    font-size: 11px;
+    padding: 4px 8px;
+    border: 1px solid var(--border-med);
+    border-radius: var(--radius-sm);
+    background: white;
+    color: var(--text-light);
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .az:hover { color: #A32D2D; border-color: #A32D2D; background: #FEEDED; }
+
+  .divider { height: 1px; background: var(--border); margin: 10px 0; }
+
+  .mult-row { display: grid; grid-template-columns: 1fr 58px 18px; align-items: center; gap: 6px; margin-bottom: 7px; }
+  .ml { font-size: 11px; color: var(--text-light); }
+  .mi { font-size: 12px; padding: 4px 6px; border: 1px solid var(--border-med); border-radius: var(--radius-sm); background: var(--gray-50); color: var(--text); text-align: right; width: 100%; }
+  .mi:focus { outline: none; border-color: var(--blue); }
+  .mu { font-size: 11px; color: var(--text-light); }
+
+  .tog-row { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+  .tl { font-size: 12px; color: var(--text-muted); flex: 1; }
+  .ton { font-size: 11px; padding: 4px 12px; border: 1px solid var(--green); border-radius: 20px; background: var(--green-light); color: var(--green); cursor: pointer; font-weight: 500; }
+  .toff { font-size: 11px; padding: 4px 12px; border: 1px solid #E24B4A; border-radius: 20px; background: #FEEDED; color: #A32D2D; cursor: pointer; font-weight: 500; }
+  .treset { font-size: 11px; padding: 4px 10px; border: 1px solid var(--border-med); border-radius: 20px; background: white; color: var(--text-muted); cursor: pointer; }
+  .treset:hover { border-color: var(--blue); color: var(--blue); }
+
+  .recalc {
+    font-size: 13px;
+    padding: 9px 22px;
+    border: 1px solid var(--blue);
+    border-radius: var(--radius-sm);
+    background: var(--blue);
+    color: white;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.15s;
+  }
+  .recalc:hover { background: #0F4A85; }
+
+  .ftbl { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .ftbl th { font-size: 11px; font-weight: 600; color: var(--text-muted); padding: 8px 10px; border-bottom: 2px solid var(--border-med); text-align: right; background: var(--gray-50); }
+  .ftbl th:first-child { text-align: left; }
+  .ftbl td { padding: 7px 10px; border-bottom: 1px solid var(--border); color: var(--text); text-align: right; }
+  .ftbl td:first-child { text-align: left; color: var(--text-muted); font-size: 11px; }
+  .ftbl tr.total td { font-weight: 600; border-top: 2px solid var(--border-med); background: var(--gray-50); }
+  .ftbl tr.sub td:first-child { padding-left: 20px; color: var(--text-light); }
+  .ftbl tr:hover td { background: var(--gray-50); }
+
+  .pct-suffix { font-size: 11px; color: var(--text-light); align-self: center; }
+
+  .canvas-wrap { position: relative; width: 100%; }
+
+  @media (max-width: 800px) {
+    .sidebar { display: none; }
+    .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+    .assm-grid { grid-template-columns: 1fr; }
+    .pc-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <h1>SafeStat<sup style="font-size:12px">SM</sup> Financial Sustainability Model</h1>
+  <span class="subtitle">CAPS &middot; Bonterra &middot; Ballmer Group &middot; Confidential Working Document &middot; May 2026</span>
+</div>
+
+<div class="app-body">
+  <nav class="sidebar">
+    <div class="sidebar-label">Views</div>
+    <button class="nav-btn active" data-p="overview">Overview</button>
+    <button class="nav-btn" data-p="ballmer">Ballmer view</button>
+    <button class="nav-btn" data-p="jurisdiction">Jurisdiction view</button>
+    <button class="nav-btn" data-p="unit">Unit economics</button>
+    <div class="sidebar-label">Settings</div>
+    <button class="nav-btn" data-p="assumptions">Assumptions</button>
+  </nav>
+
+  <main class="main">
+
+    <div class="scen-bar">
+      <span class="scen-bar-label">Scenario</span>
+      <button class="sb active" data-s="0">Full philanthropic Y1–Y3</button>
+      <button class="sb" data-s="1">Sloped sunset (50% Y4–Y5)</button>
+      <button class="sb" data-s="2">Hard 3-year sunset</button>
+      <button class="sb" data-s="3">Leveraged match Y4–Y5</button>
+      <button class="sb" data-s="4">Hybrid public/philanthropic</button>
+    </div>
+
+    <!-- OVERVIEW -->
+    <div id="p-overview" class="panel active">
+      <div class="page-title">Overview</div>
+      <div class="page-sub">Total ecosystem costs and revenue source transition across five years</div>
+      <div class="metrics-grid" id="ovMetrics"></div>
+      <div class="narr" id="ovNarr"></div>
+      <div class="pc-grid" id="ovPC"></div>
+      <div class="card">
+        <div class="card-title">Total ecosystem cost by revenue source</div>
+        <div class="card-sub">$M per year — Ballmer declining as public funding, philanthropy, and CBO contributions grow</div>
+        <div class="legend" id="ovLeg"></div>
+        <div class="canvas-wrap" style="height:300px"><canvas id="ovChart" role="img" aria-label="Stacked bar chart showing revenue source transition over five years.">Revenue source chart.</canvas></div>
+      </div>
+    </div>
+
+    <!-- BALLMER -->
+    <div id="p-ballmer" class="panel">
+      <div class="page-title">Ballmer Group View</div>
+      <div class="page-sub">Annual investment trajectory and share of total platform cost</div>
+      <div class="metrics-grid" id="blMetrics"></div>
+      <div class="card">
+        <div class="card-title">Ballmer Group annual investment</div>
+        <div class="card-sub">$M per year — Ballmer (solid) vs. other sources covering jurisdiction costs (light)</div>
+        <div class="legend" id="blLeg"></div>
+        <div class="canvas-wrap" style="height:300px"><canvas id="blChart" role="img" aria-label="Stacked bar chart showing Ballmer investment declining while other sources grow.">Ballmer investment chart.</canvas></div>
+      </div>
+      <div class="narr" id="blNarr"></div>
+    </div>
+
+    <!-- JURISDICTION -->
+    <div id="p-jurisdiction" class="panel">
+      <div class="page-title">Jurisdiction View</div>
+      <div class="page-sub">All costs are jurisdiction costs — revenue sources determine who covers them</div>
+      <div class="card">
+        <div class="card-title">Total jurisdiction costs by revenue source</div>
+        <div class="card-sub">Stacked bars show the funding mix shift over five years ($M)</div>
+        <div class="legend" id="jurLeg"></div>
+        <div class="canvas-wrap" style="height:300px"><canvas id="jurChart" role="img" aria-label="Stacked bar chart showing jurisdiction cost by revenue source over five years.">Jurisdiction cost chart.</canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Annual cost detail</div>
+        <div class="card-sub">Full cost breakdown by line item and revenue source ($)</div>
+        <table class="ftbl">
+          <thead><tr><th>Cost line</th><th>Y1</th><th>Y2</th><th>Y3</th><th>Y4</th><th>Y5</th></tr></thead>
+          <tbody id="jurTbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- UNIT ECONOMICS -->
+    <div id="p-unit" class="panel">
+      <div class="page-title">Unit Economics</div>
+      <div class="page-sub">Per-jurisdiction cost declining even as total Ballmer investment may also change</div>
+      <div class="card">
+        <div class="card-title">Per-jurisdiction cost vs. total Ballmer investment</div>
+        <div class="card-sub">Bars = total annual Ballmer commitment ($M, left axis) &nbsp;&middot;&nbsp; Line = per-jurisdiction all-in cost ($K, right axis)</div>
+        <div class="legend" id="unitLeg"></div>
+        <div class="canvas-wrap" style="height:320px"><canvas id="unitChart" role="img" aria-label="Combo chart with Ballmer investment bars and per-jurisdiction cost line.">Unit economics chart.</canvas></div>
+      </div>
+      <div class="metrics-grid" id="unitMetrics"></div>
+    </div>
+
+    <!-- ASSUMPTIONS -->
+    <div id="p-assumptions" class="panel">
+      <div class="page-title">Assumptions</div>
+      <div class="page-sub">Edit values and click Recalculate — all charts and tables update across every view</div>
+
+      <div class="assm-grid">
+
+        <div class="assm-card">
+          <h3>Jurisdiction scale</h3>
+          <div class="ar"><span class="al">Y1 total jurisdictions</span><input class="ai" id="jY1" type="number" value="2" min="1"></div>
+          <div class="ar"><span class="al">Y2 total jurisdictions</span><input class="ai" id="jY2" type="number" value="6" min="1"></div>
+          <div class="ar"><span class="al">Y3 total jurisdictions</span><input class="ai" id="jY3" type="number" value="14" min="1"></div>
+          <div class="ar"><span class="al">Y4 total jurisdictions</span><input class="ai" id="jY4" type="number" value="30" min="1"></div>
+          <div class="ar"><span class="al">Y5 total jurisdictions</span><input class="ai" id="jY5" type="number" value="50" min="1"></div>
+        </div>
+
+        <div class="assm-card">
+          <h3>Ballmer % of total cost — by year</h3>
+          <div class="ar"><span class="al">Ballmer share Y1</span><input class="ai" id="rBY1" type="number" value="100" min="0" max="100"></div>
+          <div class="ar"><span class="al">Ballmer share Y2</span><input class="ai" id="rBY2" type="number" value="95" min="0" max="100"></div>
+          <div class="ar"><span class="al">Ballmer share Y3</span><input class="ai" id="rBY3" type="number" value="80" min="0" max="100"></div>
+          <div class="ar"><span class="al">Ballmer share Y4</span><input class="ai" id="rBY4" type="number" value="40" min="0" max="100"></div>
+          <div class="ar"><span class="al">Ballmer share Y5</span><input class="ai" id="rBY5" type="number" value="20" min="0" max="100"></div>
+          <div class="divider"></div>
+          <div class="ar"><span class="al">Public funding target % (Y5)</span><input class="ai" id="rPY5" type="number" value="55" min="0" max="100"></div>
+          <div class="ar"><span class="al">Non-Ballmer philanthropy % (Y5)</span><input class="ai" id="rPhY5" type="number" value="15" min="0" max="100"></div>
+          <div class="ar"><span class="al">CBO contributions % (Y5)</span><input class="ai" id="rCY5" type="number" value="10" min="0" max="100"></div>
+        </div>
+
+        <div class="assm-card">
+          <h3>Bonterra costs</h3>
+          <div class="tog-row">
+            <span class="tl">Include Bonterra costs</span>
+            <button id="bToggle" class="ton">On</button>
+          </div>
+          <div id="bFields">
+            <div class="ar3"><span class="al">Stand-up services (Y1 base, per new jur)</span><input class="ai" id="bSU" type="number" value="515000"><button class="az" onclick="z('bSU')">Zero</button></div>
+            <div class="ar3"><span class="al">Ongoing support (per existing jur)</span><input class="ai" id="bOS" type="number" value="247000"><button class="az" onclick="z('bOS')">Zero</button></div>
+            <div class="ar3"><span class="al">License (per jurisdiction)</span><input class="ai" id="bLic" type="number" value="200000"><button class="az" onclick="z('bLic')">Zero</button></div>
+            <div class="ar3"><span class="al">Product dev (shared, annual)</span><input class="ai" id="bDev" type="number" value="4500000"><button class="az" onclick="z('bDev')">Zero</button></div>
+            <div class="divider"></div>
+            <div class="mult-row"><span class="ml">YoY scale reduction (starts Y3)</span><input class="mi" id="bYoY" type="number" value="5" step="0.5"><span class="mu">%</span></div>
+            <div class="mult-row"><span class="ml">Stand-up decay per cohort</span><input class="mi" id="bSUD" type="number" value="15" step="1"><span class="mu">%</span></div>
+            <div class="mult-row"><span class="ml">Product dev zeroes after year</span><input class="mi" id="bDZY" type="number" value="3" step="1"><span class="mu">yr</span></div>
+          </div>
+        </div>
+
+        <div class="assm-card">
+          <h3>CAPS license fee</h3>
+          <div class="tog-row">
+            <span class="tl">Include CAPS license fee</span>
+            <button id="cToggle" class="ton">On</button>
+            <button class="treset" onclick="resetCaps()">Reset baseline</button>
+          </div>
+          <div id="cFields">
+            <div class="ar3"><span class="al">License fee (annual per jurisdiction)</span><input class="ai" id="cLic" type="number" value="160000"><button class="az" onclick="z('cLic')">Zero</button></div>
+            <div class="divider"></div>
+            <div class="mult-row"><span class="ml">YoY license fee reduction</span><input class="mi" id="cYoY" type="number" value="5" step="0.5"><span class="mu">%</span></div>
+          </div>
+        </div>
+      </div>
+
+      <button class="recalc" onclick="recalc()">Recalculate model</button>
+    </div>
+
+  </main>
+</div>
+
+<script>
+const YRS = ['Y1','Y2','Y3','Y4','Y5'];
+const C = { ballmer:'#185FA5', pub:'#1D9E75', phil:'#BA7517', cbo:'#7F77DD', line:'#D4537E' };
+
+const SCENARIOS = [
+  { ballmerPct:[1,0.95,0.80,0.40,0.20],
+    label:'Full philanthropic Y1–Y3',
+    pros:['Maximum runway for adoption and proof of concept','No cost pressure on jurisdictions in critical early years','Aligns Ballmer investment with platform R&D lifecycle'],
+    cons:['Highest total Ballmer 5-year commitment','Risk of dependency cliff at Y4 if readiness lags','Requires strong jurisdiction pipeline by end of Y3'] },
+  { ballmerPct:[1,0.90,0.75,0.50,0.25],
+    label:'Sloped sunset (50% Y4–Y5)',
+    pros:['Gradual signal — jurisdictions start budgeting by Y2','Reduces Y4 cliff risk significantly','Cost curve mirrors platform maturity'],
+    cons:['Jurisdictions must begin internal advocacy by Y2','More complex to communicate than a hard cutoff','Requires non-Ballmer philanthropy to grow steadily'] },
+  { ballmerPct:[1,0.85,0.60,0,0],
+    label:'Hard 3-year sunset',
+    pros:['Clearest timeline for jurisdictions','Lowest total Ballmer 5-year commitment','Forces early procurement champions at city/county level'],
+    cons:['High disruption risk if Y4 public budgets not secured','May lose moderate-readiness cities entirely','No buffer for political transitions or budget cycles'] },
+  { ballmerPct:[1,0.90,0.75,0.35,0.15],
+    label:'Leveraged match Y4–Y5',
+    pros:['Match structure creates shared ownership signal','Ballmer maintains stake and oversight through Y5','Incentivizes jurisdictions to commit earlier'],
+    cons:['Match mechanics require clear contractual structure','Non-Ballmer philanthropy must reliably fill gap','Jurisdiction commitment timelines must align with match windows'] },
+  { ballmerPct:[1,0.85,0.65,0.30,0.10],
+    label:'Hybrid public/philanthropic',
+    pros:['Most diversified and durable funding model','Multiple funders independently validate model','Reduces single-source dependency at every stage'],
+    cons:['Hardest to execute — requires CAPS development capacity','Non-Ballmer fundraising timeline uncertain','Coordination across funders adds complexity'] }
+];
+
+let charts = {};
+let activeS = 0;
+let bOn = true, cOn = true;
+
+function z(id){ document.getElementById(id).value = 0; recalc(); }
+function g(id){ return +document.getElementById(id).value || 0; }
+function getJurs(){ return [g('jY1'),g('jY2'),g('jY3'),g('jY4'),g('jY5')]; }
+
+function getCosts(){
+  const jurs = getJurs();
+  const bSU = bOn ? g('bSU') : 0;
+  const bOS = bOn ? g('bOS') : 0;
+  const bLic = bOn ? g('bLic') : 0;
+  const bDev = bOn ? g('bDev') : 0;
+  const bYoY = g('bYoY')/100;
+  const bSUD = g('bSUD')/100;
+  const bDZY = g('bDZY');
+  const cLic = cOn ? g('cLic') : 0;
+  const cYoY = g('cYoY')/100;
+  let prev = 0;
+  return jurs.map((total, y) => {
+    const yr = y+1;
+    const newJ = Math.max(0, total - prev);
+    const existJ = prev;
+    const scaleMult = yr >= 3 ? Math.pow(1-bYoY, yr-2) : 1;
+    const suDecay = Math.pow(1-bSUD, y);
+    const devCost = yr > bDZY ? 0 : bDev * Math.max(0, 1 - y*0.08);
+    const standup = bSU * suDecay * scaleMult * newJ;
+    const support = bOS * scaleMult * existJ;
+    const license = bLic * scaleMult * total;
+    const capsL = cLic * Math.pow(1-cYoY, y) * total;
+    const tot = standup + support + license + devCost + capsL;
+    prev = total;
+    return { tot, standup, support, license, dev:devCost, caps:capsL, newJ, existJ, total };
+  });
+}
+
+function getRev(costs){
+  const bp = SCENARIOS[activeS].ballmerPct;
+  const pY5 = g('rPY5')/100, phY5 = g('rPhY5')/100, cbY5 = g('rCY5')/100;
+  return costs.map((c,i) => {
+    const b = bp[i];
+    const rem = Math.max(0, 1-b);
+    const gf = i/4;
+    const tot = pY5+phY5+cbY5 || 1;
+    const pub = rem*(pY5/tot)*gf;
+    const ph = rem*(phY5/tot)*gf;
+    const cb = rem*(cbY5/tot)*gf;
+    const bal = Math.max(0, 1-pub-ph-cb);
+    return { ballmer:c.tot*bal, pub:c.tot*pub, phil:c.tot*ph, cbo:c.tot*cb, tot:c.tot };
+  });
+}
+
+function fm(n){
+  if(n>=1e6) return '$'+(n/1e6).toFixed(1)+'M';
+  if(n>=1e3) return '$'+Math.round(n/1e3).toLocaleString()+'K';
+  return '$'+Math.round(n);
+}
+function fp(n){ return Math.round(n*100)+'%'; }
+
+function mk(id, cfg){
+  if(charts[id]) charts[id].destroy();
+  const el = document.getElementById(id);
+  if(el) charts[id] = new Chart(el, cfg);
+}
+
+function leg(items){ return items.map(([c,l])=>`<span class="li"><span class="ls" style="background:${c}"></span>${l}</span>`).join(''); }
+
+function mc(label, val, sub=''){
+  return `<div class="metric-card"><div class="metric-label">${label}</div><div class="metric-value">${val}</div><div class="metric-sub">${sub}</div></div>`;
+}
+
+function renderAll(){
+  const costs = getCosts();
+  const rev = getRev(costs);
+  const scen = SCENARIOS[activeS];
+
+  const totBal = rev.reduce((a,r)=>a+r.ballmer,0);
+  const y1pj = costs[0].tot/costs[0].total;
+  const y5pj = costs[4].tot/costs[4].total;
+  const red = Math.round((y1pj-y5pj)/y1pj*100);
+
+  // OVERVIEW
+  document.getElementById('ovMetrics').innerHTML =
+    mc('5-year Ballmer total', fm(totBal)) +
+    mc('Y5 cost / jurisdiction', fm(y5pj), 'all-in annual') +
+    mc('Cost reduction Y1→Y5', red+'%', 'per jurisdiction') +
+    mc('Y5 jurisdictions', costs[4].total, 'on platform');
+
+  document.getElementById('ovNarr').innerHTML = `<strong>${scen.label}:</strong> Ballmer covers <strong>${fp(scen.ballmerPct[0])}</strong> of total platform costs in Y1, declining to <strong>${fp(scen.ballmerPct[4])}</strong> by Y5. Total 5-year Ballmer commitment: <strong>${fm(totBal)}</strong>. Per-jurisdiction all-in cost drops from <strong>${fm(y1pj)}</strong> to <strong>${fm(y5pj)}</strong> — a <strong>${red}%</strong> reduction driven by product development amortization, CoE-driven implementation efficiencies, and license scale discounts. Public funding, non-Ballmer philanthropy, and CBO contributions absorb an increasing share as jurisdictions institutionalize SafeStat within recurring government budgets.`;
+
+  document.getElementById('ovPC').innerHTML = `
+    <div class="pros"><strong>Strengths</strong><ul>${scen.pros.map(p=>`<li>${p}</li>`).join('')}</ul></div>
+    <div class="cons"><strong>Risks</strong><ul>${scen.cons.map(c=>`<li>${c}</li>`).join('')}</ul></div>`;
+
+  document.getElementById('ovLeg').innerHTML = leg([[C.ballmer,'Ballmer'],[C.pub,'Public funding'],[C.phil,'Non-Ballmer philanthropy'],[C.cbo,'CBO contributions']]);
+  mk('ovChart',{type:'bar',data:{labels:YRS,datasets:[
+    {label:'Ballmer',data:rev.map(r=>+(r.ballmer/1e6).toFixed(2)),backgroundColor:C.ballmer,stack:'s'},
+    {label:'Public',data:rev.map(r=>+(r.pub/1e6).toFixed(2)),backgroundColor:C.pub,stack:'s'},
+    {label:'Philanthropy',data:rev.map(r=>+(r.phil/1e6).toFixed(2)),backgroundColor:C.phil,stack:'s'},
+    {label:'CBO',data:rev.map(r=>+(r.cbo/1e6).toFixed(2)),backgroundColor:C.cbo,stack:'s'}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,ticks:{callback:v=>'$'+v+'M'},grid:{color:'rgba(0,0,0,0.05)'}}}}});
+
+  // BALLMER
+  document.getElementById('blMetrics').innerHTML =
+    mc('5-year Ballmer total', fm(totBal)) +
+    mc('Y1 Ballmer', fm(rev[0].ballmer), fp(scen.ballmerPct[0])+' of cost') +
+    mc('Y3 Ballmer', fm(rev[2].ballmer), fp(scen.ballmerPct[2])+' of cost') +
+    mc('Y5 Ballmer', fm(rev[4].ballmer), fp(scen.ballmerPct[4])+' of cost');
+
+  document.getElementById('blLeg').innerHTML = leg([[C.ballmer,'Ballmer annual investment'],[C.ballmer+'33','Other sources covering jurisdiction costs']]);
+  mk('blChart',{type:'bar',data:{labels:YRS,datasets:[
+    {label:'Ballmer',data:rev.map(r=>+(r.ballmer/1e6).toFixed(2)),backgroundColor:C.ballmer,stack:'s'},
+    {label:'Other',data:rev.map(r=>+((r.tot-r.ballmer)/1e6).toFixed(2)),backgroundColor:C.ballmer+'28',borderColor:C.ballmer,borderWidth:0.5,stack:'s'}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,ticks:{callback:v=>'$'+v+'M'},grid:{color:'rgba(0,0,0,0.05)'}}}}});
+
+  document.getElementById('blNarr').innerHTML = `Ballmer's investment starts at <strong>${fm(rev[0].ballmer)}</strong> in Y1 and declines to <strong>${fm(rev[4].ballmer)}</strong> by Y5. Y5 non-Ballmer sources cover <strong>${fm(rev[4].tot-rev[4].ballmer)}</strong> — <strong>${fp(1-scen.ballmerPct[4])}</strong> of total platform costs — through public funding, philanthropy, and CBO contributions. Total 5-year Ballmer commitment: <strong>${fm(totBal)}</strong>. Per-jurisdiction unit cost declines <strong>${red}%</strong> from Y1 to Y5, meaning Ballmer's early catalytic capital permanently lowers the barrier to adoption for every subsequent city.`;
+
+  // JURISDICTION
+  document.getElementById('jurLeg').innerHTML = leg([[C.ballmer,'Ballmer'],[C.pub,'Public (city/county/state/federal)'],[C.phil,'Non-Ballmer philanthropy'],[C.cbo,'CBO contributions']]);
+  mk('jurChart',{type:'bar',data:{labels:YRS,datasets:[
+    {label:'Ballmer',data:rev.map(r=>+(r.ballmer/1e6).toFixed(2)),backgroundColor:C.ballmer,stack:'s'},
+    {label:'Public',data:rev.map(r=>+(r.pub/1e6).toFixed(2)),backgroundColor:C.pub,stack:'s'},
+    {label:'Philanthropy',data:rev.map(r=>+(r.phil/1e6).toFixed(2)),backgroundColor:C.phil,stack:'s'},
+    {label:'CBO',data:rev.map(r=>+(r.cbo/1e6).toFixed(2)),backgroundColor:C.cbo,stack:'s'}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,ticks:{callback:v=>'$'+v+'M'},grid:{color:'rgba(0,0,0,0.05)'}}}}});
+
+  const rows = [
+    ['Bonterra stand-up (new jurisdictions)', costs.map(c=>fm(c.standup)), false],
+    ['Bonterra ongoing support (existing jurs)', costs.map(c=>fm(c.support)), false],
+    ['Bonterra license', costs.map(c=>fm(c.license)), false],
+    ['Product development (shared)', costs.map(c=>fm(c.dev)), false],
+    ['CAPS license fee', costs.map(c=>fm(c.caps)), false],
+    ['Total ecosystem cost', costs.map(c=>fm(c.tot)), true],
+    ['— Ballmer Group', rev.map(r=>fm(r.ballmer)), false],
+    ['— Public funding', rev.map(r=>fm(r.pub)), false],
+    ['— Non-Ballmer philanthropy', rev.map(r=>fm(r.phil)), false],
+    ['— CBO contributions', rev.map(r=>fm(r.cbo)), false]
+  ];
+  document.getElementById('jurTbody').innerHTML = rows.map((r,i)=>
+    `<tr class="${r[2]?'total':''} ${i>=6?'sub':''}"><td>${r[0]}</td>${r[1].map(v=>`<td>${v}</td>`).join('')}</tr>`
+  ).join('');
+
+  // UNIT
+  const perJur = costs.map(c=>Math.round(c.tot/c.total/1000));
+  const balM = rev.map(r=>+(r.ballmer/1e6).toFixed(2));
+  document.getElementById('unitLeg').innerHTML = leg([[C.ballmer,'Ballmer annual ($M, bars)'],[C.line,'Per-jurisdiction all-in cost ($K, line)']]);
+  mk('unitChart',{type:'bar',data:{labels:YRS,datasets:[
+    {type:'bar',label:'Ballmer ($M)',data:balM,backgroundColor:C.ballmer,yAxisID:'y',order:2},
+    {type:'line',label:'Per-jurisdiction ($K)',data:perJur,borderColor:C.line,backgroundColor:'transparent',pointBackgroundColor:C.line,pointRadius:5,pointHoverRadius:7,borderWidth:2.5,yAxisID:'y2',tension:0.35,order:1}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{
+    y:{position:'left',ticks:{callback:v=>'$'+v+'M'},title:{display:true,text:'Ballmer ($M)',font:{size:11}},grid:{color:'rgba(0,0,0,0.05)'}},
+    y2:{position:'right',ticks:{callback:v=>'$'+v+'K'},title:{display:true,text:'Per-jurisdiction ($K)',font:{size:11}},grid:{drawOnChartArea:false}}
+  }}});
+
+  document.getElementById('unitMetrics').innerHTML =
+    mc('Y1 per-jurisdiction', '$'+perJur[0]+'K', 'all-in') +
+    mc('Y3 per-jurisdiction', '$'+perJur[2]+'K', 'all-in') +
+    mc('Y5 per-jurisdiction', '$'+perJur[4]+'K', 'all-in') +
+    mc('Y1→Y5 reduction', Math.round((perJur[0]-perJur[4])/perJur[0]*100)+'%', 'unit cost drop');
+}
+
+function resetCaps(){
+  document.getElementById('cLic').value = 160000;
+  document.getElementById('cYoY').value = 5;
+  recalc();
+}
+
+function recalc(){ renderAll(); }
+
+document.querySelector('.sidebar').addEventListener('click', e => {
+  const btn = e.target.closest('.nav-btn');
+  if(!btn) return;
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('p-'+btn.dataset.p).classList.add('active');
+  setTimeout(recalc, 50);
+});
+
+document.getElementById('bToggle').addEventListener('click', function(){
+  bOn=!bOn;
+  this.textContent=bOn?'On':'Off';
+  this.className=bOn?'ton':'toff';
+  document.getElementById('bFields').style.opacity=bOn?'1':'0.4';
+  recalc();
+});
+
+document.getElementById('cToggle').addEventListener('click', function(){
+  cOn=!cOn;
+  this.textContent=cOn?'On':'Off';
+  this.className=cOn?'ton':'toff';
+  document.getElementById('cFields').style.opacity=cOn?'1':'0.4';
+  recalc();
+});
+
+document.querySelectorAll('.sb').forEach(btn => {
+  btn.addEventListener('click', function(){
+    document.querySelectorAll('.sb').forEach(b=>b.classList.remove('active'));
+    this.classList.add('active');
+    activeS = +this.dataset.s;
+    recalc();
+  });
+});
+
+document.querySelectorAll('.ai,.mi').forEach(el=>el.addEventListener('change', recalc));
+
+recalc();
+</script>
+</body>
+</html>
