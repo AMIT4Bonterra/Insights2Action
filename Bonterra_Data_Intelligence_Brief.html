@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bonterra Data Intelligence — Strategic AI Concept Brief</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;color:#1a1a2e;background:#f7f8fa;line-height:1.6}
+.wrap{max-width:900px;margin:0 auto;padding:2rem 1.5rem}
+.cover{background:#1B4F8A;color:#fff;padding:3rem 2.5rem;border-radius:12px;margin-bottom:1.5rem}
+.cover-eye{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#85B7EB;margin-bottom:.5rem}
+.cover-title{font-size:32px;font-weight:700;line-height:1.2;margin-bottom:.75rem}
+.cover-sub{font-size:15px;color:#B5D4F4;margin-bottom:1.5rem}
+.cover-tagline{font-size:13px;font-weight:600;color:#fff;background:rgba(255,255,255,.12);display:inline-block;padding:6px 14px;border-radius:20px}
+.nav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1.5rem}
+.nav button{font-size:12px;padding:6px 14px;border-radius:20px;border:1.5px solid #d0d7e3;background:#fff;color:#555;cursor:pointer;font-weight:500;transition:all .15s}
+.nav button.on{background:#1B4F8A;color:#fff;border-color:#1B4F8A}
+.pg{display:none}.pg.on{display:block}
+.section-label{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#2E75B6;margin-bottom:.5rem}
+.section-title{font-size:20px;font-weight:700;color:#1B4F8A;margin-bottom:.3rem}
+.section-sub{font-size:13px;color:#666;margin-bottom:1.25rem}
+.g3{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:1.25rem}
+.g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-bottom:1.25rem}
+.g6{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;margin-bottom:1.25rem}
+.card{background:#fff;border:1.5px solid #e8ecf4;border-radius:10px;padding:1rem;cursor:pointer;transition:border-color .15s}
+.card:hover{border-color:#2E75B6}
+.card.sel{border:2px solid #1B4F8A;background:#f0f4fa}
+.card-ico{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;margin-bottom:.6rem;font-size:17px}
+.ib{background:#E6F1FB;color:#185FA5}
+.it{background:#E1F5EE;color:#0F6E56}
+.ia{background:#FAEEDA;color:#854F0B}
+.ip{background:#EEEDFE;color:#534AB7}
+.card-title{font-size:13px;font-weight:700;color:#1a1a2e;margin-bottom:.2rem}
+.card-sub{font-size:12px;color:#666;line-height:1.4}
+.card-tag{font-size:10px;font-weight:600;margin-top:.5rem;display:inline-block;padding:2px 8px;border-radius:10px}
+.tag-b{background:#E6F1FB;color:#185FA5}
+.tag-t{background:#E1F5EE;color:#0F6E56}
+.tag-a{background:#FAEEDA;color:#854F0B}
+.tag-g{background:#f0f0f0;color:#555}
+.panel{background:#fff;border:1.5px solid #e8ecf4;border-radius:10px;padding:1.25rem;margin-bottom:1rem}
+.panel-title{font-size:14px;font-weight:700;color:#1B4F8A;margin-bottom:.875rem;padding-bottom:.5rem;border-bottom:1px solid #eef0f5}
+.row{display:flex;gap:10px;margin-bottom:.5rem;align-items:flex-start}
+.rl{font-size:11px;font-weight:700;color:#2E75B6;min-width:90px;flex-shrink:0;padding-top:2px;text-transform:uppercase;letter-spacing:.04em}
+.rv{font-size:13px;color:#333;line-height:1.5;flex:1}
+.callout{background:#EBF2FA;border-left:3px solid #1B4F8A;border-radius:0 8px 8px 0;padding:.875rem 1rem;margin-bottom:1rem}
+.callout-label{font-size:10px;font-weight:700;color:#1B4F8A;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.25rem}
+.callout-text{font-size:13px;color:#1B4F8A;line-height:1.5}
+.tp-card{background:#fff;border:1.5px solid #e8ecf4;border-radius:10px;padding:1rem;margin-bottom:.75rem}
+.tp-label{font-size:11px;font-weight:700;color:#2E75B6;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.6rem}
+.tp-point{display:flex;gap:10px;margin-bottom:.5rem;align-items:flex-start;font-size:13px;color:#333;line-height:1.5}
+.tp-num{font-size:12px;font-weight:700;color:#fff;background:#1B4F8A;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.tp-integrated .tp-label{color:#534AB7}
+.tp-integrated .tp-num{background:#534AB7}
+.tp-integrated{border-color:#CECBF6}
+.irow{display:flex;gap:10px;margin-bottom:10px;align-items:stretch}
+.il{background:#EBF2FA;border-radius:8px;padding:.75rem;min-width:100px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;font-weight:700;color:#1B4F8A}
+.ir{flex:1;background:#fff;border:1.5px solid #e8ecf4;border-radius:8px;padding:.75rem;font-size:13px;color:#444;line-height:1.5}
+.qs{list-style:none;display:flex;flex-direction:column;gap:6px}
+.qs li{display:flex;gap:8px;font-size:13px;color:#333;line-height:1.4;padding:.5rem .75rem;background:#f7f8fa;border-radius:8px;border:1px solid #eef0f5}
+.qs li:before{content:"?";font-weight:700;color:#aaa;flex-shrink:0}
+.lbl-sec{background:#1B4F8A;color:#fff;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:5px 12px;border-radius:6px;display:inline-block;margin-bottom:.875rem}
+.ai-pill{display:inline-flex;align-items:center;gap:5px;background:#EEEDFE;color:#534AB7;font-size:11px;font-weight:600;padding:3px 10px;border-radius:10px;margin:3px 3px 3px 0}
+.buyer-chip{font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;background:#e8ecf4;color:#444;display:inline-block;margin:2px 2px 2px 0}
+.abtn{font-size:12px;padding:7px 16px;border-radius:8px;border:1.5px solid #1B4F8A;background:transparent;color:#1B4F8A;cursor:pointer;font-weight:600;margin-top:.875rem}
+.abtn:hover{background:#f0f4fa}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="cover">
+  <div class="cover-eye">Bonterra Data Intelligence</div>
+  <div class="cover-title">Strategic AI Concept Brief</div>
+  <div class="cover-sub">Turning platform data into a proprietary AI intelligence layer — for customers, funders, government, health systems, research, and policy.</div>
+  <div class="cover-tagline">Three ideas &nbsp;·&nbsp; Six buyer markets &nbsp;·&nbsp; Infinite combinations</div>
+</div>
+
+<div class="nav">
+  <button class="on" onclick="go('ov',this)">Overview</button>
+  <button onclick="go('ai',this)">Role of AI</button>
+  <button onclick="go('buyers',this)">Buyer markets</button>
+  <button onclick="go('id',this)">Three ideas</button>
+  <button onclick="go('ig',this)">Integration</button>
+  <button onclick="go('tp',this)">Talking points</button>
+  <button onclick="go('oq',this)">Open questions</button>
+</div>
+
+<!-- OVERVIEW -->
+<div id="ov" class="pg on">
+  <div class="section-label">What this is</div>
+  <div class="section-title">A proprietary AI intelligence layer on community wellbeing</div>
+  <div class="section-sub">No government dataset, academic study, or commercial provider can replicate what Bonterra already sees.</div>
+  <div class="callout">
+    <div class="callout-label">The compounding network effect</div>
+    <div class="callout-text">Every new Bonterra customer makes this dataset more valuable. That is a network effect. The moat deepens over time — which means the window to build it is now.</div>
+  </div>
+  <div class="g3">
+    <div class="card sel" onclick="go('id',null);selectIdea(0)">
+      <div class="card-ico ib">&#x1F4CA;</div>
+      <div class="card-title">FPL intelligence layer</div>
+      <div class="card-sub">Real-time poverty trends vs. ACS — 2-3 years faster, population-specific</div>
+      <span class="card-tag tag-b">Leading indicator</span>
+    </div>
+    <div class="card" onclick="go('id',null);selectIdea(1)">
+      <div class="card-ico it">&#x1F4CD;</div>
+      <div class="card-title">Migration patterns</div>
+      <div class="card-sub">Is poverty being solved or displaced? Regional origin shift over time</div>
+      <span class="card-tag tag-t">Displacement detection</span>
+    </div>
+    <div class="card" onclick="go('id',null);selectIdea(2)">
+      <div class="card-ico ia">&#x1F4CB;</div>
+      <div class="card-title">Screener intelligence</div>
+      <div class="card-sub">Any standardized instrument — community wellbeing trends at scale</div>
+      <span class="card-tag tag-a">Population norms</span>
+    </div>
+  </div>
+  <div class="g3">
+    <div class="panel" style="margin-bottom:0">
+      <div class="panel-title">Lens 1 — Anonymity & privacy</div>
+      <div style="font-size:13px;color:#444">K-anonymity thresholds, cell suppression, intersection risk review in sparse geographies. Full de-identification as baseline.</div>
+    </div>
+    <div class="panel" style="margin-bottom:0">
+      <div class="panel-title">Lens 2 — Statistical rigor</div>
+      <div style="font-size:13px;color:#444">Min sample sizes, instrument consistency, time horizons, noise normalization. Research-partner-ready methodology with confidence intervals.</div>
+    </div>
+    <div class="panel" style="margin-bottom:0">
+      <div class="panel-title">Lens 3 — Monetization</div>
+      <div style="font-size:13px;color:#444">Six buyer markets. Each with distinct value prop, commercial structure, and relationship to the data — upsell to existing customers through external licensing.</div>
+    </div>
+  </div>
+</div>
+
+<!-- AI -->
+<div id="ai" class="pg">
+  <div class="section-label">What AI does</div>
+  <div class="section-title">AI is not incidental — it's what makes this viable</div>
+  <div class="section-sub">Five distinct functions across all three ideas.</div>
+  <div class="g2">
+    <div class="panel" style="margin-bottom:0">
+      <div class="panel-title">Pattern detection</div>
+      <div style="font-size:13px;color:#444">Surfaces trends, correlations, and shifts across millions of records — geographic FPL deterioration, screener score trajectories, migration corridor emergence — that no human analyst could manually identify.</div>
+    </div>
+    <div class="panel" style="margin-bottom:0">
+      <div class="panel-title">Anomaly & outlier detection</div>
+      <div style="font-size:13px;color:#444">Flags where observed data diverges from expected baselines — a tract where intake FPL is dramatically lower than ACS estimates, a region where behavioral health scores are deteriorating faster than peers.</div>
+    </div>
+    <div class="panel" style="margin-bottom:0">
+      <div class="panel-title">Predictive modeling</div>
+      <div style="font-size:13px;color:#444">Builds forward-looking models: which geographies are at displacement risk, where service demand will spike, which clients are most likely to disengage before outcomes improve.</div>
+    </div>
+    <div class="panel" style="margin-bottom:0">
+      <div class="panel-title">Natural language querying</div>
+      <div style="font-size:13px;color:#444">Any user — regardless of technical skill — queries the intelligence layer in plain language: "What does the poverty landscape look like in East Austin zip codes?" No SQL required.</div>
+    </div>
+    <div class="panel" style="margin-bottom:0">
+      <div class="panel-title">Narrative generation</div>
+      <div style="font-size:13px;color:#444">AI drafts funder reports, grant narratives, and impact summaries directly from structured data — reducing administrative burden on nonprofit staff and deepening platform stickiness.</div>
+    </div>
+  </div>
+</div>
+
+<!-- BUYERS -->
+<div id="buyers" class="pg">
+  <div class="section-label">Market opportunity</div>
+  <div class="section-title">Six buyer markets</div>
+  <div class="section-sub">Each has a distinct value proposition, purchase structure, and relationship to the data.</div>
+  <div class="g6">
+    <div class="card">
+      <div class="card-ico ib">&#x1F3E2;</div>
+      <div class="card-title">Existing customers</div>
+      <div class="card-sub">Nonprofits and CBOs on Apricot or Impact Hub. Benchmarking, trend intelligence, AI-generated narrative from their own data.</div>
+      <span class="card-tag tag-b">Upsell / premium tier</span>
+    </div>
+    <div class="card">
+      <div class="card-ico it">&#x1F4B0;</div>
+      <div class="card-title">Funders & philanthropy</div>
+      <div class="card-sub">Community foundations, national funders. Portfolio intelligence, population alerts, people-based grantmaking support.</div>
+      <span class="card-tag tag-t">Data subscription</span>
+    </div>
+    <div class="card">
+      <div class="card-ico ia">&#x1F3DB;&#xFE0F;</div>
+      <div class="card-title">Government agencies</div>
+      <div class="card-sub">Municipal, county, state, federal. Leading-indicator intelligence for resource allocation and budget decisions.</div>
+      <span class="card-tag tag-a">Intelligence contract</span>
+    </div>
+    <div class="card">
+      <div class="card-ico ib">&#x1F4DA;</div>
+      <div class="card-title">Research & academic</div>
+      <div class="card-sub">Universities, think tanks, policy orgs. Anonymized longitudinal dataset — scarce in the literature for the community-served population.</div>
+      <span class="card-tag tag-b">Dataset license</span>
+    </div>
+    <div class="card">
+      <div class="card-ico it">&#x1F3E5;</div>
+      <div class="card-title">Commercial & health sector</div>
+      <div class="card-sub">FQHCs, Medicaid MCOs, ACOs. SDOH burden mapping and community intervention data — required by regulatory frameworks.</div>
+      <span class="card-tag tag-t">Analytics partnership</span>
+    </div>
+    <div class="card">
+      <div class="card-ico ip">&#x1F4E3;</div>
+      <div class="card-title">Policy & advocacy orgs</div>
+      <div class="card-sub">United Way affiliates, equity networks, advocacy orgs. Real-time evidence base for budget advocacy and legislative testimony.</div>
+      <span class="card-tag tag-g">Subscription / partnership</span>
+    </div>
+  </div>
+</div>
+
+<!-- IDEAS -->
+<div id="id" class="pg">
+  <div class="section-label">The three ideas</div>
+  <div class="g3" style="margin-bottom:1rem">
+    <div class="card sel" id="ic0" onclick="selectIdea(0)">
+      <div class="card-ico ib">&#x1F4CA;</div>
+      <div class="card-title">FPL intelligence layer</div>
+    </div>
+    <div class="card" id="ic1" onclick="selectIdea(1)">
+      <div class="card-ico it">&#x1F4CD;</div>
+      <div class="card-title">Migration patterns</div>
+    </div>
+    <div class="card" id="ic2" onclick="selectIdea(2)">
+      <div class="card-ico ia">&#x1F4CB;</div>
+      <div class="card-title">Screener intelligence</div>
+    </div>
+  </div>
+  <div id="idet"></div>
+</div>
+
+<!-- INTEGRATION -->
+<div id="ig" class="pg">
+  <div class="section-label">The integration advantage</div>
+  <div class="section-title">Infinite combinations</div>
+  <div class="section-sub">Each idea is valuable independently. Together they create something no competitor can replicate.</div>
+  <div class="callout">
+    <div class="callout-label">The full picture</div>
+    <div class="callout-text">Who are the people being served? What is their economic condition? Where are they, where are they moving, and how are they doing? Bonterra is the only platform positioned to answer all of this from a single data architecture.</div>
+  </div>
+  <div class="irow"><div class="il">FPL + Migration</div><div class="ir">The FPL layer shows depth of hardship. Migration shows whether it is being solved or relocated. Together: are conditions improving for the people, or just the place?</div></div>
+  <div class="irow"><div class="il">Migration + Screeners</div><div class="ir">Displacement creates screener discontinuity — displaced clients may not re-engage, or arrive with a very different intake profile. What does displacement actually do to wellbeing?</div></div>
+  <div class="irow"><div class="il">FPL + Screeners</div><div class="ir">Economic hardship and wellbeing are correlated but not identical. A high-FPL area may have stronger social cohesion than a moderate-FPL area with high isolation. The interaction is where the most actionable insight lives.</div></div>
+  <div class="irow"><div class="il" style="background:#EEEDFE;color:#534AB7">All three</div><div class="ir" style="border-color:#CECBF6">A funder tracking a place-based portfolio can simultaneously see FPL conditions, whether the population is staying or moving, and how screener scores are trending across grantees — in a single view. No other product offers this.</div></div>
+</div>
+
+<!-- TALKING POINTS -->
+<div id="tp" class="pg">
+  <div class="section-label">Talking points</div>
+  <div class="section-title">Three sets of three — plus the integrated pitch</div>
+  <div class="section-sub">Each set distills to a 30-second verbal pitch.</div>
+  <div class="tp-card">
+    <div class="tp-label">FPL Intelligence Layer</div>
+    <div class="tp-point"><div class="tp-num">1</div><div>Bonterra customers are already collecting client FPL data at intake. Aggregated and anonymized, that becomes a real-time poverty intelligence layer that is 2-3 years faster than ACS — and captures the population government data misses.</div></div>
+    <div class="tp-point"><div class="tp-num">2</div><div>AI detects emerging hardship before any public dataset would — flagging tracts where conditions are deteriorating, intake depth is increasing, or where our observed FPL diverges sharply from Census estimates.</div></div>
+    <div class="tp-point"><div class="tp-num">3</div><div>This is an ARR expansion play for existing customers, a data subscription for funders, and a leading-indicator contract for government — all from the same underlying asset.</div></div>
+  </div>
+  <div class="tp-card">
+    <div class="tp-label">Migration & Mobility Patterns</div>
+    <div class="tp-point"><div class="tp-num">1</div><div>When a neighborhood improves in the data, the people often haven't — they've moved. Bonterra can track regional origin shifts across our customer base to show whether poverty is being solved or displaced.</div></div>
+    <div class="tp-point"><div class="tp-num">2</div><div>AI builds displacement risk scores and service demand forecasts — giving CBOs, funders, and city agencies the ability to get ahead of population movement rather than always reacting to it.</div></div>
+    <div class="tp-point"><div class="tp-num">3</div><div>This is the intelligence layer that turns place-based philanthropy into people-based philanthropy — and funders like Ballmer are actively wrestling with exactly that problem.</div></div>
+  </div>
+  <div class="tp-card">
+    <div class="tp-label">Standardized Screener Intelligence</div>
+    <div class="tp-point"><div class="tp-num">1</div><div>Bonterra has population-level screener data — SDOH, mental health, self-sufficiency, and beyond — that no government dataset, clinical system, or commercial provider has for the community-served population. That is a research asset that does not exist anywhere else.</div></div>
+    <div class="tp-point"><div class="tp-num">2</div><div>AI surfaces what individual organizations can never see: regional anomalies, demographic disparities, early warning signals, and which program types are actually moving outcomes.</div></div>
+    <div class="tp-point"><div class="tp-num">3</div><div>Health systems and Medicaid payers are required to address SDOH and are actively looking for exactly this kind of community intelligence. That is a high-value commercial tier with regulatory tailwind.</div></div>
+  </div>
+  <div class="tp-card tp-integrated">
+    <div class="tp-label">The Integrated Platform</div>
+    <div class="tp-point"><div class="tp-num">1</div><div>Individually, each idea is a compelling data product. Together — FPL conditions, population mobility, and screener outcomes on the same architecture — they create something no competitor can replicate: a real-time, AI-powered portrait of community wellbeing in America.</div></div>
+    <div class="tp-point"><div class="tp-num">2</div><div>The combinations are what make this defensible. A funder can simultaneously see poverty conditions, whether their target population is staying or moving, and whether the programs they fund are moving outcomes. No other platform offers that in a single view.</div></div>
+    <div class="tp-point"><div class="tp-num">3</div><div>Every new Bonterra customer makes this dataset more valuable. That is a network effect — the intelligence layer compounds over time, which means the strategic window to build it is now, before a competitor recognizes the same asset sitting in their own data.</div></div>
+  </div>
+</div>
+
+<!-- OPEN QUESTIONS -->
+<div id="oq" class="pg">
+  <div class="section-label">Before we build</div>
+  <div class="section-title">Key open questions</div>
+  <div class="section-sub">These need answers before any external data product development begins.</div>
+  <div class="panel">
+    <div class="panel-title">Legal & governance — prerequisite</div>
+    <ul class="qs">
+      <li>What do current customer data agreements permit for aggregation and anonymization?</li>
+      <li>What consent frameworks are customers using at intake — do they cover secondary use of de-identified aggregated data?</li>
+      <li>Who inside Bonterra owns data governance for this layer, and does that policy exist yet?</li>
+    </ul>
+  </div>
+  <div class="panel">
+    <div class="panel-title">Data quality</div>
+    <ul class="qs">
+      <li>Is FPL calculation methodology consistent enough across Apricot customers to support cross-org aggregation?</li>
+      <li>Which screener instruments have sufficient volume and version consistency to support aggregation?</li>
+      <li>What percentage of records have the fields required for each use case?</li>
+    </ul>
+  </div>
+  <div class="panel">
+    <div class="panel-title">Architecture</div>
+    <ul class="qs">
+      <li>A semantic/modeling layer between source systems and the intelligence layer is required before analysis at scale.</li>
+      <li>Geographic crosswalk tables (tract to zip, service area, custom polygon) must be built and maintained.</li>
+      <li>A suppression and disclosure control engine must be designed and validated before any external data products are built.</li>
+    </ul>
+  </div>
+  <div class="panel">
+    <div class="panel-title">Research partnership</div>
+    <ul class="qs">
+      <li>An academic or evaluation partner should be engaged early to validate methodology and provide external credibility.</li>
+      <li>A research advisory board from public health, social work, and policy research could strengthen the product and open research funding pathways.</li>
+    </ul>
+  </div>
+</div>
+
+</div>
+
+<script>
+var ideas=[
+  {
+    title:"FPL Intelligence Layer",
+    sub:"Bonterra-observed poverty trends vs. ACS baseline — real-time, not 2-3 years lagged",
+    ai:["Detects emerging hardship before ACS would capture it","Flags divergence between observed FPL and Census estimates","Surfaces intake depth trends over time","Identifies anomalies: volume spikes with stable FPL","Generates AI-drafted community need narratives"],
+    buyers:[["Existing customers","Benchmarking module + AI narrative generation — upsell/premium tier"],["Funders","Portfolio FPL intelligence across grantees — data subscription"],["Government","Leading-indicator feed for resource allocation — municipal contract"],["Research","Longitudinal FPL dataset for community-served population — dataset license"],["Policy & advocacy","Real-time poverty evidence for budget advocacy — subscription"]],
+    lenses:[["Anonymity","Cell suppression in sparse tracts. Intersection review for FPL + family size + race/ethnicity combinations."],["Rigor","FPL methodology must be comparable across orgs. Min 2 years before trend claims."],["Monetization","Stacked value: fast ARR expansion for customers; higher-value contracts for government and funders."]]
+  },
+  {
+    title:"Resident Migration & Mobility Patterns",
+    sub:"Is poverty being solved, or simply displaced? Regional origin shift — not distance, but community boundary crossing",
+    ai:["Identifies migration corridors from aggregated origin-region shifts","Correlates movement with rent, eviction, and school enrollment data","Generates displacement risk scores by geography","Detects CBO coverage gaps in destination geographies","Produces predictive service demand forecasts"],
+    buyers:[["Existing customers","Where is my client population moving? Service demand forecasting — analytics module"],["Funders","Is your place-based investment reaching the intended population? — data subscription"],["Government","Population movement modeling for resource allocation — municipal/state contract"],["Research","Longitudinal mobility dataset with demographics — dataset license or co-authorship"],["Policy & advocacy","Displacement evidence for housing policy and anti-gentrification advocacy — subscription"],["Commercial / health","Where to position clinical and social service capacity — data license"]],
+    lenses:[["Anonymity","Aggregated corridor-level flows only. Min N before any origin-destination pair is included."],["Rigor","Correlation with external drivers requires lag analysis. Predictive models require validation against held-out data."],["Monetization","Funder and government tiers are highest value. Customer module fastest to market."]]
+  },
+  {
+    title:"Standardized Screener Intelligence",
+    sub:"Any standardized scored instrument across any domain — SDOH, behavioral health, self-sufficiency, housing, family functioning, workforce, and beyond",
+    ai:["Detects score trajectories and which interventions correlate with improvement","Identifies regional anomalies vs. national Bonterra-observed baseline","Surfaces demographic disparities and intersection effects","Flags early warning signals before demand spikes","Identifies systematic screening gaps by demographic segment","Generates org-level benchmarking reports"],
+    buyers:[["Existing customers","Benchmarking + score trajectory analytics + program effectiveness reports — upsell"],["Funders","Portfolio wellbeing intelligence across grantees — subscription or research partnership"],["Government","Behavioral health trends, SDOH burden mapping, early warning signals — state/HHS contract"],["Research","Population norms for community-served population — does not exist in literature — dataset license"],["Commercial / health","SDOH burden + community intervention data for FQHCs, MCOs, ACOs — data license"],["Policy & advocacy","Real-time behavioral health and SDOH trend evidence for policy and testimony — subscription"]],
+    lenses:[["Anonymity","K-anonymity thresholds higher for behavioral health instruments. Intersection suppression especially critical."],["Rigor","Same instrument version + comparable administration required across orgs. Population norms for community-served population do not yet exist — establishing them is part of the value."],["Monetization","Health system and government tiers are highest value. Research partnership builds long-term credibility."]]
+  }
+];
+var cur=0;
+function selectIdea(i){
+  cur=i;
+  [0,1,2].forEach(function(j){document.getElementById('ic'+j).classList.toggle('sel',j===i);});
+  renderIdea();
+}
+function renderIdea(){
+  var d=ideas[cur];
+  var h='<div class="panel"><div class="panel-title">'+d.title+'</div>';
+  h+='<div style="font-size:12px;color:#666;margin-bottom:.875rem;font-style:italic">'+d.sub+'</div>';
+  h+='<div style="margin-bottom:.875rem"><div class="rl" style="margin-bottom:.3rem">AI functions</div>';
+  d.ai.forEach(function(a){h+='<div class="ai-pill">'+a+'</div>';});
+  h+='</div>';
+  h+='<div style="margin-bottom:.5rem"><div class="rl" style="margin-bottom:.4rem">Buyers</div>';
+  d.buyers.forEach(function(b){
+    h+='<div class="row" style="margin-bottom:.3rem"><div style="font-size:12px;font-weight:700;color:#1B4F8A;min-width:130px;flex-shrink:0">'+b[0]+'</div><div style="font-size:12px;color:#444">'+b[1]+'</div></div>';
+  });
+  h+='</div>';
+  h+='<div><div class="rl" style="margin-bottom:.4rem">Lenses</div>';
+  d.lenses.forEach(function(l){
+    h+='<div class="row"><div class="rl">'+l[0]+'</div><div class="rv" style="font-size:12px">'+l[1]+'</div></div>';
+  });
+  h+='</div></div>';
+  document.getElementById('idet').innerHTML=h;
+}
+function go(id,btn){
+  document.querySelectorAll('.pg').forEach(function(p){p.classList.remove('on');});
+  document.getElementById(id).classList.add('on');
+  if(btn){document.querySelectorAll('.nav button').forEach(function(b){b.classList.remove('on');});btn.classList.add('on');}
+}
+renderIdea();
+</script>
+</body>
+</html>
