@@ -1,0 +1,207 @@
+
+<style>
+.toggle-btn{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:var(--radius);border:0.5px solid var(--border-strong);background:var(--surface-2);cursor:pointer;font-size:12px;color:var(--text-secondary);transition:opacity .15s}
+.toggle-btn.off{opacity:.35}
+.swatch{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+.swatch.line-solid{width:18px;height:3px;border-radius:2px}
+.swatch.line-dash{width:18px;height:0;border-top:2.5px dashed}
+.swatch.line-dot{width:18px;height:0;border-top:2.5px dotted}
+.panel{background:var(--surface-1);border:0.5px solid var(--border);border-radius:12px;padding:1rem 1.25rem;margin-top:1rem}
+.panel-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem}
+.panel-title{font-size:13px;font-weight:500;color:var(--text-primary)}
+.edit-btn{font-size:11px;color:var(--text-accent);cursor:pointer;border:none;background:none;padding:2px 6px;border-radius:4px}
+.panel-view{font-size:13px;color:var(--text-secondary);line-height:1.6}
+.panel-view b{font-weight:500;color:var(--text-primary)}
+.panel-edit{width:100%;min-height:120px;font-size:13px;color:var(--text-primary);background:var(--surface-2);border:0.5px solid var(--border-strong);border-radius:var(--radius);padding:8px;font-family:var(--font-sans);line-height:1.6;resize:vertical}
+.slider-row{display:flex;align-items:center;gap:12px;margin-bottom:1rem}
+.slider-label{font-size:12px;color:var(--text-secondary);white-space:nowrap}
+.slider-val{font-size:13px;font-weight:500;color:var(--text-primary);min-width:60px}
+</style>
+
+<h2 class="sr-only">SafeStat interactive budget chart v4 — stacked bars with FIE toggle, four cost lines, lifecycle slider</h2>
+
+<div style="padding:1rem 0 0">
+
+<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px">
+  <button class="toggle-btn" id="tb-0"><span class="swatch" style="background:#1B3A6B"></span>Ballmer share</button>
+  <button class="toggle-btn" id="tb-1"><span class="swatch" style="background:#E8823A"></span>City self-funded</button>
+  <button class="toggle-btn off" id="tb-2"><span class="swatch" style="background:#85B7EB"></span>Field-informed enhancements</button>
+  <button class="toggle-btn" id="tb-3"><span class="swatch line-solid" style="background:#2A78D6"></span>New city cost</button>
+  <button class="toggle-btn off" id="tb-4"><span class="swatch line-dash" style="border-color:#6BAED6"></span>Existing city cost</button>
+  <button class="toggle-btn" id="tb-5"><span class="swatch line-dot" style="border-color:#4A90C4"></span>Blended rate — Ballmer</button>
+  <button class="toggle-btn off" id="tb-6"><span class="swatch line-solid" style="background:#C85A00"></span>Blended rate — gross</button>
+</div>
+
+<div class="slider-row">
+  <span class="slider-label">Lifecycle years</span>
+  <input type="range" min="5" max="10" value="5" step="1" id="lcSlider" style="flex:1">
+  <span class="slider-val" id="lcVal">5 years</span>
+</div>
+
+<div style="position:relative;width:100%;height:320px">
+  <canvas id="mainChart" role="img" aria-label="Stacked bar chart showing SafeStat Ballmer and self-funded lifecycle costs across five budget years with toggleable cost curve overlays">Budget Year 1: Ballmer $16.5M. Year 2: Ballmer $23.1M. Year 3: Ballmer $15.3M. Year 4: Ballmer $13.3M. Year 5: no new request.</canvas>
+</div>
+
+</div>
+
+<div class="panel" id="panel1">
+  <div class="panel-header">
+    <span class="panel-title">What each bar represents</span>
+    <button class="edit-btn" onclick="toggleEdit('panel1')">Edit</button>
+  </div>
+  <div class="panel-view" id="panel1-view">
+    <p style="margin:0 0 .5rem">Each bar shows the total Ballmer Group investment for one city cohort across its full five-year funded lifecycle — the complete commitment from launch through sunset.</p>
+    <p style="margin:0 0 .25rem"><b>Year 1 (8 cities):</b> Covers this cohort's full five-year lifecycle.</p>
+    <p style="margin:0 0 .25rem"><b>Year 2 (17 cities):</b> Covers this cohort's full five-year lifecycle — the largest cohort and the peak of the platform buildout.</p>
+    <p style="margin:0 0 .25rem"><b>Year 3 (13 cities):</b> Covers this cohort's full five-year lifecycle at significantly lower per-city cost as the CoE reaches maturity.</p>
+    <p style="margin:0 0 .25rem"><b>Year 4 (12 cities):</b> Covers this cohort's full five-year lifecycle at steady-state platform rates — the lowest per-city cost of any cohort.</p>
+    <p style="margin:0"><b>Year 5:</b> No new request. All cohorts are either fully funded or self-sustaining. This gap is intentional — it marks Ballmer Group's clean exit from the funding commitment.</p>
+  </div>
+  <textarea class="panel-edit" id="panel1-edit" style="display:none"></textarea>
+</div>
+
+<div class="panel" id="panel2">
+  <div class="panel-header">
+    <span class="panel-title">Reading the cost curves</span>
+    <button class="edit-btn" onclick="toggleEdit('panel2')">Edit</button>
+  </div>
+  <div class="panel-view" id="panel2-view">
+    <p style="margin:0 0 .5rem">Each line shows the per-city platform rate at the start of that budget year — the actual unit cost a city sees when it enters or continues on SafeStat.</p>
+    <p style="margin:0 0 .25rem"><b>Solid blue line:</b> What it costs to onboard a new city that year (stand-up + license). Declines as CoE matures and group delivery scales.</p>
+    <p style="margin:0 0 .25rem"><b>Dashed blue line:</b> What an existing city pays in its first full support year (ongoing support + license). The recurring rate it carries at steady state.</p>
+    <p style="margin:0">By Year 4 the two lines nearly converge — the cost of onboarding a new city approaches the cost of maintaining an existing one. That's the efficiency floor.</p>
+  </div>
+  <textarea class="panel-edit" id="panel2-edit" style="display:none"></textarea>
+</div>
+
+<div class="panel" id="panel3">
+  <div class="panel-header">
+    <span class="panel-title">Reading the blended rates</span>
+    <button class="edit-btn" onclick="toggleEdit('panel3')">Edit</button>
+  </div>
+  <div class="panel-view" id="panel3-view">
+    <p style="margin:0 0 .5rem">The blended rate lines show the average annual cost per city across the full lifecycle — Ballmer's share (steel blue dotted) and the all-in gross cost (orange solid). Field-Informed Enhancements are excluded from both calculations as a platform-level cost not attributable per city.</p>
+    <p style="margin:0 0 .25rem">Use the lifecycle slider to see how extending the platform horizon beyond the five-year funded window changes the per-city economics.</p>
+    <p style="margin:0">As cities self-fund post-sunset years, the gross rate continues to decline while Ballmer's rate holds steady — illustrating the growing efficiency return on the original investment.</p>
+  </div>
+  <textarea class="panel-edit" id="panel3-edit" style="display:none"></textarea>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const isDark = matchMedia('(prefers-color-scheme: dark)').matches;
+const grid = isDark ? '#2c2c2a' : '#e1e0d9';
+const tick = isDark ? '#898781' : '#898781';
+const lbl  = isDark ? '#c3c2b7' : '#52514e';
+
+const labels = ['Y1 (8 cities)','Y2 (17 cities)','Y3 (13 cities)','Y4 (12 cities)','Y5'];
+const cities = [8,17,13,12,0];
+
+const ballmerBase = [16531400,23057150,15298750,13335000,0];
+const selfBase    = [2510200,5206250,3981250,3675000,0];
+const fieBase     = [4950000,2250000,2250000,2250000,0];
+const perYrSelf   = [8*245000,17*245000,13*245000,12*245000,0];
+
+const newCityCost   = [600000,490000,330000,250000,NaN];
+const existCityCost = [550000,440000,305200,245000,NaN];
+
+const ballmerNoFIE = [
+  16531400-4950000,
+  23057150-2250000,
+  15298750-2250000,
+  13335000-2250000,
+  0
+];
+
+let lcYears = 5;
+
+function getSelfData(){
+  const extra = Math.max(0,lcYears-5);
+  return selfBase.map((v,i)=> v+perYrSelf[i]*extra);
+}
+function getBRBallmer(){
+  return [...ballmerNoFIE.slice(0,4).map((v,i)=> cities[i]>0 ? Math.round(v/cities[i]/lcYears) : 0), NaN];
+}
+function getBRGross(){
+  const self = getSelfData();
+  return [...ballmerNoFIE.slice(0,4).map((v,i)=> cities[i]>0 ? Math.round((v+self[i])/cities[i]/lcYears) : 0), NaN];
+}
+
+const defaultHidden = [false,false,true,false,true,false,true];
+
+const chart = new Chart(document.getElementById('mainChart'),{
+  data:{
+    labels,
+    datasets:[
+      {type:'bar',label:'Ballmer share',data:ballmerBase,backgroundColor:'#1B3A6B',borderRadius:0,borderSkipped:'bottom',yAxisID:'yL',stack:'s',order:2},
+      {type:'bar',label:'City self-funded',data:getSelfData(),backgroundColor:'#E8823A',borderRadius:0,borderSkipped:'bottom',yAxisID:'yL',stack:'s',order:2},
+      {type:'bar',label:'Field-informed enhancements',data:fieBase,backgroundColor:'#85B7EB',borderRadius:{topLeft:4,topRight:4},borderSkipped:'bottom',yAxisID:'yL',stack:'s',order:2},
+      {type:'line',label:'New city cost',data:newCityCost,borderColor:'#2A78D6',backgroundColor:'#2A78D6',borderWidth:2,pointRadius:6,pointBorderColor:isDark?'#1a1a19':'#fff',pointBorderWidth:2,yAxisID:'yR',order:1,tension:.3,spanGaps:false},
+      {type:'line',label:'Existing city cost',data:existCityCost,borderColor:'#6BAED6',backgroundColor:'#6BAED6',borderWidth:2,borderDash:[6,3],pointRadius:6,pointBorderColor:isDark?'#1a1a19':'#fff',pointBorderWidth:2,yAxisID:'yR',order:1,tension:.3,spanGaps:false},
+      {type:'line',label:'Blended rate — Ballmer',data:getBRBallmer(),borderColor:'#4A90C4',backgroundColor:'#4A90C4',borderWidth:2,borderDash:[2,3],pointRadius:6,pointBorderColor:isDark?'#1a1a19':'#fff',pointBorderWidth:2,yAxisID:'yR',order:1,tension:.3,spanGaps:false},
+      {type:'line',label:'Blended rate — gross',data:getBRGross(),borderColor:'#C85A00',backgroundColor:'#C85A00',borderWidth:2,pointRadius:6,pointBorderColor:isDark?'#1a1a19':'#fff',pointBorderWidth:2,yAxisID:'yR',order:1,tension:.3,spanGaps:false},
+    ]
+  },
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    interaction:{mode:'index',intersect:false},
+    plugins:{
+      legend:{display:false},
+      tooltip:{callbacks:{label:ctx=>{
+        if(ctx.datasetIndex<=2) return ctx.raw===0||isNaN(ctx.raw) ? null : ' '+ctx.dataset.label+': $'+(ctx.raw/1e6).toFixed(1)+'M';
+        return isNaN(ctx.raw) ? null : ' '+ctx.dataset.label+': $'+Math.round(ctx.raw/1000)+'K/city';
+      }}}
+    },
+    scales:{
+      x:{stacked:true,ticks:{color:tick,font:{size:11},autoSkip:false},grid:{display:false},border:{color:grid}},
+      yL:{stacked:true,position:'left',title:{display:true,text:'Lifecycle cost',color:lbl,font:{size:11}},ticks:{color:tick,font:{size:11},callback:v=>'$'+(v/1e6).toFixed(0)+'M'},grid:{color:grid},border:{color:grid}},
+      yR:{position:'right',title:{display:true,text:'Per-city rate',color:lbl,font:{size:11}},ticks:{color:tick,font:{size:11},callback:v=>'$'+Math.round(v/1000)+'K'},grid:{display:false},border:{color:grid},min:100000,max:800000}
+    }
+  }
+});
+
+// Apply default hidden states after chart renders
+defaultHidden.forEach((hidden,di)=>{
+  chart.getDatasetMeta(di).hidden = hidden;
+});
+chart.update();
+
+function update(){
+  chart.data.datasets[1].data = getSelfData();
+  chart.data.datasets[5].data = getBRBallmer();
+  chart.data.datasets[6].data = getBRGross();
+  chart.update();
+}
+
+document.getElementById('lcSlider').addEventListener('input',function(){
+  lcYears = +this.value;
+  document.getElementById('lcVal').textContent = lcYears+' years';
+  update();
+});
+
+for(let i=0;i<7;i++){
+  document.getElementById('tb-'+i).addEventListener('click',function(){
+    const meta = chart.getDatasetMeta(i);
+    meta.hidden = !meta.hidden;
+    this.classList.toggle('off');
+    chart.update();
+  });
+}
+
+function toggleEdit(panelId){
+  const view = document.getElementById(panelId+'-view');
+  const edit = document.getElementById(panelId+'-edit');
+  const btn = document.querySelector('#'+panelId+' .edit-btn');
+  if(edit.style.display==='none'){
+    edit.value = view.innerText;
+    edit.style.display='block';
+    view.style.display='none';
+    btn.textContent='Save';
+  } else {
+    view.innerText = edit.value;
+    edit.style.display='none';
+    view.style.display='block';
+    btn.textContent='Edit';
+  }
+}
+</script>
