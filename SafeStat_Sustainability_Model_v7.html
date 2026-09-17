@@ -1,0 +1,1230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SafeStat Financial Sustainability Model v4</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
+<style>
+:root {
+  --purple:#381360; --purple-mid:#57228A; --purple-light:#F0EDFF; --purple-dark:#1E0A36;
+  --mint:#85EAA0; --mint-dark:#2A8A4A;
+  --peri:#7583FF; --peri-dark:#3D4FCC;
+  --yellow:#FFF174; --yellow-dark:#A89600;
+  --white:#FEFEFE;
+  --gray-50:#F8F8F8; --gray-100:#F0EDFF; --gray-200:#E0DFD8;
+  --text:#1A1A1A; --text-muted:#5F5E5A; --text-light:#888780;
+  --border:rgba(0,0,0,0.10); --border-med:rgba(0,0,0,0.18);
+  --radius:10px; --radius-sm:6px;
+  --shadow:0 1px 4px rgba(0,0,0,0.07),0 0 0 0.5px rgba(0,0,0,0.07);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;font-size:14px;color:var(--text);background:var(--gray-50);line-height:1.6;}
+.app-header{background:var(--purple);padding:14px 28px;display:flex;align-items:baseline;gap:12px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,0.25);}
+.app-header h1{font-size:17px;font-weight:700;color:var(--mint);}
+.app-header .sub{font-size:11px;color:rgba(255,255,255,0.55);}
+.app-body{display:flex;min-height:calc(100vh - 49px);}
+.sidebar{width:206px;flex-shrink:0;background:white;border-right:1px solid var(--border);padding:14px 0;position:sticky;top:49px;height:calc(100vh - 49px);overflow-y:auto;}
+.slbl{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-light);padding:0 14px;margin-bottom:4px;margin-top:12px;}
+.slbl:first-child{margin-top:0;}
+.nav-btn{display:block;width:100%;text-align:left;padding:7px 14px;font-size:13px;color:var(--text-muted);border:none;background:none;cursor:pointer;border-left:3px solid transparent;transition:all .15s;}
+.nav-btn:hover{background:var(--gray-50);color:var(--text);}
+.nav-btn.active{color:var(--purple);border-left-color:var(--purple);background:var(--purple-light);font-weight:500;}
+.main{flex:1;padding:22px 26px;max-width:1080px;}
+.panel{display:none;}.panel.active{display:block;}
+.page-title{font-size:20px;font-weight:700;color:var(--purple);margin-bottom:2px;}
+.page-sub{font-size:13px;color:var(--text-light);margin-bottom:18px;}
+
+/* scenario + ramp bars */
+.ctrl-bar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;background:white;border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;align-items:center;}
+.ctrl-lbl{font-size:10px;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:.06em;white-space:nowrap;margin-right:4px;}
+.scen-btn{font-size:12px;padding:5px 13px;border:1px solid var(--border-med);border-radius:20px;background:white;color:var(--text-muted);cursor:pointer;transition:all .15s;white-space:nowrap;}
+.scen-btn:hover{border-color:var(--purple);color:var(--purple);}
+.scen-btn.active{background:var(--purple);color:white;border-color:var(--purple);font-weight:500;}
+.ramp-btn{font-size:12px;padding:5px 13px;border:1px solid var(--border-med);border-radius:20px;background:white;color:var(--text-muted);cursor:pointer;transition:all .15s;white-space:nowrap;}
+.ramp-btn:hover{border-color:var(--mint-dark);color:var(--mint-dark);}
+.ramp-btn.active{background:var(--mint-dark);color:white;border-color:var(--mint-dark);font-weight:500;}
+
+/* year slider */
+.slider-bar{display:flex;align-items:center;gap:12px;background:white;border:1px solid var(--border);border-radius:var(--radius);padding:10px 16px;margin-bottom:14px;}
+.slider-bar label{font-size:11px;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:.06em;white-space:nowrap;}
+#yrSlider{flex:1;accent-color:var(--purple);}
+.slider-val{font-size:13px;font-weight:700;color:var(--purple);min-width:60px;}
+
+/* metrics */
+.mg{display:grid;gap:10px;margin-bottom:16px;}
+.mg5{grid-template-columns:repeat(5,1fr);}
+.mg4{grid-template-columns:repeat(4,1fr);}
+.mg3{grid-template-columns:repeat(3,1fr);}
+.mc{background:white;border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;box-shadow:var(--shadow);}
+.mc.hi{background:var(--purple);border-color:var(--purple);}
+.mc-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--text-light);margin-bottom:2px;}
+.mc.hi .mc-lbl{color:var(--mint);}
+.mc-val{font-size:20px;font-weight:700;color:var(--purple);line-height:1.2;}
+.mc.hi .mc-val{color:white;font-size:22px;}
+.mc-sub{font-size:11px;color:var(--text-light);margin-top:2px;}
+.mc.hi .mc-sub{color:rgba(255,255,255,.55);}
+
+/* cards */
+.card{background:white;border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;margin-bottom:14px;box-shadow:var(--shadow);}
+.card-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:2px;}
+.card-sub{font-size:12px;color:var(--text-light);margin-bottom:12px;}
+.legend{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:10px;}
+.li{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text-muted);}
+.ls{width:11px;height:11px;border-radius:3px;flex-shrink:0;}
+.narr{background:var(--purple-light);border-left:3px solid var(--purple);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:11px 15px;font-size:13px;color:var(--text-muted);line-height:1.65;margin-bottom:14px;}
+.narr strong{color:var(--purple);font-weight:600;}
+.pc-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
+.pros{background:#D6F0E2;border-radius:var(--radius);padding:12px 14px;font-size:13px;color:#0E5C38;line-height:1.55;}
+.cons{background:#FEEDED;border-radius:var(--radius);padding:12px 14px;font-size:13px;color:#8B2020;line-height:1.55;}
+.pros strong,.cons strong{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;display:block;margin-bottom:5px;}
+.pros ul,.cons ul{padding-left:14px;}.pros li,.cons li{margin-bottom:3px;}
+
+/* tables */
+.ftbl{width:100%;border-collapse:collapse;font-size:12px;}
+.ftbl th{font-size:11px;font-weight:600;color:var(--text-muted);padding:7px 9px;border-bottom:2px solid var(--border-med);text-align:right;background:var(--gray-50);}
+.ftbl th:first-child{text-align:left;}
+.ftbl td{padding:6px 9px;border-bottom:1px solid var(--border);color:var(--text);text-align:right;}
+.ftbl td:first-child{text-align:left;color:var(--text-muted);font-size:11px;}
+.ftbl tr.total td{font-weight:700;border-top:2px solid var(--border-med);background:var(--purple-light);color:var(--purple);}
+.ftbl tr.total td:first-child{color:var(--purple);}
+.ftbl tr.sub td:first-child{padding-left:18px;}
+.ftbl tr.italic td:first-child{font-style:italic;color:var(--text-light);}
+.ftbl tr:hover td{background:var(--purple-light);}
+.cw{position:relative;width:100%;}
+
+/* assumptions */
+.assm-s{background:white;border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;margin-bottom:12px;box-shadow:var(--shadow);}
+.assm-s h3{font-size:13px;font-weight:600;color:var(--purple);margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid var(--border);}
+.rg{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin-bottom:8px;}
+.rg10{display:grid;grid-template-columns:repeat(10,1fr);gap:5px;margin-bottom:8px;}
+.rc{display:flex;flex-direction:column;gap:3px;}
+.rl{font-size:10px;font-weight:700;color:var(--text-light);text-transform:uppercase;text-align:center;}
+.ri{font-size:11px;padding:5px 3px;border:1px solid var(--border-med);border-radius:var(--radius-sm);background:var(--gray-50);color:var(--text);text-align:right;width:100%;transition:border-color .15s,background .3s;}
+.ri:focus{outline:none;border-color:var(--purple);}
+.ri.flash{background:#C7D0FF;}
+.dh{display:flex;align-items:center;gap:7px;margin-top:7px;padding:7px 10px;background:var(--gray-50);border-radius:var(--radius-sm);border:1px solid var(--border);flex-wrap:wrap;}
+.dh label{font-size:11px;color:var(--text-muted);white-space:nowrap;}
+.dh select,.dh input[type=number]{font-size:12px;padding:3px 5px;border:1px solid var(--border-med);border-radius:var(--radius-sm);background:white;}
+.dh input[type=number]{width:54px;text-align:right;}
+.ab{font-size:11px;padding:3px 11px;border:1px solid var(--purple);border-radius:20px;background:white;color:var(--purple);cursor:pointer;font-weight:500;white-space:nowrap;transition:all .15s;}
+.ab:hover{background:var(--purple);color:white;}
+.impl{font-size:11px;color:var(--text-light);margin-left:auto;white-space:nowrap;}
+.impl strong{color:var(--text);}
+.a2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+.ar{display:grid;grid-template-columns:1fr 88px;align-items:center;gap:7px;margin-bottom:7px;}
+.al{font-size:12px;color:var(--text-muted);}
+.ai{font-size:12px;padding:5px 7px;border:1px solid var(--border-med);border-radius:var(--radius-sm);background:var(--gray-50);color:var(--text);text-align:right;width:100%;}
+.ai:focus{outline:none;border-color:var(--purple);}
+.dvdr{height:1px;background:var(--border);margin:7px 0;}
+.mr{display:grid;grid-template-columns:1fr 54px 16px;align-items:center;gap:5px;margin-bottom:6px;}
+.ml2{font-size:11px;color:var(--text-light);}
+.mi{font-size:12px;padding:4px 5px;border:1px solid var(--border-med);border-radius:var(--radius-sm);background:var(--gray-50);color:var(--text);text-align:right;width:100%;}
+.mu{font-size:11px;color:var(--text-light);}
+.tog{display:flex;align-items:center;gap:7px;margin-bottom:9px;}
+.tl{font-size:12px;color:var(--text-muted);flex:1;}
+.ton{font-size:11px;padding:3px 10px;border:1px solid #1D9E75;border-radius:20px;background:#D6F0E2;color:#1D9E75;cursor:pointer;font-weight:500;}
+.toff{font-size:11px;padding:3px 10px;border:1px solid #E24B4A;border-radius:20px;background:#FEEDED;color:#A32D2D;cursor:pointer;font-weight:500;}
+.treset{font-size:11px;padding:3px 8px;border:1px solid var(--border-med);border-radius:20px;background:white;color:var(--text-muted);cursor:pointer;}
+.recalc{font-size:13px;padding:8px 20px;border:1px solid var(--purple);border-radius:var(--radius-sm);background:var(--purple);color:white;cursor:pointer;font-weight:500;transition:all .15s;margin-top:4px;}
+.recalc:hover{background:var(--purple-mid);}
+
+/* single jurisdiction */
+.jur-sel{display:flex;gap:12px;align-items:center;margin-bottom:14px;flex-wrap:wrap;}
+.jur-sel label{font-size:12px;font-weight:600;color:var(--text-muted);}
+.jur-sel select{font-size:13px;padding:5px 10px;border:1px solid var(--border-med);border-radius:var(--radius-sm);background:white;color:var(--text);}
+.two-bars{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+
+/* preview panel */
+.preview{background:var(--purple-light);border:1px solid var(--purple);border-radius:var(--radius);padding:12px 16px;margin-bottom:14px;}
+.preview-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--purple);margin-bottom:8px;}
+.preview-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;}
+.pv{background:white;border-radius:var(--radius-sm);padding:8px 10px;text-align:center;}
+.pv-yr{font-size:10px;font-weight:700;color:var(--text-light);text-transform:uppercase;}
+.pv-bal{font-size:13px;font-weight:700;color:var(--purple);}
+.pv-tot{font-size:11px;color:var(--text-light);}
+
+@media(max-width:860px){
+  .app-body{flex-direction:column;}
+  .sidebar{width:100%;height:auto;position:static;display:flex;flex-direction:row;overflow-x:auto;border-right:none;border-bottom:1px solid var(--border);padding:6px 8px;gap:4px;flex-wrap:nowrap;}
+  .slbl{display:none;}
+  .nav-btn{white-space:nowrap;border-left:none;border-bottom:3px solid transparent;border-radius:20px;padding:6px 12px;flex-shrink:0;}
+  .nav-btn.active{border-left:none;border-bottom-color:var(--purple);border-radius:20px;}
+  .mg5,.mg4,.mg3{grid-template-columns:repeat(2,1fr);}
+  .a2,.two-bars,.pc-grid{grid-template-columns:1fr;}
+  .rg10{grid-template-columns:repeat(5,1fr);}
+}
+
+  /* scenario comparison tabs */
+  .scen-tabs{display:flex;gap:4px;margin-bottom:12px;}
+  .scen-tab{font-size:12px;padding:6px 16px;border:1px solid var(--border-med);border-radius:6px 6px 0 0;background:var(--gray-50);color:var(--text-muted);cursor:pointer;font-weight:500;border-bottom:none;}
+  .scen-tab.active{background:white;color:var(--purple);border-color:var(--purple);font-weight:700;}
+  .scen-tab-a.active{border-color:var(--purple);color:var(--purple);}
+  .scen-tab-b.active{border-color:var(--peri-dark);color:var(--peri-dark);}
+  .scen-tab-c.active{border-color:var(--mint-dark);color:var(--mint-dark);}
+  .scen-tab-content{display:none;border:1px solid var(--border-med);border-radius:0 6px 6px 6px;padding:14px;background:white;margin-bottom:14px;}
+  .scen-tab-content.active{display:block;}
+  .scen-cmp-table{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:8px;}
+  .scen-cmp-table th{padding:6px 8px;text-align:right;font-size:10px;font-weight:700;color:var(--text-light);background:var(--gray-50);border-bottom:2px solid var(--border-med);}
+  .scen-cmp-table th:first-child{text-align:left;}
+  .scen-cmp-table td{padding:5px 8px;text-align:right;border-bottom:1px solid var(--border);font-size:11px;}
+  .scen-cmp-table td:first-child{text-align:left;color:var(--text-muted);}
+  .scen-cmp-table tr.total-row td{font-weight:700;color:var(--purple);background:var(--purple-light);border-top:2px solid var(--border-med);}
+  .scen-cmp-table tr.ballmer-row td{font-weight:600;color:#1A1A1A;}
+  .scen-cmp-table tr.sub-row td:first-child{padding-left:20px;color:var(--text-light);}
+  .scen-label-a{color:var(--purple);font-weight:700;}
+  .scen-label-b{color:var(--peri-dark);font-weight:700;}
+  .scen-label-c{color:var(--mint-dark);font-weight:700;}
+</style>
+</head>
+<body>
+<div class="app-header">
+  <h1>SafeStat<sup style="font-size:10px">SM</sup> Financial Sustainability Model</h1>
+  <span class="sub">CAPS · Bonterra · Ballmer Group · Confidential · May 2026</span>
+</div>
+<div class="app-body">
+<nav class="sidebar">
+  <div class="slbl">Views</div>
+  <button class="nav-btn active" data-p="overview">Overview</button>
+  <button class="nav-btn" data-p="ballmer">Ballmer view</button>
+  <button class="nav-btn" data-p="jurisdiction">Jurisdiction view</button>
+  <button class="nav-btn" data-p="unit">Unit economics</button>
+  <button class="nav-btn" data-p="bonterra">Bonterra revenue</button>
+  <button class="nav-btn" data-p="license">License trajectory</button>
+  <div class="slbl">Settings</div>
+  <button class="nav-btn" data-p="assumptions">Assumptions</button>
+</nav>
+<main class="main">
+
+  <!-- global controls -->
+  <div class="ctrl-bar">
+    <span class="ctrl-lbl">Scenario</span>
+    <button class="scen-btn active" data-s="0">Early sunset (Y4: 50%, Y5: 25%)</button>
+    <button class="scen-btn" data-s="1">Full 5-year (Y6: 50%, Y7: 25%)</button>
+  </div>
+  <div class="ctrl-bar">
+    <span class="ctrl-lbl">Ramp model</span>
+    <button class="ramp-btn active" data-r="0">Steady ramp <span style="font-size:11px;opacity:.7">2→6→14→30→50</span></button>
+    <button class="ramp-btn" data-r="1">David / NICJR <span style="font-size:11px;opacity:.7">2→8→25→38→50</span></button>
+  </div>
+  <div class="slider-bar">
+    <label>Display years</label>
+    <input type="range" id="yrSlider" min="1" max="10" value="5">
+    <span class="slider-val" id="yrSliderVal">Y1 – Y5</span>
+  </div>
+
+  <!-- OVERVIEW -->
+  <div id="p-overview" class="panel active">
+    <div class="page-title">Overview</div>
+    <div class="page-sub">Total ecosystem costs and revenue source transition</div>
+    <div class="mg mg5" id="ovM"></div>
+    <div class="narr" id="ovN"></div>
+    <div class="pc-grid" id="ovPC"></div>
+    <div class="card">
+      <div class="card-title">Total ecosystem cost by revenue source ($M)</div>
+      <div class="card-sub">Ballmer declining as public funding, philanthropy, and CBO grow</div>
+      <div class="legend" id="ovLeg"></div>
+      <div class="cw" style="height:320px"><canvas id="ovChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- BALLMER -->
+  <div id="p-ballmer" class="panel">
+    <div class="page-title">Ballmer Group View</div>
+    <div class="page-sub">Annual investment trajectory across all cohorts — three scenario comparison</div>
+    <div class="mg mg4" id="blM"></div>
+    <div class="card">
+      <div class="card-title">Ballmer annual investment ($M) — Scenario Comparison</div>
+      <div class="card-sub">Grouped bars by year · <span class="scen-label-a">■ Scenario A</span> &nbsp;<span class="scen-label-b">■ Scenario B</span> &nbsp;<span class="scen-label-c">■ Scenario C</span></div>
+      <div class="cw" style="height:340px"><canvas id="blChart"></canvas></div>
+    </div>
+    <div class="narr" id="blN"></div>
+    <div class="card">
+      <div class="card-title">Scenario Detail Tables</div>
+      <div class="card-sub">Ballmer contribution breakdown by year · columns = years per slider</div>
+      <div style="margin-bottom:16px;">
+        <div style="font-size:12px;font-weight:700;color:var(--purple);margin-bottom:6px;">Scenario A</div>
+        <table class="scen-cmp-table" id="blTableA"></table>
+      </div>
+      <div style="margin-bottom:16px;">
+        <div style="font-size:12px;font-weight:700;color:var(--peri-dark);margin-bottom:6px;">Scenario B</div>
+        <table class="scen-cmp-table" id="blTableB"></table>
+      </div>
+      <div>
+        <div style="font-size:12px;font-weight:700;color:var(--mint-dark);margin-bottom:6px;">Scenario C</div>
+        <table class="scen-cmp-table" id="blTableC"></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- JURISDICTION -->
+  <div id="p-jurisdiction" class="panel">
+    <div class="page-title">Jurisdiction View</div>
+    <div class="page-sub">All costs are jurisdiction costs — revenue sources determine who covers them</div>
+    <div class="card">
+      <div class="card-title">Total jurisdiction costs by revenue source ($M)</div>
+      <div class="legend" id="jurLeg"></div>
+      <div class="cw" style="height:300px"><canvas id="jurChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Annual cost detail</div>
+      <table class="ftbl"><thead><tr id="jurTHead"></tr></thead><tbody id="jurTbody"></tbody></table>
+    </div>
+    <div class="card">
+      <div class="card-title">Single jurisdiction cost breakdown</div>
+      <div class="card-sub">Cost and funding split for one existing city in a selected year and cohort</div>
+      <div class="jur-sel">
+        <label>Calendar year</label>
+        <select id="jurYrSel"></select>
+        <label>Cohort (city vintage)</label>
+        <select id="jurCohortSel">
+          <option value="0">Y1 cities</option>
+          <option value="1">Y2 cities</option>
+          <option value="2">Y3 cities</option>
+          <option value="3">Y4 cities</option>
+          <option value="4">Y5 cities</option>
+        </select>
+      </div>
+      <div id="jurSingleMsg" style="font-size:13px;color:var(--text-light);padding:12px 0;display:none">This cohort has not started yet in the selected year.</div>
+      <div class="two-bars" id="jurSingleBars">
+        <div>
+          <div style="font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:8px;">What the jurisdiction pays</div>
+          <div class="cw" style="height:300px"><canvas id="jurCostBar"></canvas></div>
+        </div>
+        <div>
+          <div style="font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:8px;">Who pays it</div>
+          <div class="cw" style="height:300px"><canvas id="jurRevBar"></canvas></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- UNIT ECONOMICS -->
+  <div id="p-unit" class="panel">
+    <div class="page-title">Unit Economics</div>
+    <div class="page-sub">Per-jurisdiction all-in cost declining as platform scales</div>
+    <div class="mg mg4" id="unitM"></div>
+    <div class="card">
+      <div class="card-title">Per-jurisdiction all-in cost vs. total Ballmer investment</div>
+      <div class="card-sub">Bars = Ballmer ($M, left axis) · Line = per-jurisdiction all-in ($K, right axis)</div>
+      <div class="legend" id="unitLeg"></div>
+      <div class="cw" style="height:320px"><canvas id="unitChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- BONTERRA REVENUE -->
+  <div id="p-bonterra" class="panel">
+    <div class="page-title">Bonterra Revenue View</div>
+    <div class="page-sub">Growing commercial platform — CAPS license fee excluded</div>
+    <div class="mg mg5" id="bonM"></div>
+    <div class="card">
+      <div class="card-title">Bonterra annual revenue by bucket ($M)</div>
+      <div class="legend" id="bonLeg"></div>
+      <div class="cw" style="height:300px"><canvas id="bonChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Per-jurisdiction cost — new vs. existing</div>
+      <div class="card-sub">New = stand-up + license + pro-rata dev · Existing = support + license + pro-rata dev · Line = blended all-in</div>
+      <div class="legend" id="bonPJLeg"></div>
+      <div class="cw" style="height:300px"><canvas id="bonPJChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Bonterra revenue detail</div>
+      <table class="ftbl"><thead><tr id="bonTHead"></tr></thead><tbody id="bonTbody"></tbody></table>
+    </div>
+  </div>
+
+  <!-- LICENSE TRAJECTORY -->
+  <div id="p-license" class="panel">
+    <div class="page-title">License Trajectory</div>
+    <div class="page-sub">Per-jurisdiction license fee by calendar year and network total</div>
+    <div class="card">
+      <div class="card-title">License fee per jurisdiction by calendar year</div>
+      <div class="cw" style="height:260px"><canvas id="licChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Total network license revenue ($M)</div>
+      <div class="cw" style="height:220px"><canvas id="licNetChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- ASSUMPTIONS -->
+  <div id="p-assumptions" class="panel">
+    <div class="page-title">Assumptions</div>
+    <div class="page-sub">Three independent scenario sets — edit each tab separately. All charts update live.</div>
+
+    <!-- preview -->
+    <div class="preview">
+      <div class="preview-title">Live preview — Ballmer annual commitment & total cost</div>
+      <div class="preview-grid" id="prevGrid"></div>
+    </div>
+
+    <!-- scenario tabs -->
+    <div class="scen-tabs">
+      <button class="scen-tab scen-tab-a active" onclick="switchAssmTab('A')">Scenario A</button>
+      <button class="scen-tab scen-tab-b" onclick="switchAssmTab('B')">Scenario B</button>
+      <button class="scen-tab scen-tab-c" onclick="switchAssmTab('C')">Scenario C</button>
+    </div>
+
+    <div class="scen-tab-content active" id="assmTab-A">
+    <div class="assm-s">
+      <h3>Jurisdiction scale (cumulative) — Y1–Y10</h3>
+      <div class="rg10" id="jurInputsA"></div>
+    </div>
+    <div class="assm-s">
+      <h3>Stand-up rate (per new jurisdiction) — Y1–Y10</h3>
+      <div class="rg10" id="suInputsA"></div>
+      <div class="dh">
+        <label>Apply decay from</label>
+        <select id="suFromA"><option value="2">Y2</option><option value="3" selected>Y3</option><option value="4">Y4</option><option value="5">Y5</option></select>
+        <label>at</label><input id="suPctA" type="number" value="15" step="0.5" min="0" max="80"><label>% / yr</label>
+        <button class="ab" onclick="applyDecay('su','A')">Apply ↗</button>
+        <span class="impl" id="suImplA"></span>
+      </div>
+    </div>
+    <div class="assm-s">
+      <h3>Ongoing support rate (per existing jurisdiction) — Y1–Y10</h3>
+      <div class="rg10" id="osInputsA"></div>
+      <div class="dh">
+        <label>Apply decay from</label>
+        <select id="osFromA"><option value="2">Y2</option><option value="3" selected>Y3</option><option value="4">Y4</option><option value="5">Y5</option></select>
+        <label>at</label><input id="osPctA" type="number" value="15" step="0.5" min="0" max="80"><label>% / yr</label>
+        <button class="ab" onclick="applyDecay('os','A')">Apply ↗</button>
+        <span class="impl" id="osImplA"></span>
+      </div>
+    </div>
+    <div class="assm-s">
+      <h3>License rate (per jurisdiction) — Y1–Y10</h3>
+      <div class="rg10" id="licInputsA"></div>
+      <div class="dh">
+        <label>Apply decay from</label>
+        <select id="licFromA"><option value="2">Y2</option><option value="3" selected>Y3</option><option value="4">Y4</option><option value="5">Y5</option></select>
+        <label>at</label><input id="licPctA" type="number" value="5" step="0.5" min="0" max="80"><label>% / yr</label>
+        <button class="ab" onclick="applyDecay('lic','A')">Apply ↗</button>
+        <span class="impl" id="licImplA"></span>
+      </div>
+    </div>
+    <div class="assm-s">
+      <h3>Product development (shared, annual) — Y1–Y10</h3>
+      <div class="rg10" id="devInputsA"></div>
+    </div>
+    <div class="a2">
+      <div class="assm-s">
+        <h3>Ballmer % per cohort year-on-platform</h3>
+        <div style="font-size:11px;color:var(--text-light);margin-bottom:10px;">Applied per cohort based on years since readiness engagement</div>
+        <div id="scenInputsA"></div>
+      </div>
+      <div class="assm-s">
+        <h3>Non-Ballmer funding mix — per calendar year</h3>
+        <div style="font-size:11px;color:var(--text-light);margin-bottom:10px;">Always true up to 100% of non-Ballmer remainder.</div>
+        <table class="ftbl" style="font-size:11px;">
+          <thead><tr><th>Year</th><th>Public %</th><th>Philanthropy %</th><th>CBO %</th><th>Check</th></tr></thead>
+          <tbody id="revMixTbodyA"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="assm-s">
+      <h3>CAPS license fee</h3>
+      <div class="tog">
+        <span class="tl">Include CAPS license fee in total ecosystem cost</span>
+        <button id="cToggleA" class="ton" onclick="toggleCaps('A')">On</button>
+        <button class="treset" onclick="resetCaps('A')">Reset</button>
+      </div>
+      <div id="cFieldsA">
+        <div class="ar"><span class="al">License fee Y1 (per jurisdiction)</span><input class="ai" id="cLicA" type="number" value="160000" oninput="recalc()"></div>
+        <div class="mr"><span class="ml2">YoY reduction</span><input class="mi" id="cYoYA" type="number" value="5" step="0.5" oninput="recalc()"><span class="mu">%</span></div>
+      </div>
+    </div>
+    </div>
+    <div class="scen-tab-content" id="assmTab-B">
+    <div class="assm-s">
+      <h3>Jurisdiction scale (cumulative) — Y1–Y10</h3>
+      <div class="rg10" id="jurInputsB"></div>
+    </div>
+    <div class="assm-s">
+      <h3>Stand-up rate (per new jurisdiction) — Y1–Y10</h3>
+      <div class="rg10" id="suInputsB"></div>
+      <div class="dh">
+        <label>Apply decay from</label>
+        <select id="suFromB"><option value="2">Y2</option><option value="3" selected>Y3</option><option value="4">Y4</option><option value="5">Y5</option></select>
+        <label>at</label><input id="suPctB" type="number" value="15" step="0.5" min="0" max="80"><label>% / yr</label>
+        <button class="ab" onclick="applyDecay('su','B')">Apply ↗</button>
+        <span class="impl" id="suImplB"></span>
+      </div>
+    </div>
+    <div class="assm-s">
+      <h3>Ongoing support rate (per existing jurisdiction) — Y1–Y10</h3>
+      <div class="rg10" id="osInputsB"></div>
+      <div class="dh">
+        <label>Apply decay from</label>
+        <select id="osFromB"><option value="2">Y2</option><option value="3" selected>Y3</option><option value="4">Y4</option><option value="5">Y5</option></select>
+        <label>at</label><input id="osPctB" type="number" value="15" step="0.5" min="0" max="80"><label>% / yr</label>
+        <button class="ab" onclick="applyDecay('os','B')">Apply ↗</button>
+        <span class="impl" id="osImplB"></span>
+      </div>
+    </div>
+    <div class="assm-s">
+      <h3>License rate (per jurisdiction) — Y1–Y10</h3>
+      <div class="rg10" id="licInputsB"></div>
+      <div class="dh">
+        <label>Apply decay from</label>
+        <select id="licFromB"><option value="2">Y2</option><option value="3" selected>Y3</option><option value="4">Y4</option><option value="5">Y5</option></select>
+        <label>at</label><input id="licPctB" type="number" value="5" step="0.5" min="0" max="80"><label>% / yr</label>
+        <button class="ab" onclick="applyDecay('lic','B')">Apply ↗</button>
+        <span class="impl" id="licImplB"></span>
+      </div>
+    </div>
+    <div class="assm-s">
+      <h3>Product development (shared, annual) — Y1–Y10</h3>
+      <div class="rg10" id="devInputsB"></div>
+    </div>
+    <div class="a2">
+      <div class="assm-s">
+        <h3>Ballmer % per cohort year-on-platform</h3>
+        <div style="font-size:11px;color:var(--text-light);margin-bottom:10px;">Applied per cohort based on years since readiness engagement</div>
+        <div id="scenInputsB"></div>
+      </div>
+      <div class="assm-s">
+        <h3>Non-Ballmer funding mix — per calendar year</h3>
+        <div style="font-size:11px;color:var(--text-light);margin-bottom:10px;">Always true up to 100% of non-Ballmer remainder.</div>
+        <table class="ftbl" style="font-size:11px;">
+          <thead><tr><th>Year</th><th>Public %</th><th>Philanthropy %</th><th>CBO %</th><th>Check</th></tr></thead>
+          <tbody id="revMixTbodyB"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="assm-s">
+      <h3>CAPS license fee</h3>
+      <div class="tog">
+        <span class="tl">Include CAPS license fee in total ecosystem cost</span>
+        <button id="cToggleB" class="ton" onclick="toggleCaps('B')">On</button>
+        <button class="treset" onclick="resetCaps('B')">Reset</button>
+      </div>
+      <div id="cFieldsB">
+        <div class="ar"><span class="al">License fee Y1 (per jurisdiction)</span><input class="ai" id="cLicB" type="number" value="160000" oninput="recalc()"></div>
+        <div class="mr"><span class="ml2">YoY reduction</span><input class="mi" id="cYoYB" type="number" value="5" step="0.5" oninput="recalc()"><span class="mu">%</span></div>
+      </div>
+    </div>
+    </div>
+    <div class="scen-tab-content" id="assmTab-C">
+    <div class="assm-s">
+      <h3>Jurisdiction scale (cumulative) — Y1–Y10</h3>
+      <div class="rg10" id="jurInputsC"></div>
+    </div>
+    <div class="assm-s">
+      <h3>Stand-up rate (per new jurisdiction) — Y1–Y10</h3>
+      <div class="rg10" id="suInputsC"></div>
+      <div class="dh">
+        <label>Apply decay from</label>
+        <select id="suFromC"><option value="2">Y2</option><option value="3" selected>Y3</option><option value="4">Y4</option><option value="5">Y5</option></select>
+        <label>at</label><input id="suPctC" type="number" value="15" step="0.5" min="0" max="80"><label>% / yr</label>
+        <button class="ab" onclick="applyDecay('su','C')">Apply ↗</button>
+        <span class="impl" id="suImplC"></span>
+      </div>
+    </div>
+    <div class="assm-s">
+      <h3>Ongoing support rate (per existing jurisdiction) — Y1–Y10</h3>
+      <div class="rg10" id="osInputsC"></div>
+      <div class="dh">
+        <label>Apply decay from</label>
+        <select id="osFromC"><option value="2">Y2</option><option value="3" selected>Y3</option><option value="4">Y4</option><option value="5">Y5</option></select>
+        <label>at</label><input id="osPctC" type="number" value="15" step="0.5" min="0" max="80"><label>% / yr</label>
+        <button class="ab" onclick="applyDecay('os','C')">Apply ↗</button>
+        <span class="impl" id="osImplC"></span>
+      </div>
+    </div>
+    <div class="assm-s">
+      <h3>License rate (per jurisdiction) — Y1–Y10</h3>
+      <div class="rg10" id="licInputsC"></div>
+      <div class="dh">
+        <label>Apply decay from</label>
+        <select id="licFromC"><option value="2">Y2</option><option value="3" selected>Y3</option><option value="4">Y4</option><option value="5">Y5</option></select>
+        <label>at</label><input id="licPctC" type="number" value="5" step="0.5" min="0" max="80"><label>% / yr</label>
+        <button class="ab" onclick="applyDecay('lic','C')">Apply ↗</button>
+        <span class="impl" id="licImplC"></span>
+      </div>
+    </div>
+    <div class="assm-s">
+      <h3>Product development (shared, annual) — Y1–Y10</h3>
+      <div class="rg10" id="devInputsC"></div>
+    </div>
+    <div class="a2">
+      <div class="assm-s">
+        <h3>Ballmer % per cohort year-on-platform</h3>
+        <div style="font-size:11px;color:var(--text-light);margin-bottom:10px;">Applied per cohort based on years since readiness engagement</div>
+        <div id="scenInputsC"></div>
+      </div>
+      <div class="assm-s">
+        <h3>Non-Ballmer funding mix — per calendar year</h3>
+        <div style="font-size:11px;color:var(--text-light);margin-bottom:10px;">Always true up to 100% of non-Ballmer remainder.</div>
+        <table class="ftbl" style="font-size:11px;">
+          <thead><tr><th>Year</th><th>Public %</th><th>Philanthropy %</th><th>CBO %</th><th>Check</th></tr></thead>
+          <tbody id="revMixTbodyC"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="assm-s">
+      <h3>CAPS license fee</h3>
+      <div class="tog">
+        <span class="tl">Include CAPS license fee in total ecosystem cost</span>
+        <button id="cToggleC" class="ton" onclick="toggleCaps('C')">On</button>
+        <button class="treset" onclick="resetCaps('C')">Reset</button>
+      </div>
+      <div id="cFieldsC">
+        <div class="ar"><span class="al">License fee Y1 (per jurisdiction)</span><input class="ai" id="cLicC" type="number" value="160000" oninput="recalc()"></div>
+        <div class="mr"><span class="ml2">YoY reduction</span><input class="mi" id="cYoYC" type="number" value="5" step="0.5" oninput="recalc()"><span class="mu">%</span></div>
+      </div>
+    </div>
+    </div>
+
+    <button class="recalc" onclick="recalc()">Recalculate</button>
+  </div>
+
+</main>
+</div>
+
+<script>
+Chart.register(ChartDataLabels);
+
+// ── CONSTANTS ──────────────────────────────────────────────────────────
+const N = 10;
+const ALL_YRS = Array.from({length:N},(_,i)=>'Y'+(i+1));
+
+const DEFAULT_JURS   = [2,6,14,30,50,50,50,50,50,50];
+const DEFAULT_JURS_D = [2,8,25,38,50,50,50,50,50,50]; // David model
+const DEFAULT_SU  = [982885,400000,300000,150000,80000,0,0,0,0,0];
+const DEFAULT_OS  = [0,350000,250000,125000,75000,60000,60000,60000,60000,60000];
+const DEFAULT_LIC = [200000,200000,190000,180000,170000,160000,145000,125000,110000,100000];
+const DEFAULT_DEV = [3600000,4950000,2250000,2250000,0,0,0,0,0,0];
+
+// Ballmer % per cohort year-on-platform (1-indexed, length 10)
+const SCEN_DEFAULTS = [
+  [1,1,1,0.5,0.25,0,0,0,0,0],   // scenario 0: early sunset
+  [1,1,1,1,1,0.5,0.25,0,0,0]    // scenario 1: full 5-year
+];
+
+// Non-Ballmer graduation mix
+const GRAD = {pub:0.50, phil:0.35, cbo:0.15};
+
+// Per calendar year non-Ballmer defaults (derived from scenario 0 graduation table)
+const DEFAULT_REV_MIX = [
+  {pub:0,    phil:0,      cbo:0   },  // Y1
+  {pub:0,    phil:0,      cbo:0   },  // Y2
+  {pub:0,    phil:0,      cbo:0   },  // Y3
+  {pub:0.25, phil:0.175,  cbo:0.075}, // Y4
+  {pub:0.375,phil:0.2625, cbo:0.1125},// Y5
+  {pub:0.50, phil:0.35,   cbo:0.15 }, // Y6
+  {pub:0.50, phil:0.35,   cbo:0.15 }, // Y7
+  {pub:0.50, phil:0.35,   cbo:0.15 }, // Y8
+  {pub:0.50, phil:0.35,   cbo:0.15 }, // Y9
+  {pub:0.50, phil:0.35,   cbo:0.15 }, // Y10
+];
+
+// Brand colors
+const C = {
+  ballmer:'#381360', pub:'#2A8A4A', phil:'#A89600', cbo:'#3D4FCC',
+  su:'#381360', os:'#7583FF', lic:'#2A8A4A', dev:'#A89600',
+  line:'#D4537E', newJ:'#381360', existJ:'#85EAA0',
+  caps:'#888780'
+};
+
+const SCEN_LABELS = ['Early sunset (Y4: 50%, Y5: 25%)','Full 5-year (Y6: 50%, Y7: 25%)'];
+const SCEN_PROS = [
+  ['Jurisdictions begin budget transition in Y4','Lower total Ballmer 5-year commitment','Faster path to financial independence'],
+  ['Maximum support through full platform build','Jurisdictions have longer runway to embed budgets','Aligned with full 5-year cohort maturity cycle']
+];
+const SCEN_CONS = [
+  ['Y4/Y5 jurisdictions must secure budget quickly','Higher risk if public funding not ready by Y4','Requires strong CAPS readiness TA by Y3'],
+  ['Higher total Ballmer commitment through Y7','Longer dependency on philanthropic support','Requires Ballmer commitment beyond initial 5 years']
+];
+
+let charts = {};
+let activeS = 0;
+let activeR = 0;
+let displayYrs = 5;
+const SCEN_IDS = ['A','B','C'];
+const SCEN_COLORS = {A:'#381360', B:'#3D4FCC', C:'#2A8A4A'};
+// per-scenario state
+const cOnMap = {A:true, B:true, C:true};
+const revMixMap = {
+  A: DEFAULT_REV_MIX.map(r=>({...r})),
+  B: DEFAULT_REV_MIX.map(r=>({...r})),
+  C: DEFAULT_REV_MIX.map(r=>({...r}))
+};
+
+// ── TAB SWITCH ─────────────────────────────────────────────────────────
+function switchAssmTab(s){
+  SCEN_IDS.forEach(id=>{
+    document.getElementById('assmTab-'+id).classList.toggle('active', id===s);
+  });
+  document.querySelectorAll('.scen-tab').forEach((t,i)=>{
+    t.classList.toggle('active', SCEN_IDS[i]===s);
+  });
+}
+
+// ── INPUT SETUP ────────────────────────────────────────────────────────
+function buildInputRow(containerId, ids, defaults){
+  const el = document.getElementById(containerId);
+  if(!el) return;
+  el.innerHTML = ids.map((id,i)=>`
+    <div class="rc">
+      <div class="rl">Y${i+1}</div>
+      <input class="ri" id="${id}" type="number" value="${defaults[i]}" oninput="recalc()">
+    </div>`).join('');
+}
+
+function setupInputs(){
+  SCEN_IDS.forEach(s=>{
+    const ramp = activeR===0 ? DEFAULT_JURS : DEFAULT_JURS_D;
+    buildInputRow('jurInputs'+s, Array.from({length:N},(_,i)=>`jY${i+1}${s}`), ramp);
+    buildInputRow('suInputs'+s,  Array.from({length:N},(_,i)=>`suY${i+1}${s}`), DEFAULT_SU);
+    buildInputRow('osInputs'+s,  Array.from({length:N},(_,i)=>`osY${i+1}${s}`), DEFAULT_OS);
+    buildInputRow('licInputs'+s, Array.from({length:N},(_,i)=>`licY${i+1}${s}`), DEFAULT_LIC);
+    buildInputRow('devInputs'+s, Array.from({length:N},(_,i)=>`devY${i+1}${s}`), DEFAULT_DEV);
+
+    const sc = document.getElementById('scenInputs'+s);
+    if(sc) sc.innerHTML = Array.from({length:N},(_,i)=>`
+      <div style="display:grid;grid-template-columns:120px 80px;align-items:center;gap:8px;margin-bottom:6px;">
+        <span style="font-size:12px;color:var(--text-muted);">Year ${i+1} on platform</span>
+        <input class="ai" id="scY${i+1}${s}" type="number" value="${Math.round(SCEN_DEFAULTS[activeS][i]*100)}" min="0" max="100" oninput="recalc()">
+      </div>`).join('');
+
+    renderRevMixTable(s);
+  });
+
+  const sel = document.getElementById('jurYrSel');
+  if(sel){
+    sel.innerHTML = Array.from({length:N},(_,i)=>`<option value="${i+1}">Y${i+1}</option>`).join('');
+    sel.value = 5;
+  }
+  document.querySelectorAll('input[type=number],.ri').forEach(el=>{
+    if(!el.getAttribute('oninput')) el.addEventListener('input', recalc);
+  });
+  const jys = document.getElementById('jurYrSel');
+  const jcs = document.getElementById('jurCohortSel');
+  if(jys) jys.addEventListener('change', renderSingleJur);
+  if(jcs) jcs.addEventListener('change', renderSingleJur);
+}
+
+function renderRevMixTable(s){
+  const tbody = document.getElementById('revMixTbody'+s);
+  if(!tbody) return;
+  const mix = revMixMap[s];
+  tbody.innerHTML = mix.map((r,i)=>`<tr>
+    <td>Y${i+1}</td>
+    <td><input type="number" style="width:60px;font-size:11px;padding:2px 4px;border:1px solid var(--border-med);border-radius:4px;text-align:right;"
+      value="${Math.round(r.pub*100)}" onchange="revMixMap['${s}'][${i}].pub=this.value/100;recalc()"></td>
+    <td><input type="number" style="width:60px;font-size:11px;padding:2px 4px;border:1px solid var(--border-med);border-radius:4px;text-align:right;"
+      value="${Math.round(r.phil*100)}" onchange="revMixMap['${s}'][${i}].phil=this.value/100;recalc()"></td>
+    <td><input type="number" style="width:60px;font-size:11px;padding:2px 4px;border:1px solid var(--border-med);border-radius:4px;text-align:right;"
+      value="${Math.round(r.cbo*100)}" onchange="revMixMap['${s}'][${i}].cbo=this.value/100;recalc()"></td>
+    <td style="color:var(--mint-dark);font-weight:600;">✓</td>
+  </tr>`).join('');
+}
+
+function getScenBallmerForYear(calYrIdx){ return SCEN_DEFAULTS[activeS][0]; }
+
+// ── HELPERS ────────────────────────────────────────────────────────────
+const g  = id => +document.getElementById(id).value || 0;
+const gv = (prefix,yr) => g(prefix+'Y'+yr);
+function fm(n){ if(Math.abs(n)>=1e6) return '$'+(n/1e6).toFixed(2)+'M'; if(Math.abs(n)>=1e3) return '$'+(n/1e3).toFixed(1)+'K'; return '$'+Math.round(n).toLocaleString(); }
+function fp(n){ return Math.round(n*100)+'%'; }
+function mk(id,cfg){ if(charts[id]) charts[id].destroy(); const el=document.getElementById(id); if(el) charts[id]=new Chart(el,cfg); }
+function leg(items){ return items.map(([c,l])=>`<span class="li"><span class="ls" style="background:${c}"></span>${l}</span>`).join(''); }
+function mcard(label,val,sub='',hi=false){ return `<div class="mc${hi?' hi':''}"><div class="mc-lbl">${label}</div><div class="mc-val">${val}</div><div class="mc-sub">${sub}</div></div>`; }
+function flash(ids){ ids.forEach(id=>{ const el=document.getElementById(id); if(!el) return; el.classList.add('flash'); setTimeout(()=>el.classList.remove('flash'),800); }); }
+
+const noLbl = {datalabels:{display:false}};
+const barTotalLbl = {
+  datalabels:{
+    display: ctx => {
+      const ds = ctx.chart.data.datasets;
+      const stack = ds[ctx.datasetIndex].stack;
+      let last=-1;
+      ds.forEach((d,i)=>{ if(d.stack===stack && !d.hidden) last=i; });
+      return ctx.datasetIndex===last;
+    },
+    formatter:(val,ctx)=>{
+      const ds=ctx.chart.data.datasets, stack=ds[ctx.datasetIndex].stack, i=ctx.dataIndex;
+      let sum=0;
+      ds.forEach(d=>{ if(d.stack===stack&&!d.hidden) sum+=(+d.data[i]||0); });
+      return sum>=0.005?'$'+sum.toFixed(2)+'M':'';
+    },
+    anchor:'end', align:'end', font:{size:10,weight:'600'}, color:'#381360', offset:2
+  }
+};
+const lineLbl = (color='#D4537E') => ({
+  datalabels:{
+    display:true,
+    formatter:v=>v!=null?'$'+v.toFixed(0)+'K':'',
+    anchor:'end', align:'top', font:{size:10,weight:'600'}, color, offset:2
+  }
+});
+
+function stdStackedBar(){ return {responsive:true,maintainAspectRatio:false,
+  plugins:{legend:{display:false},datalabels:{display:false}},
+  scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,ticks:{callback:v=>'$'+v+'M'},grid:{color:'rgba(0,0,0,0.05)'}}}}; }
+
+// ── DECAY HELPERS ──────────────────────────────────────────────────────
+function applyDecay(prefix, s='A'){
+  const startYr = +document.getElementById(prefix+'From'+s).value;
+  const rate = g(prefix+'Pct'+s)/100;
+  const baseId = prefix+'Y'+(startYr-1)+s;
+  let base = g(baseId);
+  const changed=[];
+  for(let yr=startYr;yr<=N;yr++){
+    base = Math.max(0, Math.round(base*(1-rate)));
+    const el = document.getElementById(prefix+'Y'+yr+s);
+    if(el){ el.value = base; changed.push(prefix+'Y'+yr+s); }
+  }
+  flash(changed);
+  updateImplied(prefix, s);
+  recalc();
+}
+function updateImplied(prefix, s='A'){
+  const el=document.getElementById(prefix+'Impl'+s); if(!el) return;
+  const v1=g(prefix+'Y1'+s), v10=g(prefix+'Y10'+s);
+  if(v1>0&&v10>0&&v10<v1){ const r=Math.round((1-Math.pow(v10/v1,1/9))*100); el.innerHTML=`Implied Y1→Y10: <strong>${r}% / yr</strong>`; }
+  else el.innerHTML='';
+}
+function toggleCaps(s){
+  cOnMap[s]=!cOnMap[s];
+  const btn=document.getElementById('cToggle'+s);
+  if(btn){btn.textContent=cOnMap[s]?'On':'Off'; btn.className=cOnMap[s]?'ton':'toff';}
+  const f=document.getElementById('cFields'+s);
+  if(f) f.style.opacity=cOnMap[s]?'1':'0.4';
+  recalc();
+}
+function resetCaps(s){
+  const l=document.getElementById('cLic'+s); if(l) l.value=160000;
+  const y=document.getElementById('cYoY'+s); if(y) y.value=5;
+  recalc();
+}
+
+// ── COST ENGINE ────────────────────────────────────────────────────────
+function getJursS(s){ return Array.from({length:N},(_,i)=>g('jY'+(i+1)+s)); }
+function getRateS(prefix,s){ return Array.from({length:N},(_,i)=>g(prefix+'Y'+(i+1)+s)); }
+
+function buildMatrix(s='A'){
+  const jurs = getJursS(s);
+  const suR  = getRateS('su',s);
+  const osR  = getRateS('os',s);
+  const licR = getRateS('lic',s);
+  const devR = getRateS('dev',s);
+  const cLic = cOnMap[s] ? g('cLic'+s) : 0;
+  const cYoY = g('cYoY'+s)/100;
+
+  // Read scenario Ballmer % per year-on-platform (per-scenario inputs)
+  const scenPctsCur = Array.from({length:N},(_,i)=>Math.min(1,Math.max(0,g('scY'+(i+1)+s)/100)));
+
+  // Derived jurisdiction counts
+  const newJ  = jurs.map((t,i)=>Math.max(0,t-(i>0?jurs[i-1]:0)));
+  const existJ= jurs.map((t,i)=>i>0?jurs[i-1]:0);
+
+  // Initialize calendar year buckets
+  const m = Array.from({length:N},()=>({
+    ballmer:0, pub:0, phil:0, cbo:0,
+    standup:0, support:0, license:0, dev:0, caps:0, bon:0, tot:0,
+    newJCost:0, existJCost:0
+  }));
+
+  // Cohorts: cohort c starts in calendar year c (0-indexed)
+  for(let c=0;c<N;c++){
+    const sz = newJ[c];
+    if(sz===0) continue;
+    for(let y=c;y<N;y++){
+      const yop = y-c+1; // year on platform 1-indexed
+      const bPct = yop<=N ? scenPctsCur[yop-1] : 0;
+      const rem  = 1-bPct;
+      const mix  = revMixMap[s][y];
+      // true-up: scale pub/phil/cbo proportionally to fill remainder
+      const mixSum = mix.pub+mix.phil+mix.cbo || 1;
+      const pubPct  = rem*(mix.pub/mixSum);
+      const philPct = rem*(mix.phil/mixSum);
+      const cboPct  = rem*(mix.cbo/mixSum);
+
+      const su   = yop===1 ? suR[c]*sz : 0;
+      const sup  = yop>1   ? osR[y]*sz : 0;
+      const lic  = licR[y]*sz;
+      const caps_coh = cLic*Math.pow(1-cYoY,y)*sz;
+      const cohCost  = su+sup+lic+caps_coh;
+
+      m[y].standup  += su;
+      m[y].support  += sup;
+      m[y].license  += lic;
+      m[y].caps     += caps_coh;
+      m[y].ballmer  += cohCost*bPct;
+      m[y].pub      += cohCost*pubPct;
+      m[y].phil     += cohCost*philPct;
+      m[y].cbo      += cohCost*cboPct;
+    }
+  }
+
+  // Product dev (Ballmer covers 100%) + totals
+  for(let y=0;y<N;y++){
+    const dev  = devR[y];
+    m[y].dev     = dev;
+    m[y].ballmer += dev; // Ballmer covers 100% of product dev
+    m[y].bon     = m[y].standup+m[y].support+m[y].license+dev;
+    m[y].tot     = m[y].bon+m[y].caps;
+
+    // Per-jurisdiction costs for clustered chart
+    const dev_pj = jurs[y]>0 ? dev/jurs[y] : 0;
+    m[y].newJCost   = newJ[y]>0   ? suR[y]+licR[y]+dev_pj : null;
+    m[y].existJCost = existJ[y]>0 ? osR[y]+licR[y]+dev_pj : null;
+    m[y].allInPJ    = jurs[y]>0   ? m[y].bon/jurs[y] : 0;
+    m[y].total      = jurs[y];
+    m[y].newJ       = newJ[y];
+    m[y].existJ     = existJ[y];
+  }
+  return m;
+}
+
+// ── RENDER ─────────────────────────────────────────────────────────────
+let lastContentPanel = 'overview';
+
+function getActivePanel(){
+  const active = document.querySelector('.panel.active');
+  const id = active ? active.id.replace('p-','') : 'overview';
+  if(id !== 'assumptions') lastContentPanel = id;
+  return lastContentPanel;
+}
+
+function recalc(){ renderAll(); }
+
+function renderAll(){
+  // Build all three scenario matrices
+  const matrices = {};
+  SCEN_IDS.forEach(s=>{ matrices[s] = buildMatrix(s); });
+  const m   = matrices['A']; // Scenario A drives all views except Ballmer
+  const dy  = displayYrs;
+  const yrs = ALL_YRS.slice(0,dy);
+  const md  = m.slice(0,dy);
+  const scen = activeS;
+
+  SCEN_IDS.forEach(s=>{ updateImplied('su',s); updateImplied('os',s); updateImplied('lic',s); });
+
+  const totBal = md.reduce((a,r)=>a+r.ballmer,0);
+  const bon5   = md.reduce((a,r)=>a+r.bon,0);
+  const y1pj   = m[0].allInPJ, y5pj = m[4] ? m[4].allInPJ : m[dy-1].allInPJ;
+  const red    = y1pj>0 ? Math.round((y1pj-y5pj)/y1pj*100) : 0;
+
+  // Preview panel (Scenario A)
+  document.getElementById('prevGrid').innerHTML = m.slice(0,5).map((yr,i)=>
+    `<div class="pv"><div class="pv-yr">Y${i+1}</div><div class="pv-bal">${fm(yr.ballmer)}</div><div class="pv-tot">${fm(yr.tot)} total</div></div>`
+  ).join('');
+
+  // ── DATA: always render ──────────────────────────────────────────────
+
+  // OVERVIEW tiles + narrative (Scenario A)
+  document.getElementById('ovM').innerHTML =
+    mcard('Y1\u2013Y'+dy+' Ballmer total', fm(totBal),'',true)+
+    mcard('Y5 all-in / jur', fm(y5pj),'per jurisdiction')+
+    mcard('Cost reduction Y1\u2192Y5', red+'%','per jurisdiction')+
+    mcard('Y'+dy+' jurisdictions', m[dy-1].total,'on platform')+
+    mcard('Bonterra revenue Y1\u2013Y'+dy, fm(bon5),'excl. CAPS fee');
+  document.getElementById('ovN').innerHTML = `<strong>${SCEN_LABELS[scen]}:</strong> Ballmer commits <strong>${fm(totBal)}</strong> through Y${dy} across all cohorts. Per-jurisdiction all-in cost drops from <strong>${fm(y1pj)}</strong> in Y1 to <strong>${fm(y5pj)}</strong> in Y5 \u2014 a <strong>${red}%</strong> reduction.`;
+  document.getElementById('ovPC').innerHTML = `<div class="pros"><strong>Strengths</strong><ul>${SCEN_PROS[scen].map(p=>`<li>${p}</li>`).join('')}</ul></div><div class="cons"><strong>Risks</strong><ul>${SCEN_CONS[scen].map(c=>`<li>${c}</li>`).join('')}</ul></div>`;
+
+  // BALLMER tiles (Scenario A totals for headline metrics)
+  document.getElementById('blM').innerHTML =
+    mcard('Y1\u2013Y'+dy+' Ballmer (A)', fm(matrices['A'].slice(0,dy).reduce((a,r)=>a+r.ballmer,0)),'Scenario A',true)+
+    mcard('Y1\u2013Y'+dy+' Ballmer (B)', fm(matrices['B'].slice(0,dy).reduce((a,r)=>a+r.ballmer,0)),'Scenario B')+
+    mcard('Y1\u2013Y'+dy+' Ballmer (C)', fm(matrices['C'].slice(0,dy).reduce((a,r)=>a+r.ballmer,0)),'Scenario C')+
+    mcard('Y'+dy+' Ballmer (A)', fm(matrices['A'][dy-1].ballmer), fp(matrices['A'][dy-1].ballmer/(matrices['A'][dy-1].tot||1))+' of cost');
+  document.getElementById('blN').innerHTML = `Three independent assumption sets compared. Grouped bars show Ballmer annual investment per scenario side by side. Tables below show cost and Ballmer contribution breakdown by year.`;
+
+  // UNIT tiles
+  const perJurK = m.slice(0,dy).map(r=>+(r.allInPJ/1000).toFixed(1));
+  const balM    = md.map(r=>+(r.ballmer/1e6).toFixed(2));
+  document.getElementById('unitM').innerHTML =
+    mcard('Y1 all-in / jur','$'+perJurK[0]+'K','')+
+    mcard('Y3 all-in / jur','$'+(m[2].allInPJ/1000).toFixed(1)+'K','')+
+    mcard('Y5 all-in / jur','$'+perJurK[Math.min(4,dy-1)]+'K','')+
+    mcard('Y1\u2192Y5 reduction',red+'%','unit cost drop');
+
+  // BONTERRA tiles + table
+  const bonY  = md.map(r=>r.bon);
+  const bon5v = bonY.reduce((a,b)=>a+b,0);
+  const newJCostK  = md.map(r=>r.newJCost!=null?+(r.newJCost/1000).toFixed(1):null);
+  const existJCostK= md.map(r=>r.existJCost!=null?+(r.existJCost/1000).toFixed(1):null);
+  const allInK     = md.map(r=>+(r.allInPJ/1000).toFixed(1));
+  document.getElementById('bonM').innerHTML =
+    mcard('Y1\u2013Y'+dy+' total', fm(bon5v),'excl. CAPS fee',true)+
+    mcard('Y1 revenue', fm(bonY[0]),'')+
+    mcard('Y2 revenue', fm(bonY[1]),'')+
+    mcard('Y3 revenue', fm(bonY[2]),'')+
+    mcard('Y'+dy+' revenue', fm(bonY[dy-1]),'');
+  document.getElementById('bonTHead').innerHTML = `<th>Revenue line</th>${yrs.map(y=>`<th>${y}</th>`).join('')}`;
+  document.getElementById('bonTbody').innerHTML = [
+    ['Stand-up',md.map(r=>fm(r.standup))],
+    ['Ongoing support',md.map(r=>fm(r.support))],
+    ['License',md.map(r=>fm(r.license))],
+    ['Product development',md.map(r=>fm(r.dev))],
+    ['Bonterra total',md.map(r=>fm(r.bon))]
+  ].map((r,i)=>`<tr class="${i===4?'total':''}"><td>${r[0]}</td>${r[1].map(v=>`<td>${v}</td>`).join('')}</tr>`).join('');
+
+  // JURISDICTION table
+  const jurs = getJursS('A').slice(0,dy);
+  const newJA = m.slice(0,dy).map(r=>r.newJ);
+  document.getElementById('jurTHead').innerHTML = `<th>Cost line</th>${yrs.map(y=>`<th>${y}</th>`).join('')}`;
+  document.getElementById('jurTbody').innerHTML = [
+    ['Cumulative jurisdictions', jurs.map(String),   false, false],
+    ['New jurisdictions added',  newJA.map(String),  false, true],
+    ['Stand-up',      md.map(r=>fm(r.standup)), false, false],
+    ['Ongoing support',md.map(r=>fm(r.support)),false, false],
+    ['License',       md.map(r=>fm(r.license)), false, false],
+    ['Product dev',   md.map(r=>fm(r.dev)),     false, false],
+    ['CAPS license',  md.map(r=>fm(r.caps)),    false, false],
+    ['Bonterra total',md.map(r=>fm(r.bon)),     true,  false],
+    ['\u2014 Ballmer',     md.map(r=>fm(r.ballmer)), false, false],
+    ['\u2014 Public',      md.map(r=>fm(r.pub)),     false, false],
+    ['\u2014 Philanthropy',md.map(r=>fm(r.phil)),    false, false],
+    ['\u2014 CBO',         md.map(r=>fm(r.cbo)),     false, false],
+    ['Total (incl. CAPS)',md.map(r=>fm(r.tot)), true,  false],
+  ].map(r=>{
+    const cls=[r[2]?'total':'',r[3]?'italic':'',r[0].startsWith('\u2014')||r[0].startsWith('\u2013')?'sub':''].filter(Boolean).join(' ');
+    return `<tr class="${cls}"><td>${r[0]}</td>${r[1].map(v=>`<td>${v}</td>`).join('')}</tr>`;
+  }).join('');
+
+  // ── CHARTS: render all, mk() destroys and recreates each time ────────
+
+  document.getElementById('ovLeg').innerHTML = leg([[C.ballmer,'Ballmer'],[C.pub,'Public funding'],[C.phil,'Philanthropy'],[C.cbo,'CBO']]);
+  mk('ovChart',{type:'bar',data:{labels:yrs,datasets:[
+    {label:'Ballmer',data:md.map(r=>+(r.ballmer/1e6).toFixed(2)),backgroundColor:C.ballmer,stack:'s',...noLbl},
+    {label:'Public',data:md.map(r=>+(r.pub/1e6).toFixed(2)),backgroundColor:C.pub,stack:'s',...noLbl},
+    {label:'Philanthropy',data:md.map(r=>+(r.phil/1e6).toFixed(2)),backgroundColor:C.phil,stack:'s',...noLbl},
+    {label:'CBO',data:md.map(r=>+(r.cbo/1e6).toFixed(2)),backgroundColor:C.cbo,stack:'s',...barTotalLbl},
+  ]},options:stdStackedBar()});
+
+  // blLeg removed — legend now built into grouped bar chart
+  // ── BALLMER GROUPED BAR CHART — 3 scenarios side by side ────────────
+  mk('blChart',{type:'bar',data:{labels:yrs,datasets:[
+    {label:'Scenario A',data:matrices['A'].slice(0,dy).map(r=>+(r.ballmer/1e6).toFixed(2)),
+     backgroundColor:SCEN_COLORS['A'],datalabels:{display:false}},
+    {label:'Scenario B',data:matrices['B'].slice(0,dy).map(r=>+(r.ballmer/1e6).toFixed(2)),
+     backgroundColor:SCEN_COLORS['B'],datalabels:{display:false}},
+    {label:'Scenario C',data:matrices['C'].slice(0,dy).map(r=>+(r.ballmer/1e6).toFixed(2)),
+     backgroundColor:SCEN_COLORS['C'],datalabels:{display:false}},
+  ]},options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:true,position:'top',labels:{font:{size:11},padding:16}},datalabels:{display:false},
+      tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: $${ctx.parsed.y.toFixed(2)}M`}}},
+    scales:{x:{grid:{display:false}},y:{ticks:{callback:v=>'$'+v+'M'},grid:{color:'rgba(0,0,0,0.05)'}}}}});
+
+  // ── BALLMER DETAIL TABLES ─────────────────────────────────────────────
+  function renderScenTable(s, matx){
+    const mslice = matx.slice(0,dy);
+    const hdr = `<thead><tr><th>Item</th>${yrs.map(y=>`<th>${y}</th>`).join('')}</tr></thead>`;
+    const rows = [
+      {label:'Total cost', cls:'total-row', vals: mslice.map(r=>fm(r.tot))},
+      {label:'Ballmer contribution', cls:'ballmer-row', vals: mslice.map(r=>fm(r.ballmer))},
+      {label:'— Product dev', cls:'sub-row', vals: mslice.map(r=>fm(r.dev))},
+      {label:'— Stand-up', cls:'sub-row', vals: mslice.map(r=>fm(r.standup))},
+      {label:'— License', cls:'sub-row', vals: mslice.map(r=>fm(+(r.license * (r.ballmer/(r.tot||1))).toFixed(0)))},
+      {label:'— Ongoing support', cls:'sub-row', vals: mslice.map(r=>fm(+(r.support * (r.ballmer/(r.tot||1))).toFixed(0)))},
+    ];
+    const body = `<tbody>${rows.map(row=>`<tr class="${row.cls}"><td>${row.label}</td>${row.vals.map(v=>`<td>${v}</td>`).join('')}</tr>`).join('')}</tbody>`;
+    const tbl = document.getElementById('blTable'+s);
+    if(tbl) tbl.innerHTML = hdr+body;
+  }
+  SCEN_IDS.forEach(s=>renderScenTable(s, matrices[s]));
+
+  document.getElementById('jurLeg').innerHTML = leg([[C.ballmer,'Ballmer'],[C.pub,'Public'],[C.phil,'Philanthropy'],[C.cbo,'CBO']]);
+  mk('jurChart',{type:'bar',data:{labels:yrs,datasets:[
+    {label:'Ballmer',data:md.map(r=>+(r.ballmer/1e6).toFixed(2)),backgroundColor:C.ballmer,stack:'s',...noLbl},
+    {label:'Public',data:md.map(r=>+(r.pub/1e6).toFixed(2)),backgroundColor:C.pub,stack:'s',...noLbl},
+    {label:'Philanthropy',data:md.map(r=>+(r.phil/1e6).toFixed(2)),backgroundColor:C.phil,stack:'s',...noLbl},
+    {label:'CBO',data:md.map(r=>+(r.cbo/1e6).toFixed(2)),backgroundColor:C.cbo,stack:'s',...barTotalLbl},
+  ]},options:stdStackedBar()});
+  renderSingleJur();
+
+  document.getElementById('unitLeg').innerHTML = leg([[C.ballmer,'Ballmer annual ($M, bars)'],[C.line,'Per-jurisdiction all-in ($K, line)']]);
+  mk('unitChart',{type:'bar',data:{labels:yrs,datasets:[
+    {type:'bar',label:'Ballmer ($M)',data:balM,backgroundColor:C.ballmer,yAxisID:'y',order:2,...noLbl},
+    {type:'line',label:'Per-jur ($K)',data:perJurK,borderColor:C.line,backgroundColor:'transparent',
+     pointBackgroundColor:C.line,pointRadius:5,borderWidth:2.5,yAxisID:'y2',tension:0.3,order:1,
+     datalabels:{display:true,formatter:v=>'$'+v.toFixed(0)+'K',anchor:'end',align:'top',font:{size:10,weight:'600'},color:C.line,offset:2}}
+  ]},options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},datalabels:{display:false},
+      tooltip:{callbacks:{label:ctx=>ctx.dataset.yAxisID==='y'?'Ballmer: $'+ctx.parsed.y.toFixed(2)+'M':'Per-jur: $'+ctx.parsed.y.toFixed(1)+'K'}}},
+    scales:{x:{grid:{display:false}},
+      y:{position:'left',ticks:{callback:v=>'$'+v+'M'},title:{display:true,text:'Ballmer ($M)',font:{size:11}},grid:{color:'rgba(0,0,0,0.05)'}},
+      y2:{position:'right',ticks:{callback:v=>'$'+v+'K'},title:{display:true,text:'Per-jurisdiction ($K)',font:{size:11}},grid:{drawOnChartArea:false}}
+    }}});
+
+  document.getElementById('bonLeg').innerHTML = leg([[C.su,'Stand-up'],[C.os,'Ongoing support'],[C.lic,'License'],[C.dev,'Product dev']]);
+  mk('bonChart',{type:'bar',data:{labels:yrs,datasets:[
+    {label:'Stand-up',data:md.map(r=>+(r.standup/1e6).toFixed(2)),backgroundColor:C.su,stack:'s',...noLbl},
+    {label:'Support',data:md.map(r=>+(r.support/1e6).toFixed(2)),backgroundColor:C.os,stack:'s',...noLbl},
+    {label:'License',data:md.map(r=>+(r.license/1e6).toFixed(2)),backgroundColor:C.lic,stack:'s',...noLbl},
+    {label:'Product dev',data:md.map(r=>+(r.dev/1e6).toFixed(2)),backgroundColor:C.dev,stack:'s',...barTotalLbl},
+  ]},options:stdStackedBar()});
+
+  document.getElementById('bonPJLeg').innerHTML = leg([[C.newJ,'New jurisdiction'],[C.existJ,'Existing jurisdiction'],[C.line,'Blended all-in']]);
+  mk('bonPJChart',{type:'bar',data:{labels:yrs,datasets:[
+    {type:'bar',label:'New jur ($K)',data:newJCostK,backgroundColor:C.newJ,yAxisID:'y',order:2,
+      datalabels:{display:true,formatter:v=>v!=null?'$'+v.toFixed(0)+'K':null,anchor:'end',align:'end',font:{size:10,weight:'600'},color:C.newJ,offset:2}},
+    {type:'bar',label:'Existing jur ($K)',data:existJCostK,backgroundColor:C.existJ,yAxisID:'y',order:2,
+      datalabels:{display:true,formatter:v=>v!=null?'$'+v.toFixed(0)+'K':null,anchor:'end',align:'end',font:{size:10,weight:'600'},color:'#2A8A4A',offset:2}},
+    {type:'line',label:'Blended all-in ($K)',data:allInK,borderColor:C.line,backgroundColor:'transparent',
+      pointBackgroundColor:C.line,pointRadius:5,borderWidth:2.5,yAxisID:'y',tension:0.3,order:1,
+      datalabels:{display:true,formatter:v=>'$'+v.toFixed(0)+'K',anchor:'end',align:'top',font:{size:10,weight:'600'},color:C.line,offset:2}}
+  ]},options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},datalabels:{display:false},
+      tooltip:{callbacks:{label:ctx=>{
+        if(ctx.dataset.label.includes('New')) return 'New jur: $'+ctx.parsed.y?.toFixed(1)+'K';
+        if(ctx.dataset.label.includes('Existing')) return 'Existing jur: $'+ctx.parsed.y?.toFixed(1)+'K';
+        return 'All-in: $'+ctx.parsed.y?.toFixed(1)+'K';
+      }}}},
+    scales:{x:{grid:{display:false}},y:{max:Math.ceil(Math.max(...newJCostK.filter(v=>v!=null),...existJCostK.filter(v=>v!=null),...allInK)*1.2),ticks:{callback:v=>'$'+v+'K'},grid:{color:'rgba(0,0,0,0.05)'}}}}});
+
+  const licR2 = getRateS('lic','A').slice(0,dy);
+  const licMax = Math.ceil(Math.max(...licR2)*1.2/1000);
+  mk('licChart',{type:'bar',data:{labels:yrs,
+    datasets:[{label:'License/jur',data:licR2.map(v=>+(v/1000).toFixed(1)),backgroundColor:C.lic,borderRadius:4,
+      datalabels:{display:true,formatter:v=>'$'+v.toFixed(0)+'K',anchor:'end',align:'end',font:{size:10,weight:'600'},color:C.lic,offset:2}}]
+  },options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},datalabels:{display:false}},
+    scales:{x:{grid:{display:false}},y:{max:licMax,ticks:{callback:v=>'$'+v+'K'},grid:{color:'rgba(0,0,0,0.05)'}}}}});
+
+  const netLic = md.map(r=>+(r.license/1e6).toFixed(2));
+  mk('licNetChart',{type:'bar',data:{labels:yrs,
+    datasets:[{label:'Network license revenue',data:netLic,backgroundColor:C.lic,borderRadius:4,
+      datalabels:{display:true,formatter:v=>'$'+v.toFixed(2)+'M',anchor:'end',align:'end',font:{size:10,weight:'600'},color:C.lic,offset:2}}]
+  },options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},datalabels:{display:false}},
+    scales:{x:{grid:{display:false}},y:{ticks:{callback:v=>'$'+v+'M'},grid:{color:'rgba(0,0,0,0.05)'}}}}});
+}
+
+// ── SINGLE JURISDICTION VIEW ───────────────────────────────────────────
+function renderSingleJur(){
+  const calYr  = +document.getElementById('jurYrSel').value;   // 1-indexed
+  const cohort = +document.getElementById('jurCohortSel').value; // 0-indexed
+  const msg    = document.getElementById('jurSingleMsg');
+  const bars   = document.getElementById('jurSingleBars');
+
+  if(calYr <= cohort){ // cohort hasn't started yet
+    msg.style.display='block'; bars.style.display='none'; return;
+  }
+  msg.style.display='none'; bars.style.display='grid';
+
+  const yop   = calYr - cohort; // year on platform (1-indexed)
+  const licR  = getRateS('lic','A');
+  const osR   = getRateS('os','A');
+  const cLic  = cOnMap['A'] ? g('cLicA') : 0;
+  const cYoY  = g('cYoYA')/100;
+
+  const suR   = getRateS('su','A');
+  const su   = yop===1 ? suR[cohort] : 0;
+  const sup  = yop>1 ? osR[calYr-1] : 0;
+  const lic  = licR[calYr-1];
+  const caps = cOnMap['A'] ? cLic*Math.pow(1-cYoY, calYr-1) : 0;
+  const tot  = su+sup+lic+caps;
+
+  // Revenue split (Scenario A)
+  const bPct   = yop<=N ? Math.min(1,Math.max(0,g('scY'+yop+'A')/100)) : 0;
+  const mix    = revMixMap['A'][calYr-1];
+  const mixSum = mix.pub+mix.phil+mix.cbo || 1;
+  const rem    = 1-bPct;
+  const pubAmt  = tot*rem*(mix.pub/mixSum);
+  const philAmt = tot*rem*(mix.phil/mixSum);
+  const cboAmt  = tot*rem*(mix.cbo/mixSum);
+  const balAmt  = tot*bPct;
+
+  const pieTitle = 'Y'+calYr+' · '+(['Y1','Y2','Y3','Y4','Y5'][cohort])+' cohort · yr '+yop+' on platform';
+  const pieOpts = (title) => ({
+    responsive:true, maintainAspectRatio:false,
+    plugins:{
+      legend:{display:true,position:'bottom',labels:{font:{size:11},padding:12}},
+      datalabels:{
+        display:true,
+        formatter:(val,ctx)=>{
+          const sum=ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0);
+          return val>0?fm(val)+'\n'+fp(val/sum):'';
+        },
+        font:{size:10,weight:'600'}, color:'white',
+        textAlign:'center'
+      },
+      title:{display:true,text:title,font:{size:11,weight:'600'},color:'#381360',padding:{bottom:8}}
+    }
+  });
+
+  mk('jurCostBar',{type:'pie',data:{
+    labels:['Stand-up','Support','License','CAPS fee'],
+    datasets:[{data:[su,sup,lic,caps],backgroundColor:[C.su,C.os,C.lic,C.caps],borderWidth:2,borderColor:'white'}]
+  },options:pieOpts('What the jurisdiction pays · '+fm(tot)+' total')});
+
+  mk('jurRevBar',{type:'pie',data:{
+    labels:['Ballmer','Public','Philanthropy','CBO'],
+    datasets:[{data:[balAmt,pubAmt,philAmt,cboAmt],backgroundColor:[C.ballmer,C.pub,C.phil,C.cbo],borderWidth:2,borderColor:'white'}]
+  },options:pieOpts('Who funds it · '+fm(tot)+' total')});
+}
+
+// ── EVENTS ─────────────────────────────────────────────────────────────
+document.querySelector('.sidebar').addEventListener('click',e=>{
+  const btn=e.target.closest('.nav-btn'); if(!btn) return;
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('p-'+btn.dataset.p).classList.add('active');
+  setTimeout(recalc,50);
+});
+
+document.querySelectorAll('.scen-btn').forEach(btn=>{
+  btn.addEventListener('click',function(){
+    document.querySelectorAll('.scen-btn').forEach(b=>b.classList.remove('active'));
+    this.classList.add('active');
+    activeS=+this.dataset.s;
+    const def = SCEN_DEFAULTS[activeS];
+    // Update Ballmer % inputs in all three scenario tabs
+    SCEN_IDS.forEach(s=>{
+      Array.from({length:N},(_,i)=>{
+        const el=document.getElementById('scY'+(i+1)+s);
+        if(el){ el.value=Math.round(def[i]*100); el.classList.add('flash'); setTimeout(()=>el.classList.remove('flash'),800); }
+      });
+      // Update rev mix for this scenario
+      if(activeS===1){
+        revMixMap[s][3]={pub:0,phil:0,cbo:0};
+        revMixMap[s][4]={pub:0,phil:0,cbo:0};
+        revMixMap[s][5]={pub:0.25,phil:0.175,cbo:0.075};
+        revMixMap[s][6]={pub:0.375,phil:0.2625,cbo:0.1125};
+        revMixMap[s][7]={pub:0.50,phil:0.35,cbo:0.15};
+        revMixMap[s][8]={pub:0.50,phil:0.35,cbo:0.15};
+        revMixMap[s][9]={pub:0.50,phil:0.35,cbo:0.15};
+      } else {
+        revMixMap[s] = DEFAULT_REV_MIX.map(r=>({...r}));
+      }
+      renderRevMixTable(s);
+    });
+    recalc();
+  });
+});
+
+document.querySelectorAll('.ramp-btn').forEach(btn=>{
+  btn.addEventListener('click',function(){
+    document.querySelectorAll('.ramp-btn').forEach(b=>b.classList.remove('active'));
+    this.classList.add('active');
+    activeR=+this.dataset.r;
+    const ramp = activeR===0 ? DEFAULT_JURS : DEFAULT_JURS_D;
+    // Update jurisdiction inputs in all three scenario tabs
+    SCEN_IDS.forEach(s=>{
+      Array.from({length:N},(_,i)=>{
+        const el=document.getElementById('jY'+(i+1)+s);
+        if(el){ el.value=ramp[i]; el.classList.add('flash'); setTimeout(()=>el.classList.remove('flash'),800); }
+      });
+    });
+    recalc();
+  });
+});
+
+document.getElementById('yrSlider').addEventListener('input',function(){
+  displayYrs=+this.value;
+  document.getElementById('yrSliderVal').textContent='Y1 – Y'+displayYrs;
+  recalc();
+});
+
+// ── INIT ───────────────────────────────────────────────────────────────
+setupInputs();
+recalc();
+</script>
+</body>
+</html>
