@@ -1,0 +1,479 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>SafeStat Commitment Calculator</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: control rail on the left, results column on the right; stacks on phones. */
+:root{
+  --bg:#f6f5f9; --surface:#ffffff; --line:#e3e0ea; --fg:#1e1a2b; --muted:#615b72;
+  --funder:#4b2380; --funder-soft:#c9b8e3; --city:#c96a1f; --grid:#ebe8f1; --ok:#2e7d4f; --warn:#a25a00;
+  --display:'Source Serif 4', Georgia, serif; --body:'Public Sans', Arial, sans-serif; --mono:'IBM Plex Mono', ui-monospace, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#16131d; --surface:#201c2a; --line:#352f44; --fg:#efecf5; --muted:#a8a1b9;
+  --funder:#b79cf0; --funder-soft:#5a4385; --city:#f0a160; --grid:#2c2738; --ok:#6fcf97; --warn:#f2b45a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#16131d; --surface:#201c2a; --line:#352f44; --fg:#efecf5; --muted:#a8a1b9;
+  --funder:#b79cf0; --funder-soft:#5a4385; --city:#f0a160; --grid:#2c2738; --ok:#6fcf97; --warn:#f2b45a; color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.45}
+.wrap{max-width:1180px;margin:0 auto;padding-block:28px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header{display:flex;flex-direction:column;gap:6px;margin-bottom:22px}
+.eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--funder);font-weight:700}
+h1{font-family:var(--display);font-weight:600;font-size:clamp(26px,3.4vw,36px);line-height:1.15;margin:0;text-wrap:balance}
+.lede{color:var(--muted);max-width:68ch;margin:0}
+.grid{display:grid;grid-template-columns:300px minmax(0,1fr);gap:24px;align-items:start}
+@media (max-width:860px){.grid{grid-template-columns:minmax(0,1fr)}}
+.rail{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:18px}
+@media (min-width:861px){.rail{position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px)}}
+.field{display:flex;flex-direction:column;gap:6px}
+.field>label,.legend{font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.cities{display:flex;align-items:baseline;gap:8px}
+.cities output{font-family:var(--display);font-size:48px;line-height:1;color:var(--funder);font-variant-numeric:tabular-nums}
+.cities span{color:var(--muted)}
+input[type=range]{width:100%;accent-color:var(--funder)}
+.ticks{position:relative;height:22px;font-family:var(--mono);font-size:11px}
+.ticks button{position:absolute;top:0;left:calc(var(--p) * (100% - 16px) + 8px);transform:translateX(-50%);font:inherit;color:var(--muted);background:none;border:0;padding:2px 4px;cursor:pointer;border-radius:4px}
+.ticks button::before{content:"";position:absolute;left:50%;top:-6px;width:1px;height:5px;background:var(--muted)}
+.ticks button:hover,.ticks button[aria-current=true]{color:var(--funder);font-weight:600}
+.seg{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{font:inherit;font-size:13px;padding:8px 6px;border:0;background:transparent;color:var(--fg);cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--funder);color:var(--surface);font-weight:600}
+select,input[type=number]{font:inherit;font-size:14px;padding:7px 8px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:100%;box-sizing:border-box}
+.five{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}
+.five input{text-align:center;padding:6px 2px;font-family:var(--mono);font-size:13px}
+.five small{display:block;text-align:center;font-size:10px;color:var(--muted)}
+.hint{font-size:12px;color:var(--muted);margin:0}
+.check{display:flex;gap:8px;align-items:flex-start;font-size:13px}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--funder);outline-offset:2px}
+.main{display:flex;flex-direction:column;gap:20px;min-width:0}
+.kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+@media (max-width:560px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.kpi.lead{background:var(--funder);border-color:var(--funder)}
+.kpi.lead .k,.kpi.lead .s{color:var(--surface);opacity:.85}
+.kpi.lead .v{color:var(--surface)}
+.k{font-size:12px;color:var(--muted);font-weight:600}
+.v{font-family:var(--mono);font-size:22px;font-weight:500;font-variant-numeric:tabular-nums}
+.s{font-size:12px;color:var(--muted)}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.panel h2{font-size:16px;margin:0;font-weight:700}
+.panel p.sub{margin:0;font-size:13px;color:var(--muted)}
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px}
+@media (max-width:700px){.two{grid-template-columns:minmax(0,1fr)}}
+svg{width:100%;height:auto;display:block}
+svg text{font-family:var(--mono);font-size:11px;fill:var(--muted)}
+svg .gl{stroke:var(--grid)} svg .ax{stroke:var(--line)}
+svg .line{fill:none;stroke:var(--funder);stroke-width:2.5}
+svg .dot{fill:var(--funder)} svg .cur{stroke:var(--city);stroke-dasharray:4 3}
+svg .curdot{fill:var(--city)} svg .bar{fill:var(--funder)} svg .bar.one{fill:var(--funder-soft)}
+svg .ref{stroke:var(--muted);stroke-dasharray:3 3}
+svg .lbl{fill:var(--fg);font-size:11px}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13px;font-variant-numeric:tabular-nums}
+th,td{padding:7px 10px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+th{font-size:12px;color:var(--muted);font-weight:600}
+td.sel,th.sel{background:color-mix(in srgb,var(--funder) 12%,transparent);font-weight:600}
+tr.tot td{font-weight:700}
+.pill{display:inline-block;font-size:12px;font-weight:600;padding:2px 8px;border-radius:99px}
+.pill.ok{color:var(--ok);border:1px solid var(--ok)} .pill.warn{color:var(--warn);border:1px solid var(--warn)}
+.legendrow{display:flex;flex-wrap:wrap;gap:14px;font-size:12px;color:var(--muted)}
+.sw{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+section.illus{background:var(--bg);border-style:dashed}
+section.illus h2,section.illus table,section.illus .pill{opacity:.55;filter:grayscale(1)}
+section.illus .tag{display:inline-block;margin-left:8px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);border:1px solid var(--line);border-radius:4px;padding:1px 6px;vertical-align:2px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font:inherit;font-size:13px;display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border:1px solid var(--line);border-radius:99px;background:var(--surface);color:var(--fg);cursor:pointer}
+.chip[aria-pressed=false]{opacity:.45}
+.chip[aria-pressed=false] svg{opacity:.5}
+.chip svg{width:26px;height:10px;display:block}
+h3.mini{font-size:13px;font-weight:600;margin:4px 0 6px;color:var(--muted)}
+svg .cmp{fill:none;stroke-linecap:round}
+footer{margin-top:24px;font-size:12px;color:var(--muted);max-width:90ch}
+.deal{border-color:var(--funder)}
+.deal h2 span{color:var(--funder)}
+.deal .summary{margin:0;font-size:15px;max-width:72ch}
+.deal td{white-space:normal;vertical-align:top}
+.deal td:first-child{font-weight:600;white-space:nowrap}
+.deal td.amt{white-space:nowrap;font-family:var(--mono)}
+.who{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px}
+.flag{border-left:3px solid var(--warn);padding:8px 12px;font-size:13px;background:color-mix(in srgb,var(--warn) 10%,transparent);border-radius:0 6px 6px 0}
+.flag.ok{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 10%,transparent)}
+details{font-size:13px}
+details summary{cursor:pointer;color:var(--funder);font-weight:600}
+details ul{margin:8px 0 0;padding-left:18px;display:flex;flex-direction:column;gap:6px;max-width:80ch}
+</style>
+
+<div class="wrap">
+<header>
+  <div class="eyebrow">SafeStat · NICJR/CAPS cohort pricing</div>
+  <h1>Commitment price, floor and ARR at any city count</h1>
+  <p class="lede">Price is set by the commitment, not the pace: rates interpolate between the submitted 25, 35 and 50-city anchors. Rollout shape and pricing mechanic change only when ARR shows up and how it retains.</p>
+</header>
+
+<div class="grid">
+<aside class="rail" aria-label="Inputs">
+  <div class="field">
+    <label for="n">Cities committed</label>
+    <div class="cities"><output id="nOut">35</output><span>cities, all launched within 4 years</span></div>
+    <input id="n" type="range" min="25" max="50" step="1" value="35">
+    <div class="ticks" aria-label="Submitted anchors">
+      <button type="button" data-n="25" style="--p:0">25</button>
+      <button type="button" data-n="35" style="--p:0.4">35</button>
+      <button type="button" data-n="50" style="--p:1">50</button>
+    </div>
+  </div>
+  <div class="field">
+    <span class="legend" id="shapeLbl">Rollout cadence (timing only)</span>
+    <div class="seg" role="group" aria-labelledby="shapeLbl">
+      <button id="shapeStop" type="button" aria-pressed="true">Fastest ramp</button>
+      <button id="shapeSpread" type="button" aria-pressed="false">Paced</button>
+    </div>
+    <p class="hint" id="shapeHint"></p>
+  </div>
+  <div class="field">
+    <label for="mech">Pricing mechanic (ARR view)</label>
+    <select id="mech">
+      <option value="M4" selected>M4 Floor subscription + onboarding</option>
+      <option value="M3">M3 Flat blended ACV</option>
+      <option value="M1">M1 Network step-down</option>
+      <option value="M2">M2 Vintage lock</option>
+    </select>
+    <p class="hint" id="mechHint"></p>
+  </div>
+  <div class="field">
+    <label for="esc">Escalator from renewal, % per year</label>
+    <input id="esc" type="number" min="0" max="10" step="0.5" value="3">
+  </div>
+  <div class="field">
+    <span class="legend">NICJR/CAPS share by lifecycle year, %</span>
+    <div class="five">
+      <div><input id="s1" type="number" min="0" max="100" value="100" aria-label="Year 1 share"><small>LY1</small></div>
+      <div><input id="s2" type="number" min="0" max="100" value="100" aria-label="Year 2 share"><small>LY2</small></div>
+      <div><input id="s3" type="number" min="0" max="100" value="100" aria-label="Year 3 share"><small>LY3</small></div>
+      <div><input id="s4" type="number" min="0" max="100" value="50" aria-label="Year 4 share"><small>LY4</small></div>
+      <div><input id="s5" type="number" min="0" max="100" value="25" aria-label="Year 5 share"><small>LY5</small></div>
+    </div>
+  </div>
+  <div class="field">
+    <label for="pd">Product development, $M</label>
+    <input id="pd" type="number" min="0" step="0.1" value="11.7">
+  </div>
+  <label class="check"><input id="credit" type="checkbox" checked> Volume goodwill credit ($0.65M at 50 cities, phased in from 35)</label>
+</aside>
+
+<main class="main">
+  <section class="panel deal" aria-labelledby="dealH">
+    <h2 id="dealH">Deal at a glance · <span id="dealName"></span></h2>
+    <p class="summary" id="dealSummary"></p>
+    <div class="tablewrap"><table id="dealTable"></table></div>
+    <div id="dealFlag"></div>
+    <details id="dealMoreWrap"><summary>How this deal works</summary><ul id="dealMore"></ul></details>
+  </section>
+  <section class="kpis" aria-label="Summary">
+    <div class="kpi lead"><span class="k">NICJR/CAPS commitment</span><span class="v" id="kTotal"></span><span class="s" id="kTotalS"></span></div>
+    <div class="kpi"><span class="k">NICJR/CAPS cost per city</span><span class="v" id="kPC"></span><span class="s">software, 5-year lifecycle</span></div>
+    <div class="kpi"><span class="k">City floor per year</span><span class="v" id="kFloor"></span><span class="s" id="kFloorS"></span></div>
+    <div class="kpi"><span class="k">Scale-up investment per city</span><span class="v" id="kScale"></span><span class="s">NICJR/CAPS payment above the floor</span></div>
+    <div class="kpi"><span class="k">Durable ARR</span><span class="v" id="kArr"></span><span class="s">cities × floor, before escalator</span></div>
+    <div class="kpi"><span class="k">Lowest NRR</span><span class="v" id="kNrr"></span><span class="s" id="kNrrS"></span></div>
+  </section>
+
+  <section class="panel">
+    <h2>Commitment curve</h2>
+    <p class="sub">NICJR/CAPS total including product development, by cities committed. Dots are the submitted anchors.</p>
+    <div id="curve"></div>
+  </section>
+
+  <section class="panel">
+    <h2>Rates at this commitment</h2>
+    <p class="sub">NICJR/CAPS pays blended rates; cities pay floor rates. NICJR/CAPS cost per city = implementation + Σ share × (support + license).</p>
+    <div class="tablewrap"><table id="rates"></table></div>
+  </section>
+
+  <section class="two">
+    <div class="panel">
+      <h2>ARR by year</h2>
+      <p class="sub" id="arrSub"></p>
+      <div id="arrChart"></div>
+      <div class="legendrow"><span><i class="sw" style="background:var(--funder)"></i>Subscription ARR</span><span><i class="sw" style="background:var(--funder-soft)"></i>One-time fees that year</span></div>
+    </div>
+    <div class="panel">
+      <h2>NRR by year</h2>
+      <p class="sub">Below 100% = existing cities pay less than the year before.</p>
+      <div id="nrrChart"></div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>Compare all four mechanics</h2>
+    <p class="sub">Same cities, cadence and escalator; only the pricing mechanic changes. Tap a mechanic to show or hide it. The one selected on the left is drawn heaviest.</p>
+    <div class="chips" id="cmpChips" role="group" aria-label="Mechanics to show"></div>
+    <div class="two">
+      <div><h3 class="mini">Subscription ARR by year</h3><div id="cmpArr"></div></div>
+      <div><h3 class="mini">NRR by year</h3><div id="cmpNrr"></div></div>
+    </div>
+  </section>
+
+  <section class="panel illus" aria-label="Pace risk, illustrative only">
+    <h2>Pace risk to Bonterra <span class="tag">Illustrative</span></h2>
+    <p class="sub">Compares the fixed commitment price to the original rate card (tier prices by network size), not to Bonterra’s actual cost to deliver. Shows direction only: a slower rollout keeps more cities on higher tiers. Not a margin estimate until finance supplies cost-to-serve.</p>
+    <div class="tablewrap"><table id="pace"></table></div>
+  </section>
+
+  <section class="panel">
+    <h2>Check against submitted figures</h2>
+    <div class="tablewrap"><table id="fixtures"></table></div>
+  </section>
+</main>
+</div>
+
+<footer>Assumptions: the 2 pilot cities restart a full 5-year lifecycle in cohort 1, priced like their cohort (tagged Renewal for customer classification). Fastest ramp follows the 50-city plan (8 / 17 / 13 / 12) until the commitment is reached; paced spreads the commitment across four years in the same proportions. License is billed from each city’s first year. All mechanics renew at the floor after year 5. SafeStat license excluded. Figures are non-GAAP planning estimates.</footer>
+</div>
+
+<script>
+const ANCH={25:{I:40,S:195,L:190,fS:130,fL:180},35:{I:25,S:165,L:180,fS:100,fL:180},50:{I:15,S:125,L:176,fS:75,fL:170}};
+const SUBMITTED={25:48.8,35:57.9,50:68.2};
+const TIERS=[[0,350,200,400],[8,250,190,300],[25,125.2,180,150],[38,75,170,80]];
+const CREDIT=650.2, H=10;
+const $=id=>document.getElementById(id);
+const state={n:35,shape:'stop',mech:'M4',esc:3,sun:[1,1,1,.5,.25],pd:11.7,credit:true,show:{M1:true,M2:true,M3:true,M4:true,ref:true}};
+
+function rates(N){const[a,b]=N<=35?[25,35]:[35,50];const t=(N-a)/(b-a),r={};for(const k in ANCH[a])r[k]=ANCH[a][k]+t*(ANCH[b][k]-ANCH[a][k]);r.F=r.fS+r.fL;return r;}
+function w(){return state.sun.reduce((a,b)=>a+b,0);}
+function funderPC(r){return r.I+w()*(r.S+r.L);}
+function creditAt(N){return state.credit?CREDIT*Math.max(0,(N-35)/15):0;}
+function total(N){const r=rates(N);return(N*funderPC(r)+state.pd*1000-creditAt(N))/1000;}
+
+function cohorts(N,shape){
+  const list=[];
+  if(shape==='stop'){let rem=N;[8,17,13,12].forEach((p,i)=>{const c=Math.min(p,rem);if(c>0)list.push(['c'+(i+1),c,i+1,1]);rem-=c;});return list;}
+  const raw=[8,17,13,12].map(v=>N*v/50),fl=raw.map(Math.floor);
+  let left=N-fl.reduce((a,b)=>a+b,0);
+  const order=raw.map((v,i)=>[v-Math.floor(v),i]).sort((a,b)=>b[0]-a[0]||a[1]-b[1]);
+  for(let k=0;k<left;k++)fl[order[k][1]]++;
+  for(let i=0;i<4;i++)if(fl[i]>0)list.push(['c'+(i+1),fl[i],i+1,1]);
+  return list;
+}
+function tierFor(E){let t=TIERS[0];for(const row of TIERS)if(E>=row[0])t=row;return t;}
+function existingAt(co,y){return co.reduce((s,[,c,y0])=>s+(y0<y?c:0),0);}
+
+function run(N,shape,mech,esc){
+  const co=cohorts(N,shape),r=rates(N),F=r.F,W=w(),arr={},one=Array(H+1).fill(0);let funder=0,city=0,cityTerm=0;
+  const lt={};co.forEach(([nm,,y0])=>lt[nm]=tierFor(existingAt(co,y0)));
+  for(const[nm,c,y0,e]of co){
+    for(let y=y0;y<=H;y++){
+      const ly=e+(y-y0);let p;
+      if(ly<=5){
+        if(mech==='M1'){const t=tierFor(existingAt(co,y));p=t[1]+t[2];}
+        else if(mech==='M2'){const t=lt[nm];p=t[1]+t[2];}
+        else if(mech==='M3')p=r.S+r.L; else p=F;
+        const b=state.sun[ly-1];funder+=c*p*b;city+=c*p*(1-b);cityTerm+=c*p*(1-b);
+      }else{p=F*Math.pow(1+esc,ly-5);city+=c*p;}
+      arr[nm+'|'+y]=c*p;
+      if(ly===1){let fee;
+        if(mech==='M1'||mech==='M2'){const t=lt[nm];fee=t[3]-t[1];}
+        else if(mech==='M3')fee=r.I; else fee=(r.I+W*(r.S+r.L))-W*F;
+        one[y]+=c*fee;funder+=c*fee;}
+    }
+  }
+  const ARR=[],NRR=[];
+  for(let y=1;y<=H;y++){let s=0;co.forEach(([nm])=>{s+=arr[nm+'|'+y]||0});ARR.push(s);}
+  for(let y=2;y<=H;y++){let a=0,b=0;co.forEach(([nm])=>{if(arr[nm+'|'+(y-1)]!==undefined){a+=arr[nm+'|'+y];b+=arr[nm+'|'+(y-1)];}});NRR.push(a/b);}
+  return{ARR,NRR,one:one.slice(1),funder,city,cityTerm,co};
+}
+
+function cityYears(rate){
+  return state.sun.map((s,i)=>[i+1,(1-s)*rate]).filter(([,v])=>v>0).map(([ly,v])=>`Yr ${ly}: ${fmtK(v)}`).join(' · ');
+}
+function renderDeal(N,r,pc){
+  const W=w(),Wc=5-W,F=r.F,B=r.S+r.L,m=state.mech,cr=creditAt(N),tot=total(N);
+  const names={M4:'M4 Floor subscription + onboarding',M3:'M3 Flat blended ACV',M1:'M1 Network step-down',M2:'M2 Vintage lock'};
+  $('dealName').textContent=`${names[m]}, ${N} cities`;
+  const funderLine='NICJR/CAPS on the city’s behalf';
+  const prog=(fund,cityAmt)=>`<tr class="tot"><td>Program</td><td colspan="2">× ${N} cities: NICJR/CAPS ${fmtM(fund/1000)} + ${fmtM(state.pd)} product development${cr>0?` − ${fmtM(cr/1000)} volume goodwill credit`:''}; cities ${fmtM(cityAmt/1000)} during the sunset</td><td class="amt">${fmtM((fund+state.pd*1000-cr)/1000)}</td></tr>`;
+  const head='<thead><tr><th>Who pays</th><th>Contract</th><th>What it covers</th><th>Per city</th></tr></thead><tbody>';
+  const C='<i class="who" style="background:var(--city)"></i>',Fd='<i class="who" style="background:var(--funder)"></i>';
+  let rows='',flag='',more=[];
+  if(m==='M4'){
+    const onb=pc-W*F;
+    $('dealSummary').textContent=`Each city subscribes at a permanent ${fmtK(F)} a year. NICJR/CAPS pays that subscription in full in years 1–3, tapers in years 4–5, and separately funds onboarding.`;
+    rows=`<tr><td>${C}City</td><td>5-year subscription with Bonterra; the city is the customer</td><td>Support ${fmtK(r.fS)} + license ${fmtK(r.fL)} = ${fmtK(F)} a year (the floor). ${cityYears(F)}, then ${fmtK(F)} a year from year 6.</td><td class="amt">${fmtK(Wc*F)}</td></tr>
+    <tr><td>${Fd}NICJR/CAPS</td><td>Same subscription, paid by ${funderLine}</td><td>${state.sun.map((s,i)=>`${Math.round(s*100)}%`).join(' / ')} of the floor in years 1–5</td><td class="amt">${fmtK(W*F)}</td></tr>
+    <tr><td>${Fd}NICJR/CAPS</td><td>Onboarding and scale-up agreement</td><td>Implementation plus the ramp cost above the floor; one-time</td><td class="amt">${fmtK(onb)}</td></tr>
+    <tr class="tot"><td>Per city, 5 years</td><td colspan="2">NICJR/CAPS ${fmtK(pc)} + city ${fmtK(Wc*F)}</td><td class="amt">${fmtK(pc+Wc*F)}</td></tr>`+prog(N*pc,N*Wc*F);
+    flag=`<div class="flag ok">Fits the submitted NICJR/CAPS total and the rule that cities pay the floor.</div>`;
+    more=['Two contracts: a 5-year subscription signed by each city, and a one-time onboarding and scale-up agreement funded by NICJR/CAPS.','ARR is the floor subscription only, so it never steps down; onboarding is one-time revenue.','NRR stays at 100% through the term and rises with the escalator after renewal.','Payment by NICJR/CAPS on the city’s behalf is part of the city’s contract price, so each city counts as its own customer (confirm with Bonterra finance).'];
+  }else if(m==='M3'){
+    const extra=Wc*(B-F);
+    $('dealSummary').textContent=`Each city subscribes at the blended ${fmtK(B)} a year for five years, then renews at the ${fmtK(F)} floor. NICJR/CAPS pays its sunset share plus implementation.`;
+    rows=`<tr><td>${C}City</td><td>5-year subscription at the blended rate</td><td>Support ${fmtK(r.S)} + license ${fmtK(r.L)} = ${fmtK(B)} a year. ${cityYears(B)}, then ${fmtK(F)} a year from year 6.</td><td class="amt">${fmtK(Wc*B)}</td></tr>
+    <tr><td>${Fd}NICJR/CAPS</td><td>Same subscription, paid by ${funderLine}</td><td>${state.sun.map(s=>`${Math.round(s*100)}%`).join(' / ')} of the blended rate in years 1–5</td><td class="amt">${fmtK(W*B)}</td></tr>
+    <tr><td>${Fd}NICJR/CAPS</td><td>Implementation</td><td>One-time</td><td class="amt">${fmtK(r.I)}</td></tr>
+    <tr class="tot"><td>Per city, 5 years</td><td colspan="2">NICJR/CAPS ${fmtK(pc)} + city ${fmtK(Wc*B)}</td><td class="amt">${fmtK(pc+Wc*B)}</td></tr>`+prog(N*pc,N*Wc*B);
+    flag=`<div class="flag">Cities pay ${fmtK(extra)} more per city than under the floor rule (${fmtM(N*extra/1000)} across ${N} cities). At renewal the price drops from ${fmtK(B)} to ${fmtK(F)} (−${((1-F/B)*100).toFixed(0)}%), which counts as contraction.</div>`;
+    more=['One 5-year subscription per city at a flat blended price; NICJR/CAPS pays its sunset share.','ARR looks higher during the term than under M4, then steps down to the floor at renewal.','NICJR/CAPS total matches the submission; the city share does not follow the floor rule.'];
+  }else{
+    const res=run(N,state.shape,m,0),avgF=res.funder/N,avgC=res.cityTerm/N,diff=res.funder-(N*pc-cr);
+    const desc=m==='M1'?'Rate set each year by network size: $550K → $440K → $305.2K → $245K (support + license)':'Rate fixed for five years at the tier in effect when the city launched';
+    $('dealSummary').textContent=m==='M1'?'Every city’s rate falls as the network grows. NICJR/CAPS pays its sunset share plus stand-up fees at the rate in effect.':'Each city keeps the rate in effect when it launched for five years, then renews at the floor. Early cities pay more than later ones.';
+    rows=`<tr><td>${C}City</td><td>5-year subscription; ${m==='M1'?'rate resets each year':'rate locked at launch'}</td><td>${desc}. Renews at ${fmtK(F)} a year.</td><td class="amt">${fmtK(avgC)} avg</td></tr>
+    <tr><td>${Fd}NICJR/CAPS</td><td>Subscription share plus stand-up fees, paid by ${funderLine}</td><td>Sunset share of the rate in effect, plus stand-up less first-year support</td><td class="amt">${fmtK(avgF)} avg</td></tr>
+    <tr class="tot"><td>Per city, 5 years</td><td colspan="2">Varies by launch year; averages shown (${state.shape==='stop'?'fastest ramp':'paced'} rollout)</td><td class="amt">${fmtK(avgF+avgC)}</td></tr>`+prog(res.funder,res.cityTerm);
+    const fit=Math.abs(diff)<100?`in line with the commitment price of ${fmtM((N*pc-cr)/1000)}`:`${fmtM(Math.abs(diff)/1000)} ${diff>=0?'above':'below'} the commitment price of ${fmtM((N*pc-cr)/1000)}`;
+    flag=`<div class="flag">NICJR/CAPS pays ${fmtM(res.funder/1000)} in software under this mechanic, ${fit}. Existing cities’ ${m==='M1'?'rates fall in the build years':'rates fall at renewal'}, which counts as contraction.</div>`;
+    more=m==='M1'?['Matches the cost model that produced the 50-city submission.','Each step down in the rate card lowers what existing cities pay, so NRR drops sharply in the build years.','The NICJR/CAPS total depends on rollout pace: slower rollouts cost more.']:['Early cities pay the highest rates for their whole term, which raises fairness and churn risk.','ARR peaks mid-program, then falls as early cohorts renew at the floor.','Needs substantially more from NICJR/CAPS than the submitted totals.'];
+  }
+  $('dealTable').innerHTML=head+rows+'</tbody>';
+  $('dealFlag').innerHTML=flag;
+  $('dealMore').innerHTML=more.map(t=>`<li>${t}</li>`).join('');
+}
+
+const fmtM=v=>'$'+(v).toFixed(2)+'M';
+const fmtK=v=>'$'+(Math.round(v*10)/10).toLocaleString('en-US')+'K';
+const pct=v=>(v*100).toFixed(1)+'%';
+
+function curveSVG(){
+  const W=640,Hh=250,l=56,rgt=18,t=18,b=38,lo=44,hi=72,x=n=>l+(n-25)/25*(W-l-rgt),y=v=>t+(hi-v)/(hi-lo)*(Hh-t-b);
+  let s=`<svg viewBox="0 0 ${W} ${Hh}" role="img" aria-label="NICJR/CAPS commitment by cities committed">`;
+  for(let v=45;v<=70;v+=5)s+=`<line class="gl" x1="${l}" x2="${W-rgt}" y1="${y(v)}" y2="${y(v)}"/><text x="${l-8}" y="${y(v)+4}" text-anchor="end">$${v}M</text>`;
+  for(const n of[25,30,35,40,45,50])s+=`<text x="${x(n)}" y="${Hh-14}" text-anchor="middle">${n}</text>`;
+  let d='';for(let n=25;n<=50;n++)d+=(n===25?'M':'L')+x(n)+' '+y(total(n))+' ';
+  s+=`<path class="line" d="${d}"/>`;
+  for(const n of[25,35,50]){const v=total(n);s+=`<circle class="dot" cx="${x(n)}" cy="${y(v)}" r="4.5"><title>${n} cities: ${fmtM(v)} (submitted $${SUBMITTED[n]}M)</title></circle><text class="lbl" x="${x(n)+(n===50?-8:8)}" y="${y(v)+(n===50?18:-8)}" text-anchor="${n===50?'end':'start'}">$${SUBMITTED[n]}M</text>`;}
+  const v=total(state.n);
+  s+=`<line class="cur" x1="${x(state.n)}" x2="${x(state.n)}" y1="${t}" y2="${Hh-b}"/><circle class="curdot" cx="${x(state.n)}" cy="${y(v)}" r="5.5"><title>${state.n} cities: ${fmtM(v)}</title></circle>`;
+  return s+'</svg>';
+}
+function barSVG(vals,ones){
+  const W=420,Hh=230,l=48,rgt=10,t=14,b=30,max=Math.max(...vals.map((v,i)=>v+ones[i]))*1.1/1000,top=Math.ceil(max/5)*5||5;
+  const bw=(W-l-rgt)/vals.length,y=v=>t+(top-v)/top*(Hh-t-b);
+  let s=`<svg viewBox="0 0 ${W} ${Hh}" role="img" aria-label="ARR by year">`;
+  for(let v=0;v<=top;v+=top/5)s+=`<line class="gl" x1="${l}" x2="${W-rgt}" y1="${y(v)}" y2="${y(v)}"/><text x="${l-6}" y="${y(v)+4}" text-anchor="end">$${v}M</text>`;
+  vals.forEach((v,i)=>{const a=v/1000,o=ones[i]/1000,x=l+i*bw+bw*.18,bwi=bw*.64;
+    s+=`<rect class="bar" x="${x}" y="${y(a)}" width="${bwi}" height="${y(0)-y(a)}"><title>Y${i+1}: ARR ${fmtM(a)}</title></rect>`;
+    if(o>0)s+=`<rect class="bar one" x="${x}" y="${y(a+o)}" width="${bwi}" height="${y(a)-y(a+o)}"><title>Y${i+1}: one-time ${fmtM(o)}</title></rect>`;
+    s+=`<text x="${x+bwi/2}" y="${Hh-10}" text-anchor="middle">Y${i+1}</text>`;});
+  return s+'</svg>';
+}
+function nrrSVG(n){
+  const W=420,Hh=230,l=48,rgt=10,t=14,b=30,lo=60,hi=110,x=i=>l+i/(n.length-1)*(W-l-rgt-10)+5,y=v=>t+(hi-v)/(hi-lo)*(Hh-t-b);
+  let s=`<svg viewBox="0 0 ${W} ${Hh}" role="img" aria-label="NRR by year">`;
+  for(let v=60;v<=110;v+=10)s+=`<line class="${v===100?'ref':'gl'}" x1="${l}" x2="${W-rgt}" y1="${y(v)}" y2="${y(v)}"/><text x="${l-6}" y="${y(v)+4}" text-anchor="end">${v}%</text>`;
+  let d='';n.forEach((v,i)=>{const p=Math.max(lo,Math.min(hi,v*100));d+=(i?'L':'M')+x(i)+' '+y(p)+' ';});
+  s+=`<path class="line" d="${d}"/>`;
+  n.forEach((v,i)=>{const p=Math.max(lo,Math.min(hi,v*100));s+=`<circle class="dot" cx="${x(i)}" cy="${y(p)}" r="3.5"><title>Y${i+2}: ${pct(v)}</title></circle><text x="${x(i)}" y="${Hh-10}" text-anchor="middle">Y${i+2}</text>`;});
+  return s+'</svg>';
+}
+
+
+const MECHS=[
+  {k:'M1',label:'M1 Network step-down',dash:'2 4'},
+  {k:'M2',label:'M2 Vintage lock',dash:'10 4 2 4'},
+  {k:'M3',label:'M3 Flat blended ACV',dash:'7 4'},
+  {k:'M4',label:'M4 Floor + onboarding',dash:''}
+];
+function lineStyle(m){const sel=m.k===state.mech;return{col:sel?'var(--funder)':'var(--muted)',w:sel?3.2:1.8,dash:m.dash};}
+function chipSwatch(dash,col,w){return `<svg viewBox="0 0 26 10" aria-hidden="true"><line x1="1" x2="25" y1="5" y2="5" stroke="${col}" stroke-width="${w}" stroke-dasharray="${dash}" stroke-linecap="round"/></svg>`;}
+function renderChips(){
+  const html=MECHS.map(m=>{const st=lineStyle(m);return `<button type="button" class="chip" data-k="${m.k}" aria-pressed="${state.show[m.k]}">${chipSwatch(st.dash,st.col,st.w)}${m.label}</button>`;}).join('')+
+    `<button type="button" class="chip" data-k="ref" aria-pressed="${state.show.ref}">${chipSwatch('3 3','var(--muted)',1.4)}Durable ARR / 100% NRR</button>`;
+  $('cmpChips').innerHTML=html;
+  $('cmpChips').querySelectorAll('.chip').forEach(b=>b.addEventListener('click',()=>{state.show[b.dataset.k]=!state.show[b.dataset.k];render();}));
+}
+function cmpSVG(series,kind,refVal){
+  const W=460,Hh=250,l=50,rgt=12,t=12,b=30,n=series[0].vals.length;
+  const all=series.filter(s=>state.show[s.k]).flatMap(s=>s.vals).filter(v=>v!=null);
+  let lo,hi,fmt;
+  if(kind==='arr'){lo=0;hi=Math.max(5,...all,state.show.ref?refVal:0)*1.12;hi=Math.ceil(hi/5)*5;fmt=v=>`$${v}M`;}
+  else{lo=Math.min(0.6,...all.map(v=>Math.floor(v*20)/20));hi=1.1;fmt=v=>`${Math.round(v*100)}%`;}
+  const x=i=>l+i/(n-1)*(W-l-rgt),y=v=>t+(hi-v)/(hi-lo)*(Hh-t-b);
+  const step=kind==='arr'?hi/5:0.1;
+  let s=`<svg viewBox="0 0 ${W} ${Hh}" role="img" aria-label="${kind==='arr'?'Subscription ARR':'NRR'} by year for each pricing mechanic">`;
+  for(let v=lo;v<=hi+1e-9;v+=step){const vv=Math.round(v*100)/100;s+=`<line class="gl" x1="${l}" x2="${W-rgt}" y1="${y(vv)}" y2="${y(vv)}"/><text x="${l-6}" y="${y(vv)+4}" text-anchor="end">${fmt(kind==='arr'?Math.round(vv):vv)}</text>`;}
+  for(let i=0;i<n;i++)s+=`<text x="${x(i)}" y="${Hh-10}" text-anchor="middle">Y${i+(kind==='arr'?1:2)}</text>`;
+  if(state.show.ref)s+=`<line class="ref" x1="${l}" x2="${W-rgt}" y1="${y(refVal)}" y2="${y(refVal)}"/>`;
+  const order=[...series].sort((a,b)=>(a.k===state.mech)-(b.k===state.mech));
+  for(const sr of order){
+    if(!state.show[sr.k])continue;
+    const st=lineStyle(MECHS.find(m=>m.k===sr.k));
+    let d='';sr.vals.forEach((v,i)=>{d+=(i?'L':'M')+x(i)+' '+y(Math.max(lo,Math.min(hi,v)))+' ';});
+    s+=`<path class="cmp" d="${d}" stroke="${st.col}" stroke-width="${st.w}" stroke-dasharray="${st.dash}"/>`;
+    sr.vals.forEach((v,i)=>{s+=`<circle cx="${x(i)}" cy="${y(Math.max(lo,Math.min(hi,v)))}" r="${sr.k===state.mech?3.5:2.5}" fill="${st.col}"><title>${MECHS.find(m=>m.k===sr.k).label}, Y${i+(kind==='arr'?1:2)}: ${kind==='arr'?fmtM(v):pct(v)}</title></circle>`;});
+  }
+  return s+'</svg>';
+}
+function renderCompare(N){
+  const res=MECHS.map(m=>({k:m.k,r:run(N,state.shape,m.k,state.esc/100)}));
+  const F=rates(N).F;
+  $('cmpArr').innerHTML=cmpSVG(res.map(o=>({k:o.k,vals:o.r.ARR.map(v=>v/1000)})),'arr',N*F/1000);
+  $('cmpNrr').innerHTML=cmpSVG(res.map(o=>({k:o.k,vals:o.r.NRR})),'nrr',1);
+  renderChips();
+}
+
+function render(){
+  const N=state.n,r=rates(N),W=w(),pc=funderPC(r);
+  $('nOut').textContent=N;
+  document.querySelectorAll('.ticks button').forEach(b=>b.setAttribute('aria-current',+b.dataset.n===N));
+  const tot=total(N);
+  $('kTotal').textContent=fmtM(tot);
+  $('kTotalS').textContent=`incl. $${state.pd.toFixed(1)}M product development${creditAt(N)>0?`, less ${fmtM(creditAt(N)/1000)} volume goodwill credit`:''}`;
+  $('kPC').textContent=fmtK(pc);
+  $('kFloor').textContent=fmtK(r.F);
+  $('kFloorS').textContent=`support ${fmtK(r.fS)} + license ${fmtK(r.fL)}`;
+  $('kScale').textContent=fmtK(pc-W*r.F);
+  $('kArr').textContent=fmtM(N*r.F/1000);
+
+  const res=run(N,state.shape,state.mech,state.esc/100);
+  const minI=res.NRR.reduce((m,v,i,a)=>v<a[m]?i:m,0);
+  $('kNrr').textContent=pct(res.NRR[minI]);
+  $('kNrrS').textContent=`${state.mech}, Y${minI+2}`;
+
+  const sizes=res.co.map(([nm,c,y0])=>({nm,c,y0}));
+  const byYear=[1,2,3,4].map(y=>sizes.filter(s=>s.y0===y).reduce((a,s)=>a+s.c,0));
+  $('shapeHint').textContent=`Cities live by year: ${byYear.map((v,i)=>`Y${i+1} ${v}`).join(' · ')} (Y1 includes the 2 pilot cities)`;
+  const mh={M4:'City pays the floor from day one; everything above it is a one-time onboarding fee. Matches the submitted totals.',M3:'Blended rate flat for 5 years, then floor at renewal. Cities pay their sunset share on the blended rate.',M1:'Every city’s rate falls as the network grows (cost-model tiers). Contracts in the build years.',M2:'Each cohort keeps its launch-year tier rate for 5 years. Needs more from NICJR/CAPS than submitted.'};
+  $('mechHint').textContent=mh[state.mech];
+  $('arrSub').textContent=`${state.mech}, ${state.shape==='stop'?'fastest ramp':'paced'} rollout, ${state.esc}% escalator from renewal. Peak ARR ${fmtM(Math.max(...res.ARR)/1000)}.`;
+
+  renderDeal(N,r,pc);
+  $('curve').innerHTML=curveSVG();
+  $('arrChart').innerHTML=barSVG(res.ARR,res.one);
+  $('nrrChart').innerHTML=nrrSVG(res.NRR);
+  renderCompare(N);
+
+  const rows=[['Implementation (one-time)','I'],['Support, per year','S'],['License, per year','L'],['NICJR/CAPS cost per city','PC'],['Floor support, per year','fS'],['Floor license, per year','fL'],['City floor, per year','F']];
+  const cols=[25,35,50];
+  const cell=(n,k)=>{const rr=rates(n);return fmtK(k==='PC'?funderPC(rr):rr[k]);};
+  let h=`<thead><tr><th>Per city</th>${cols.map(c=>`<th>${c} cities</th>`).join('')}<th class="sel">${N} cities</th></tr></thead><tbody>`;
+  rows.forEach(([lab,k])=>{h+=`<tr class="${k==='PC'||k==='F'?'tot':''}"><td>${lab}</td>${cols.map(c=>`<td>${cell(c,k)}</td>`).join('')}<td class="sel">${cell(N,k)}</td></tr>`;});
+  $('rates').innerHTML=h+'</tbody>';
+
+  const stop=run(N,'stop','M1',0).funder/1000,spread=run(N,'spread','M1',0).funder/1000,comm=(N*pc-creditAt(N))/1000;
+  const p=(v)=>`<span class="pill ${v>=0?'ok':'warn'}">${v>=0?'+':''}${fmtM(v)}</span>`;
+  $('pace').innerHTML=`<thead><tr><th></th><th>Fastest ramp</th><th>Paced</th></tr></thead><tbody>
+    <tr><td>NICJR/CAPS software at commitment price (after credit)</td><td>${fmtM(comm)}</td><td>${fmtM(comm)}</td></tr>
+    <tr><td>Cost model, NICJR/CAPS share (tier rates)</td><td>${fmtM(stop)}</td><td>${fmtM(spread)}</td></tr>
+    <tr class="tot"><td>Cushion (+) or shortfall (−) for Bonterra</td><td>${p(comm-stop)}</td><td>${p(comm-spread)}</td></tr></tbody>`;
+
+  let f=`<thead><tr><th>Cities</th><th>Calculator total</th><th>Submitted</th><th></th></tr></thead><tbody>`;
+  cols.forEach(n=>{const v=total(n),ok=Math.abs(v-SUBMITTED[n])<0.05;f+=`<tr><td>${n}</td><td>${fmtM(v)}</td><td>$${SUBMITTED[n]}M</td><td><span class="pill ${ok?'ok':'warn'}">${ok?'Matches':'Differs'}</span></td></tr>`;});
+  $('fixtures').innerHTML=f+'</tbody>';
+}
+
+function bind(){
+  $('n').addEventListener('input',e=>{state.n=+e.target.value;render();});
+  document.querySelectorAll('.ticks button').forEach(b=>b.addEventListener('click',()=>{state.n=+b.dataset.n;$('n').value=state.n;render();}));
+  const setShape=s=>{state.shape=s;$('shapeStop').setAttribute('aria-pressed',s==='stop');$('shapeSpread').setAttribute('aria-pressed',s==='spread');render();};
+  $('shapeStop').addEventListener('click',()=>setShape('stop'));
+  $('shapeSpread').addEventListener('click',()=>setShape('spread'));
+  $('mech').addEventListener('change',e=>{state.mech=e.target.value;render();});
+  $('esc').addEventListener('input',e=>{state.esc=Math.max(0,+e.target.value||0);render();});
+  [1,2,3,4,5].forEach(i=>$('s'+i).addEventListener('input',()=>{state.sun=[1,2,3,4,5].map(j=>Math.min(100,Math.max(0,+$('s'+j).value||0))/100);render();}));
+  $('pd').addEventListener('input',e=>{state.pd=Math.max(0,+e.target.value||0);render();});
+  $('credit').addEventListener('change',e=>{state.credit=e.target.checked;render();});
+}
+bind();render();
+</script>
+
+</body></html>
