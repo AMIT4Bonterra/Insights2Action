@@ -1,0 +1,2105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>SafeStat Deal Room</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+/* Layout: a dark masthead carries the deal's headline numbers and the tabs; below it, a quiet inputs rail beside
+   sections that fold to a single line. Color is reserved for the money: ARR in blues, one-time in ambers. */
+:root{
+  --page:#ffffff; --rail:#f4f5f7; --ink:#0f1a2a; --ink-2:#3a4657; --muted:#667183; --rule:#e3e6eb; --rule-2:#cbd1d9;
+  --mast:#0f1a2a; --mast-ink:#ffffff; --mast-muted:#9aa7b9; --mast-rule:#24324a; --mast-chip:#17243a;
+  --focus:#244f9c; --sel:#ebf1fb;
+  --arr1:#244f9c; --arr2:#5f93e6; --one1:#b85c14; --one2:#dba041; --hatch-bg:#dbe6f8; --hatch-line:#244f9c;
+  --arr-bg:#eaf1fc; --one-bg:#fdf2e3; --warn:#8a5300; --warn-bg:#fff3dc; --on-fill:#ffffff;
+  --sheet:#ffffff; --sheet-ink:#1c1c1c; --sheet-muted:#5a5a5a; --sheet-rule:#d4d4d4;
+  --sheet-field:#f5f7fa; --sheet-field-line:#cfd6df; --sheet-warn:#8a5300; --sheet-warn-bg:#fff3dc;
+  --font:"Public Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --serif:"Source Serif 4",Georgia,"Times New Roman",serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --page:#0d131c; --rail:#111924; --ink:#e6ebf1; --ink-2:#b5c0cd; --muted:#8a96a6; --rule:#1e2836; --rule-2:#2e3b4c;
+    --mast:#060a10; --mast-ink:#f3f6fa; --mast-muted:#8b9ab0; --mast-rule:#1b2636; --mast-chip:#111a27;
+    --focus:#6f9ee8; --sel:#16223a;
+    --arr1:#3566c4; --arr2:#6f9ee8; --one1:#a14d12; --one2:#c3922f; --hatch-bg:#18294a; --hatch-line:#6f9ee8;
+    --arr-bg:#13233e; --one-bg:#2b1f10; --warn:#f0b55c; --warn-bg:#2d2310; --on-fill:#ffffff;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --page:#0d131c; --rail:#111924; --ink:#e6ebf1; --ink-2:#b5c0cd; --muted:#8a96a6; --rule:#1e2836; --rule-2:#2e3b4c;
+  --mast:#060a10; --mast-ink:#f3f6fa; --mast-muted:#8b9ab0; --mast-rule:#1b2636; --mast-chip:#111a27;
+  --focus:#6f9ee8; --sel:#16223a;
+  --arr1:#3566c4; --arr2:#6f9ee8; --one1:#a14d12; --one2:#c3922f; --hatch-bg:#18294a; --hatch-line:#6f9ee8;
+  --arr-bg:#13233e; --one-bg:#2b1f10; --warn:#f0b55c; --warn-bg:#2d2310; --on-fill:#ffffff;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none !important}
+body{background:var(--page); color:var(--ink); font-family:var(--font); font-size:15px; line-height:1.55; margin:0; -webkit-font-smoothing:antialiased}
+.gut{padding-left:max(16px, env(safe-area-inset-left, 0px)); padding-right:max(16px, env(safe-area-inset-right, 0px))}
+.inner{max-width:1320px; margin:0 auto}
+button{font:inherit}
+:focus-visible{outline:2px solid var(--focus); outline-offset:2px}
+
+/* Masthead */
+.mast{background:var(--mast); color:var(--mast-ink)}
+.mast .inner{padding-block:22px 0}
+.mast-top{display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap}
+.eyebrow{font-size:11.5px; letter-spacing:.13em; text-transform:uppercase; color:var(--mast-muted); font-weight:600}
+.view{display:inline-flex; border:1px solid var(--mast-rule); border-radius:999px; padding:2px; background:var(--mast-chip)}
+.view button{font-size:12.5px; font-weight:600; color:var(--mast-muted); background:transparent; border:0; border-radius:999px; padding:5px 13px; cursor:pointer}
+.view button[aria-pressed="true"]{background:var(--mast-ink); color:var(--mast)}
+.mast :focus-visible{outline-color:var(--mast-ink)}
+h1{font-size:clamp(30px, 4.4vw, 44px); line-height:1.04; letter-spacing:-.025em; margin:16px 0 6px; font-weight:700; text-wrap:balance}
+.mast-sub{color:var(--mast-muted); margin:0; font-size:14px}
+.figs{display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:0 28px; margin-top:24px; padding-top:16px; border-top:1px solid var(--mast-rule)}
+.fig{min-width:0; padding-bottom:4px}
+.fig .k{font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--mast-muted); font-weight:600; display:flex; gap:6px; align-items:center; flex-wrap:wrap}
+.fig .v{display:block; font-size:27px; font-weight:600; letter-spacing:-.015em; line-height:1.2; margin-top:4px}
+.fig .s{display:block; font-size:12.5px; color:var(--mast-muted)}
+.lock{font-size:9.5px; letter-spacing:.08em; border:1px solid var(--mast-rule); border-radius:3px; padding:0 4px; color:var(--mast-muted)}
+.tabs{display:flex; gap:28px; margin-top:22px; overflow-x:auto}
+.tab{font-size:14px; font-weight:600; color:var(--mast-muted); background:none; border:0; border-bottom:2px solid transparent; padding:10px 0 12px; cursor:pointer; white-space:nowrap}
+.tab[aria-selected="true"]{color:var(--mast-ink); border-bottom-color:var(--mast-ink)}
+
+/* Main */
+main .inner{padding-block:28px 72px}
+.model{display:grid; grid-template-columns:284px minmax(0, 1fr); gap:40px; align-items:start}
+.rail{position:sticky; top:calc(env(safe-area-inset-top, 0px) + 12px); background:var(--rail); border-radius:12px; padding:18px; display:grid; gap:18px; max-height:calc(100vh - 24px); overflow:auto; min-width:0}
+.ctl{display:grid; gap:8px; min-width:0}
+.ctl-label{font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); font-weight:700}
+.ctl-head{display:flex; justify-content:space-between; align-items:baseline; gap:10px}
+.seg{display:grid; grid-auto-flow:column; grid-auto-columns:1fr; border:1px solid var(--rule-2); border-radius:9px; padding:2px; background:var(--page)}
+.seg button{font-size:12.5px; font-weight:600; color:var(--ink-2); background:transparent; border:0; border-radius:7px; padding:7px 6px; cursor:pointer; line-height:1.25}
+.seg button[aria-pressed="true"]{background:var(--ink); color:var(--page)}
+.seg.sm button{font-size:12px; padding:5px 6px}
+.chips{display:flex; flex-wrap:wrap; gap:6px}
+.chip{font-size:12px; font-weight:600; color:var(--ink-2); background:var(--page); border:1px solid var(--rule-2); border-radius:999px; padding:4px 10px; cursor:pointer}
+.chip[aria-pressed="true"]{border-color:var(--ink); color:var(--ink); box-shadow:inset 0 0 0 1px var(--ink)}
+.years{display:grid; grid-template-columns:repeat(5, minmax(0, 1fr)); gap:6px}
+.years label{display:grid; gap:4px; text-align:center; font-size:11px; color:var(--muted); font-weight:600}
+input[type="number"], input[type="text"], input[type="password"], select{font:inherit; font-size:14px; color:var(--ink); background:var(--page); border:1px solid var(--rule-2); border-radius:7px; padding:7px 8px; width:100%; font-variant-numeric:tabular-nums; min-width:0}
+input:disabled{opacity:.5}
+.years input{text-align:center; padding:7px 2px}
+.inline{display:flex; align-items:center; gap:10px; font-size:13px; color:var(--ink-2)}
+.inline input{width:64px; flex:none; text-align:center}
+.field{display:grid; gap:4px; font-size:12px; color:var(--muted); font-weight:600}
+.grid3{display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:6px}
+.hint{font-size:12.5px; color:var(--muted); margin:0}
+.warns{display:grid; gap:6px}
+.warn{font-size:12.5px; color:var(--warn); background:var(--warn-bg); border-radius:7px; padding:6px 9px; margin:0}
+.btnrow{display:flex; gap:8px; flex-wrap:wrap}
+.btn{font-size:13px; font-weight:600; border-radius:8px; padding:8px 13px; cursor:pointer; border:1px solid var(--rule-2); background:var(--page); color:var(--ink)}
+.btn.dark{background:var(--ink); color:var(--page); border-color:var(--ink)}
+.btn:disabled{opacity:.4; cursor:default}
+details.more summary{cursor:pointer; font-size:12.5px; font-weight:600; color:var(--ink-2)}
+details.more[open] summary{margin-bottom:8px}
+.status{font-size:12.5px; color:var(--muted); margin:0; min-height:1.2em}
+
+.content{min-width:0}
+.toolbar{display:flex; justify-content:flex-end; gap:16px; margin:-6px 0 4px}
+.linkbtn{font-size:12.5px; font-weight:600; color:var(--muted); background:none; border:0; cursor:pointer; padding:4px 0}
+.linkbtn:hover{color:var(--ink)}
+.linkbtn.u{color:var(--ink-2); text-decoration:underline; text-decoration-thickness:1px; text-underline-offset:2px; padding:0}
+.sec{border-bottom:1px solid var(--rule)}
+.secs > .sec:first-child{border-top:1px solid var(--rule)}
+.sec-head{display:flex; align-items:center; gap:12px; width:100%; padding:15px 0; cursor:pointer; background:none; border:0; color:inherit; text-align:left}
+.chev{width:14px; height:14px; flex:none; color:var(--muted); transition:transform .15s ease}
+.sec[data-open="false"] .chev{transform:rotate(-90deg)}
+.sec-title{font-size:17px; font-weight:600; letter-spacing:-.005em}
+.tag{font-size:10px; letter-spacing:.09em; text-transform:uppercase; font-weight:700; color:var(--muted); border:1px solid var(--rule-2); border-radius:4px; padding:1px 6px}
+.sec-sum{margin-left:auto; font-size:13.5px; color:var(--muted); text-align:right; font-variant-numeric:tabular-nums}
+.sec-body{padding:2px 0 28px}
+.sec[data-open="false"] .sec-body{display:none}
+body.share [data-internal]{display:none !important}
+body:not(.share) [data-shareonly]{display:none !important}
+
+/* Chart */
+.chart-tools{display:flex; flex-wrap:wrap; gap:10px 20px; align-items:center; justify-content:space-between; margin-bottom:12px}
+.legend{display:flex; flex-wrap:wrap; gap:6px 16px; font-size:12.5px; color:var(--ink-2)}
+.key{display:inline-flex; align-items:center; gap:7px}
+.sw{display:inline-block; width:12px; height:12px; border-radius:3px; flex:none}
+.sw.platN{background:var(--arr1)}
+.sw.platC{background:var(--arr2)}
+.sw.feeA{background:repeating-linear-gradient(45deg, var(--hatch-line) 0 2px, var(--hatch-bg) 2px 5px)}
+.sw.feeO{background:var(--one1)}
+.sw.pd{background:var(--one2)}
+.sw.early{background:radial-gradient(circle, rgba(255,255,255,.65) .9px, transparent 1.4px) 0 0/4px 4px, var(--arr1)}
+.sw.gap{background:var(--warn-bg); box-shadow:inset 0 0 0 1px color-mix(in srgb, var(--warn) 45%, transparent)}
+.sw.cash{width:16px; height:2px; border-radius:1px; background:var(--ink)}
+.toggles{display:flex; gap:14px; flex-wrap:wrap; font-size:12.5px; color:var(--ink-2)}
+.toggles label{display:inline-flex; gap:6px; align-items:center; cursor:pointer}
+.toggles input{accent-color:var(--ink)}
+.chart{position:relative; min-height:200px}
+.chart svg{display:block; width:100%; height:auto}
+svg .grid{stroke:var(--rule); stroke-width:1}
+svg .base{stroke:var(--rule-2); stroke-width:1}
+svg .tick{fill:var(--muted); font-size:11px; font-family:var(--font); font-variant-numeric:tabular-nums}
+svg .s-platN{fill:var(--arr1)}
+svg .s-platC{fill:var(--arr2)}
+svg .s-feeO{fill:var(--one1)}
+svg .s-pd{fill:var(--one2)}
+svg .hatch-bg{fill:var(--hatch-bg)}
+svg .hatch-line{fill:var(--hatch-line)}
+svg .selband{fill:transparent}
+svg .selband.on{fill:var(--sel)}
+svg .cashline{fill:none; stroke:var(--ink); stroke-width:2; stroke-linejoin:round; stroke-linecap:round}
+svg .cashdot{fill:var(--ink); stroke:var(--page); stroke-width:2}
+svg .hit{fill:transparent; cursor:pointer; outline:none}
+svg .hit:focus-visible{stroke:var(--focus); stroke-width:2}
+svg .hitm{fill:transparent}
+.tip{position:absolute; top:0; pointer-events:none; background:var(--ink); color:var(--page); border-radius:8px; padding:9px 11px; font-size:12.5px; line-height:1.5; width:280px; max-width:calc(100% - 8px); box-shadow:0 8px 28px rgba(0,0,0,.22); z-index:5}
+.tip .tt{font-weight:700; margin-bottom:3px}
+.tip .row{display:flex; gap:10px; align-items:center; justify-content:space-between}
+.tip .row > span{display:inline-flex; gap:7px; align-items:center; min-width:0}
+.tip .row b{font-weight:600; font-variant-numeric:tabular-nums}
+.tip .tot{border-top:1px solid color-mix(in srgb, var(--page) 30%, transparent); margin-top:5px; padding-top:5px}
+.tip .sw.cash{background:var(--page)}
+.tip .more{margin-top:6px; font-size:11.5px; font-style:italic; opacity:.78}
+
+/* Show the math */
+.math{margin-top:14px; border:1px solid var(--rule-2); border-radius:10px; padding:12px 16px 8px; background:var(--page)}
+.math-head{display:flex; align-items:center; gap:6px 12px; flex-wrap:wrap; padding-bottom:8px; border-bottom:1px solid var(--rule-2)}
+.math-title{font-size:15px; font-weight:700; margin:0; outline-offset:4px}
+.math-meta{font-size:12.5px; color:var(--muted)}
+.math-nav{margin-left:auto; display:flex; gap:6px; align-items:center}
+.iconbtn{font-size:17px; line-height:1; width:30px; height:28px; border-radius:7px; border:1px solid var(--rule-2); background:var(--page); color:var(--ink); cursor:pointer}
+.iconbtn:disabled{opacity:.35; cursor:default}
+.math-nav .linkbtn{margin-left:6px}
+.mrow{display:grid; grid-template-columns:12px minmax(0, 1fr) auto; gap:2px 10px; align-items:start; padding:8px 0; border-bottom:1px solid var(--rule)}
+.mrow:last-child{border-bottom:0}
+.mrow .sw{margin-top:4px}
+.mrow .ml{font-size:13.5px; min-width:0}
+.mrow em{display:block; font-size:12.5px; color:var(--muted); font-style:italic; font-variant-numeric:tabular-nums; overflow-wrap:anywhere}
+.mrow b{font-weight:600; font-size:13.5px; font-variant-numeric:tabular-nums; white-space:nowrap}
+.mrow.tot .ml, .mrow.tot b{font-weight:700}
+.math-note{font-size:12.5px; color:var(--muted); margin:6px 0 4px}
+
+/* Early signing, explained */
+.ex{display:grid; gap:22px}
+.ex-steps{list-style:none; margin:0; padding:0; display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:8px}
+.ex-steps button{width:100%; height:100%; display:grid; gap:2px; align-content:start; text-align:left; padding:8px 4px 0 0; background:none; border:0; border-top:3px solid var(--rule-2); color:var(--muted); cursor:pointer; font-size:13px; font-weight:600; line-height:1.3}
+.ex-steps .n{font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; font-weight:700}
+.ex-steps button.done{border-top-color:var(--ink-2); color:var(--ink-2)}
+.ex-steps button[aria-current="step"]{border-top-color:var(--ink); color:var(--ink)}
+.ex-stage{display:grid; grid-template-columns:minmax(0, 5fr) minmax(0, 7fr); gap:22px 44px; align-items:start}
+.ex-copy{display:grid; gap:10px; min-width:0}
+.ex-h{font-size:20px; letter-spacing:-.01em; margin:0; font-weight:700; text-wrap:balance; outline-offset:4px}
+.ex-copy p{margin:0; color:var(--ink-2); max-width:58ch}
+.ex-copy b{color:var(--ink); font-weight:700}
+.ex-viz{min-width:0; display:grid; gap:18px}
+.ex-msg{display:grid; gap:12px; justify-items:start; max-width:64ch; color:var(--ink-2)}
+.ex-msg p{margin:0}
+.xb{display:grid; gap:12px; padding-top:22px}
+.xb-row{display:grid; grid-template-columns:52px minmax(0, 1fr) 60px; gap:10px; align-items:center}
+.xb-name{font-size:12px; font-weight:600; color:var(--muted)}
+.xb-track{position:relative; display:block; height:28px}
+.xb-seg{position:absolute; top:0; bottom:0; border-radius:4px}
+.xb-seg.live{background:var(--arr1)}
+.xb-seg.early{background:radial-gradient(circle, rgba(255,255,255,.6) 1.1px, transparent 1.7px) 0 0/6px 6px, var(--arr1)}
+.xb-seg.net{background:repeating-linear-gradient(45deg, var(--hatch-line) 0 2px, var(--hatch-bg) 2px 6px)}
+.xb-seg.gap{background:var(--warn-bg); box-shadow:inset 0 0 0 1px color-mix(in srgb, var(--warn) 40%, transparent)}
+.xb-target{position:absolute; top:-6px; bottom:-6px; width:2px; margin-left:-1px; background:var(--ink); border-radius:1px}
+.xb-tl{position:absolute; bottom:100%; right:0; margin-bottom:3px; font-size:11px; font-weight:600; color:var(--ink-2); white-space:nowrap}
+.xb-val{font-size:14px; font-weight:700; text-align:right}
+.xl{display:grid}
+.xr{display:grid; grid-template-columns:12px minmax(0, 1fr) auto; gap:10px; align-items:start; padding:6px 0; border-bottom:1px solid var(--rule); font-size:13px}
+.xr:last-child{border-bottom:0}
+.xr .sw{margin-top:4px}
+.xr em{display:block; font-style:italic; font-size:12px; color:var(--muted)}
+.xr b{font-weight:600; white-space:nowrap}
+.xp{display:grid; gap:10px}
+.xp-cap{margin:0; font-size:12px; font-weight:600; color:var(--muted)}
+.xp-cols{display:grid; grid-template-columns:repeat(var(--n), minmax(0, 1fr)); gap:8px; align-items:end}
+.xp-col{display:grid; gap:5px; justify-items:center; min-width:0}
+.xp-col.dim{opacity:.38}
+.xp-amt{font-size:12px; font-weight:600}
+.xp-stack{display:flex; flex-direction:column; justify-content:flex-end; gap:2px; width:min(48px, 100%); height:96px}
+.xp-seg{display:block; width:100%; flex:none}
+.xp-seg:first-child{border-radius:4px 4px 0 0}
+.xp-seg.net{background:repeating-linear-gradient(45deg, var(--hatch-line) 0 2px, var(--hatch-bg) 2px 6px)}
+.xp-seg.cut{background:radial-gradient(circle, rgba(255,255,255,.6) 1.1px, transparent 1.7px) 0 0/6px 6px, var(--arr1)}
+.xp-yr{font-size:11px; color:var(--muted)}
+.xp-note{margin:0; font-size:12.5px; color:var(--ink-2); display:flex; gap:8px; align-items:center}
+.xt{display:grid; gap:6px}
+.xt-row{display:grid; grid-template-columns:minmax(84px, 112px) minmax(0, 1fr) minmax(0, 1.35fr); gap:6px; align-items:stretch}
+.xt-head span{font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); font-weight:700; padding:0 2px}
+.xt-name{font-size:12.5px; font-weight:600; align-self:center; line-height:1.3}
+.xt-cell{border-radius:6px; padding:8px 10px; font-size:12.5px; line-height:1.35; min-width:0}
+.xt-cell b{display:block; font-weight:700}
+.xt-cell.setup{border:1px solid var(--rule-2); color:var(--muted)}
+.xt-cell.paid{background:radial-gradient(circle, rgba(255,255,255,.2) 1px, transparent 1.6px) 0 0/6px 6px, var(--arr1); color:var(--on-fill)}
+.xt-cell.live{background:var(--arr-bg); color:var(--ink-2)}
+.xt-sum{margin:6px 0 0; font-size:13px; color:var(--ink-2)}
+.ex-eq{display:flex; flex-wrap:wrap; align-items:center; gap:8px; padding:12px 14px; border-radius:10px; background:var(--rail)}
+.eq-l{font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); font-weight:700; margin-right:2px}
+.tok{display:inline-flex; align-items:center; gap:7px; padding:4px 10px; border-radius:999px; background:var(--page); border:1px solid var(--rule-2); font-size:13px; font-weight:600; white-space:nowrap}
+.tok .sw{width:10px; height:10px; border-radius:2px}
+.tok.new{border-color:var(--ink); box-shadow:inset 0 0 0 1px var(--ink)}
+.tok.pending{color:var(--muted); font-weight:500; font-style:italic}
+.tok.total{background:var(--ink); color:var(--page); border-color:var(--ink)}
+.op{color:var(--muted); font-weight:700}
+.eq-note{font-size:12.5px; color:var(--muted); margin-left:auto}
+.ex-facts{display:grid; grid-template-columns:repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap:16px 28px; padding-top:16px; border-top:1px solid var(--rule)}
+.ex-facts h4{font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin:0 0 6px; font-weight:700}
+.ex-facts ul{margin:0; padding-left:16px; display:grid; gap:4px; font-size:13.5px; color:var(--ink-2)}
+.ex-nav{display:flex; gap:10px 16px; align-items:center; flex-wrap:wrap}
+.ex-nav .go{margin-left:auto}
+.ex-in{margin-left:auto; font-size:13px; color:var(--ink-2); font-weight:600}
+
+/* Tables */
+.tbl{overflow-x:auto}
+table{border-collapse:collapse; width:100%; font-size:13px; font-variant-numeric:tabular-nums}
+th, td{padding:7px 8px; text-align:right; white-space:nowrap; border-bottom:1px solid var(--rule)}
+th:first-child, td:first-child{text-align:left; white-space:normal; min-width:180px}
+thead th{font-size:10.5px; letter-spacing:.07em; text-transform:uppercase; color:var(--muted); font-weight:700; border-bottom:1px solid var(--rule-2); vertical-align:bottom}
+thead tr + tr th:first-child{min-width:0; text-align:right}
+thead th.span{text-align:center; white-space:normal}
+thead th.wrap{white-space:normal; min-width:96px}
+tr.grp td{font-size:10.5px; letter-spacing:.09em; text-transform:uppercase; color:var(--muted); font-weight:700; padding-top:16px; border-bottom:1px solid var(--rule-2)}
+tr.arr td{background:var(--arr-bg)}
+tr.one td{background:var(--one-bg)}
+tr.tot td{font-weight:700}
+td.strong{font-weight:600}
+th.cum, td.cum{border-left:1px solid var(--rule-2)}
+.cityfees{display:flex; flex-wrap:wrap; gap:22px 40px; align-items:flex-start}
+.cityfees > .bill{flex:1 1 540px; max-width:780px; min-width:0}
+.cityfees > .costs{flex:1 1 320px; max-width:520px; min-width:0}
+#bill tbody td:first-child, #bill thead tr:first-child th:first-child{min-width:140px}
+h3{font-size:13px; letter-spacing:.02em; margin:0 0 6px; font-weight:700; color:var(--ink-2)}
+.note{font-size:13px; color:var(--muted); margin:10px 0 0; max-width:78ch}
+
+/* Decision points and notes */
+.dl{margin:0}
+.dl .d{display:grid; grid-template-columns:minmax(150px, 230px) minmax(0, 1fr); gap:4px 28px; padding:11px 0; border-bottom:1px solid var(--rule)}
+.dl .d:first-child{border-top:1px solid var(--rule)}
+.dl dt{font-weight:600}
+.dl dd{margin:0; color:var(--ink-2); max-width:70ch}
+.dl .d .tag{margin-left:8px; vertical-align:1px}
+ul.notes{margin:0; padding-left:18px; display:grid; gap:8px; max-width:78ch; color:var(--ink-2)}
+ul.notes b{color:var(--ink); font-weight:600}
+
+/* Compare */
+.board-tools{display:flex; flex-wrap:wrap; gap:14px 24px; align-items:end; justify-content:space-between; margin-bottom:8px}
+.addform{display:flex; gap:8px; flex-wrap:wrap; align-items:end}
+.addform .field{width:320px; max-width:100%}
+.store{display:grid; gap:10px; margin:2px 0 6px}
+.store-line{margin:0; font-size:13px; color:var(--ink-2); display:flex; flex-wrap:wrap; gap:4px 16px; align-items:baseline}
+.store-acts{display:inline-flex; gap:16px; flex-wrap:wrap}
+.ghform{display:grid; gap:12px; max-width:680px; padding:14px 16px; border:1px solid var(--rule-2); border-radius:10px; background:var(--rail)}
+.ghgrid{display:grid; grid-template-columns:repeat(auto-fit, minmax(min(240px, 100%), 1fr)); gap:10px 14px}
+.check{display:inline-flex; gap:8px; align-items:center; font-size:13px; color:var(--ink-2); cursor:pointer}
+.check input{accent-color:var(--ink)}
+.cards{display:grid; grid-template-columns:repeat(auto-fill, minmax(min(290px, 100%), 1fr)); gap:34px 36px; margin-top:20px}
+.card{display:grid; gap:8px; min-width:0; padding-top:12px; border-top:2px solid var(--ink); align-content:start}
+.card.ref{border-top-color:var(--rule-2)}
+.card.cur{border-top-style:dashed}
+.card .nm{margin:0; font-size:15px; font-weight:600; color:var(--ink); letter-spacing:0}
+.card .meta{font-size:12.5px; color:var(--muted)}
+.card .mini{min-height:120px}
+.card dl{display:grid; grid-template-columns:1fr 1fr; gap:8px 16px; margin:2px 0 0}
+.card dt{font-size:10.5px; letter-spacing:.07em; text-transform:uppercase; color:var(--muted); font-weight:700}
+.card dd{margin:0; font-weight:600; font-size:15px}
+.card .acts{display:flex; gap:14px; flex-wrap:wrap; align-items:center; font-size:12.5px}
+.card .acts input{width:auto; flex:1; min-width:140px}
+.empty{color:var(--muted); font-size:13.5px; margin:22px 0 0}
+.sharemsg{color:var(--ink-2); max-width:60ch}
+
+/* Term sheet */
+.sheet-tools{display:flex; flex-wrap:wrap; gap:12px 18px; align-items:end; justify-content:space-between; max-width:880px; margin:0 auto 18px}
+.sheet-tools .field{width:min(360px, 100%)}
+.sheet-status{max-width:880px; margin:-8px auto 14px}
+.sheet{background:var(--sheet); color:var(--sheet-ink); max-width:880px; margin:0 auto; padding:clamp(24px, 6vw, 68px); border:1px solid var(--rule); box-shadow:0 1px 0 rgba(0,0,0,.03), 0 22px 60px rgba(15,26,42,.10); font-family:var(--serif); font-size:15.5px; line-height:1.6}
+.sheet .kick{font-family:var(--font); font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--sheet-muted); font-weight:600}
+.sheet h2{font-family:var(--serif); font-weight:600; font-size:29px; margin:8px 0 4px; letter-spacing:-.01em; color:var(--sheet-ink)}
+.sheet .sub{color:var(--sheet-muted); font-style:italic; margin:0 0 28px}
+.sheet table{font-size:15.5px; font-variant-numeric:normal; border-top:1.5px solid var(--sheet-ink)}
+.sheet td{white-space:normal; text-align:left; vertical-align:top; border-bottom:1px solid var(--sheet-rule); padding:13px 14px 13px 0; color:var(--sheet-ink)}
+.sheet td:first-child{width:30%; min-width:0; font-weight:600}
+.sheet td p{margin:0 0 6px}
+.sheet td p:last-child{margin:0}
+.sheet .num{font-family:var(--font); font-size:12px; color:var(--sheet-muted); margin-right:8px; font-weight:500}
+.sheet .foot{margin:24px 0 0; font-size:13.5px; color:var(--sheet-muted); font-style:italic}
+/* Editing the term sheet (the paper stays light in both themes) */
+.sheet{color-scheme:light}
+.sheet .t-head{display:flex; align-items:flex-start; gap:6px}
+.sheet .t-head .num{padding-top:7px; margin-right:0}
+.sheet .t-title{flex:1; min-width:0; display:block; font:inherit; font-weight:600; line-height:1.35; color:var(--sheet-ink); background:var(--sheet-field); border:1px solid var(--sheet-field-line); border-radius:6px; padding:5px 8px; resize:none; overflow:hidden}
+.sheet .t-text{display:block; width:100%; min-height:46px; font:inherit; color:var(--sheet-ink); background:var(--sheet-field); border:1px solid var(--sheet-field-line); border-radius:6px; padding:7px 9px; line-height:1.55; resize:vertical; overflow:hidden}
+.sheet .t-acts{display:flex; flex-wrap:wrap; gap:4px 14px; margin-top:6px}
+.sheet .linkbtn{font-family:var(--font); font-size:12px; color:var(--sheet-muted)}
+.sheet .linkbtn:hover, .sheet .linkbtn.u{color:var(--sheet-ink)}
+.sheet .t-flag{font-family:var(--font); font-size:12px; line-height:1.45; font-weight:500; color:var(--sheet-warn); background:var(--sheet-warn-bg); border-radius:6px; padding:6px 8px; margin:8px 0 0}
+.sheet .t-flag .linkbtn{font-size:12px; color:var(--sheet-warn)}
+.sheet .t-mark{display:block; margin-top:4px; font-family:var(--font); font-size:10px; letter-spacing:.09em; text-transform:uppercase; font-weight:700; color:var(--sheet-muted)}
+.sheet .t-mark.warn{color:var(--sheet-warn)}
+.sheet tr.removed td{font-family:var(--font); font-size:13px; color:var(--sheet-muted); padding:9px 0}
+.sheet .t-add{margin-top:16px}
+.sheet .t-add .btn{font-family:var(--font); background:var(--sheet); color:var(--sheet-ink); border-color:var(--sheet-field-line)}
+#ts-edits .linkbtn{font-size:12.5px; padding:0}
+
+@media (max-width:1000px){
+  .model{grid-template-columns:minmax(0, 1fr); gap:24px}
+  .rail{position:static; max-height:none}
+}
+@media (max-width:860px){
+  .ex-stage{grid-template-columns:minmax(0, 1fr)}
+}
+@media (max-width:600px){
+  .sec-head{flex-wrap:wrap; row-gap:2px}
+  .sec-sum{flex-basis:100%; text-align:left; margin-left:26px}
+  .fig .v{font-size:22px}
+  .tabs{gap:20px}
+  .dl .d{grid-template-columns:minmax(0, 1fr)}
+  th:first-child, td:first-child{min-width:150px}
+  .ex-steps .t{display:none}
+  .eq-note{margin-left:0; flex-basis:100%}
+  .sheet td{display:block; width:auto !important; padding:2px 0; border:0}
+  .sheet tr{display:block; padding:12px 0; border-bottom:1px solid var(--sheet-rule)}
+}
+@media (prefers-reduced-motion: reduce){.chev{transition:none}}
+</style>
+</head>
+<body>
+<header class="mast">
+  <div class="gut"><div class="inner">
+    <div class="mast-top">
+      <span class="eyebrow">Bonterra · SafeStat network deal</span>
+      <div class="view" role="group" aria-label="Who this view is for">
+        <button type="button" id="v-int" aria-pressed="true">Internal</button>
+        <button type="button" id="v-share" aria-pressed="false">Shareable</button>
+      </div>
+    </div>
+    <h1>SafeStat Deal Room</h1>
+    <p class="mast-sub" id="mast-sub">25-city network · working draft</p>
+    <div class="figs" id="figs"></div>
+    <nav class="tabs" role="tablist" aria-label="Sections">
+      <button type="button" class="tab" role="tab" id="t-model" data-tab="model" aria-controls="p-model" aria-selected="true">Model</button>
+      <button type="button" class="tab" role="tab" id="t-compare" data-tab="compare" aria-controls="p-compare" aria-selected="false">Compare</button>
+      <button type="button" class="tab" role="tab" id="t-terms" data-tab="terms" aria-controls="p-terms" aria-selected="false">Term sheet</button>
+    </nav>
+  </div></div>
+</header>
+
+<main>
+  <div class="gut"><div class="inner">
+
+    <section class="panel" id="p-model" role="tabpanel" aria-labelledby="t-model">
+      <div class="model">
+        <aside class="rail" aria-label="Inputs">
+          <div class="ctl">
+            <span class="ctl-label">Start from</span>
+            <div class="chips" id="presets"></div>
+          </div>
+          <div class="ctl">
+            <span class="ctl-label" id="lbl-method">Payment structure</span>
+            <div class="seg" role="group" aria-labelledby="lbl-method">
+              <button type="button" data-k="method" data-v="fixed" aria-pressed="true">Fixed invoice schedule</button>
+              <button type="button" data-k="method" data-v="asl" aria-pressed="false">As cities launch</button>
+            </div>
+          </div>
+          <div class="ctl">
+            <span class="ctl-label" id="lbl-basis">Network subscription fee</span>
+            <div class="seg" role="group" aria-labelledby="lbl-basis">
+              <button type="button" data-k="basis" data-v="network" aria-pressed="true">Network-wide</button>
+              <button type="button" data-k="basis" data-v="city" aria-pressed="false">Per city</button>
+            </div>
+            <div class="seg sm" id="seg-term" role="group" aria-label="Network-wide fee counted over">
+              <button type="button" data-k="term" data-v="5" aria-pressed="true">Over 5 years</button>
+              <button type="button" data-k="term" data-v="4" aria-pressed="false">Over 4 years</button>
+            </div>
+            <div class="seg sm" id="seg-fee" role="group" aria-label="Per-city fee billed" hidden>
+              <button type="button" data-k="fee" data-v="annual" aria-pressed="true">Yearly, Years 1–5</button>
+              <button type="button" data-k="fee" data-v="once" aria-pressed="false">At go-live</button>
+            </div>
+            <p class="hint" id="fee-hint"></p>
+          </div>
+          <div class="ctl">
+            <div class="ctl-head">
+              <label class="ctl-label" for="early">Early signings</label>
+              <button type="button" class="linkbtn u" id="explain-open" data-internal>How this works</button>
+            </div>
+            <div class="inline"><input type="number" id="early" min="0" max="8" step="1" inputmode="numeric"><span id="early-of"></span></div>
+            <p class="hint" id="early-hint"></p>
+          </div>
+          <div class="ctl">
+            <span class="ctl-label">Cities launched</span>
+            <div class="years">
+              <label for="y1">Year 1<input type="number" id="y1" min="0" max="40" step="1" inputmode="numeric"></label>
+              <label for="y2">Year 2<input type="number" id="y2" min="0" max="40" step="1" inputmode="numeric"></label>
+              <label for="y3">Year 3<input type="number" id="y3" min="0" max="40" step="1" inputmode="numeric"></label>
+              <label for="y4">Year 4<input type="number" id="y4" min="0" max="40" step="1" inputmode="numeric"></label>
+              <label for="y5">Year 5<input type="number" id="y5" min="0" max="40" step="1" inputmode="numeric"></label>
+            </div>
+            <p class="hint" id="total-hint"></p>
+            <div class="warns" id="warns" aria-live="polite"></div>
+          </div>
+          <div class="ctl">
+            <span class="ctl-label">Post-philanthropy cost share</span>
+            <label class="field" for="cbos">CBOs per city<input type="number" id="cbos" min="1" max="200" step="1" inputmode="numeric"></label>
+            <details class="more">
+              <summary>Split of the platform subscription</summary>
+              <div class="grid3">
+                <label class="field" for="sp0">City %<input type="number" id="sp0" min="0" max="100" step="5" inputmode="numeric"></label>
+                <label class="field" for="sp1">Grants %<input type="number" id="sp1" min="0" max="100" step="5" inputmode="numeric"></label>
+                <label class="field" for="sp2">CBOs %<input type="number" id="sp2" min="0" max="100" step="5" inputmode="numeric"></label>
+              </div>
+            </details>
+          </div>
+          <div class="ctl">
+            <div class="btnrow">
+              <button type="button" class="btn dark" id="add-rail" data-internal>Add to board</button>
+              <button type="button" class="btn" id="reset">Reset</button>
+            </div>
+            <p class="status" id="rail-status" aria-live="polite"></p>
+          </div>
+        </aside>
+
+        <div class="content">
+          <div class="toolbar">
+            <button type="button" class="linkbtn" id="collapse-all">Collapse all</button>
+            <button type="button" class="linkbtn" id="expand-all">Expand all</button>
+          </div>
+          <div class="secs">
+            <section class="sec" data-sec="chart" data-open="true" data-internal>
+              <button type="button" class="sec-head" aria-expanded="true" aria-controls="b-chart">
+                <svg class="chev" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span class="sec-title">Revenue by year</span><span class="tag">Internal</span>
+                <span class="sec-sum" id="sum-chart"></span>
+              </button>
+              <div class="sec-body" id="b-chart">
+                <div class="chart-tools">
+                  <div class="legend" id="legend"></div>
+                  <div class="toggles"><label for="cashline"><input type="checkbox" id="cashline">Cash line</label></div>
+                </div>
+                <div class="chart" id="chart"><div class="tip" id="tip" hidden></div></div>
+                <div class="math" id="math" role="region" aria-label="The math for the selected year" hidden></div>
+                <p class="note">Bars show revenue as delivered: subscriptions as cities go live, product development on schedule. The line shows cash received from NSI and the cities that year. Hover or tab to a year for the figures; click it, or press Enter, to see the math.</p>
+              </div>
+            </section>
+
+            <section class="sec" data-sec="explain" data-open="false" data-internal>
+              <button type="button" class="sec-head" aria-expanded="false" aria-controls="b-explain">
+                <svg class="chev" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span class="sec-title">Early signing, explained</span><span class="tag">Internal</span>
+                <span class="sec-sum" id="sum-explain"></span>
+              </button>
+              <div class="sec-body" id="b-explain"><div class="ex" id="explain"></div></div>
+            </section>
+
+            <section class="sec" data-sec="schedule" data-open="true">
+              <button type="button" class="sec-head" aria-expanded="true" aria-controls="b-schedule">
+                <svg class="chev" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span class="sec-title">Payment schedule</span>
+                <span class="sec-sum" id="sum-schedule"></span>
+              </button>
+              <div class="sec-body" id="b-schedule"><div class="tbl"><table id="sched"></table></div></div>
+            </section>
+
+            <section class="sec" data-sec="city" data-open="true">
+              <button type="button" class="sec-head" aria-expanded="true" aria-controls="b-city">
+                <svg class="chev" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span class="sec-title">Per-City Fees</span>
+              </button>
+              <div class="sec-body" id="b-city">
+                <div class="cityfees">
+                  <div class="bill"><h3>By the city’s own year</h3><div class="tbl"><table id="bill"></table></div><p class="note" id="city-note"></p></div>
+                  <div class="costs"><h3>Potential post-philanthropy cost share</h3><div class="tbl"><table id="share"></table></div></div>
+                </div>
+              </div>
+            </section>
+
+            <section class="sec" data-sec="decisions" data-open="true">
+              <button type="button" class="sec-head" aria-expanded="true" aria-controls="b-decisions">
+                <svg class="chev" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span class="sec-title">Decision points</span>
+                <span class="sec-sum" id="sum-decisions"></span>
+              </button>
+              <div class="sec-body" id="b-decisions"><dl class="dl" id="decisions"></dl></div>
+            </section>
+
+            <section class="sec" data-sec="notes" data-open="false" data-internal>
+              <button type="button" class="sec-head" aria-expanded="false" aria-controls="b-notes">
+                <svg class="chev" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span class="sec-title">Internal notes</span><span class="tag">Internal</span>
+                <span class="sec-sum" id="sum-notes"></span>
+              </button>
+              <div class="sec-body" id="b-notes"><ul class="notes" id="notes"></ul></div>
+            </section>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" id="p-compare" role="tabpanel" aria-labelledby="t-compare" hidden>
+      <p class="sharemsg" data-shareonly>The scenario board is an internal view. Switch to Internal at the top to use it.</p>
+      <div data-internal>
+        <div class="board-tools">
+          <div class="addform">
+            <label class="field" for="add-name">Name<input type="text" id="add-name" maxlength="60" placeholder="Name this scenario"></label>
+            <button type="button" class="btn dark" id="add-board">Add current model</button>
+          </div>
+          <div class="toggles"><label for="show-refs"><input type="checkbox" id="show-refs">Show structures A–C4</label></div>
+        </div>
+        <div class="store" id="store" hidden>
+          <p class="store-line"><span id="store-text"></span><span class="store-acts" id="store-acts"></span></p>
+          <form class="ghform" id="ghform" hidden novalidate>
+            <div class="ghgrid">
+              <label class="field" for="gh-repo">Repository<input type="text" id="gh-repo" placeholder="owner/repo" autocomplete="off" spellcheck="false"></label>
+              <label class="field" for="gh-token">Access token<input type="password" id="gh-token" placeholder="github_pat_…" autocomplete="off" spellcheck="false"></label>
+            </div>
+            <details class="more">
+              <summary>Branch and file</summary>
+              <div class="ghgrid">
+                <label class="field" for="gh-branch">Branch<input type="text" id="gh-branch" placeholder="Repository default" autocomplete="off" spellcheck="false"></label>
+                <label class="field" for="gh-path">File<input type="text" id="gh-path" placeholder="deal-room-scenarios.json" autocomplete="off" spellcheck="false"></label>
+              </div>
+            </details>
+            <label class="check" for="gh-remember"><input type="checkbox" id="gh-remember">Remember the token on this device</label>
+            <div class="btnrow"><button type="submit" class="btn dark">Connect</button><button type="button" class="btn" id="gh-cancel">Cancel</button></div>
+            <p class="hint" id="gh-status" aria-live="polite"></p>
+            <p class="hint">Use a fine-grained token limited to this repository, with Contents set to read and write. It stays in this browser and is sent only to GitHub. Anyone who can read the repository can read the saved scenarios.</p>
+          </form>
+        </div>
+        <p class="status" id="board-status" aria-live="polite"></p>
+        <div class="legend" id="legend2"></div>
+        <div class="cards" id="cards"></div>
+        <p class="empty" id="board-empty" hidden>No saved scenarios yet. Set up the model and add it here to compare.</p>
+      </div>
+    </section>
+
+    <section class="panel" id="p-terms" role="tabpanel" aria-labelledby="t-terms" hidden>
+      <div class="sheet-tools">
+        <label class="field" for="ts-src">Based on<select id="ts-src"></select></label>
+        <div class="btnrow">
+          <button type="button" class="btn" id="ts-edit" aria-pressed="false">Edit terms</button>
+          <button type="button" class="btn" id="ts-copy">Copy formatted</button>
+          <button type="button" class="btn dark" id="ts-docx" hidden>Download Word</button>
+        </div>
+      </div>
+      <p class="status sheet-status" id="ts-edits" hidden></p>
+      <p class="status sheet-status" id="ts-status" aria-live="polite"></p>
+      <article class="sheet" id="sheet" aria-label="Term sheet"></article>
+    </section>
+
+  </div></div>
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  // ---------- Deal constants (25-city pricing) ----------
+  const N = 25, MAXC = 30, Y = 10, MAXE = 8;
+  const F = 310000;                              // platform subscription (floor): support 130K + license 180K
+  const PC = 40000 + 3.75 * (195000 + 190000);   // per-city commitment at the blended rate: 1,483,750
+  const SU = PC - 3.75 * F;                      // network subscription fee per city: 321,250
+  const FEE = SU / 5;                            // per city, yearly over its first five years: 64,250
+  const POOL = N * SU;                           // network-wide fee: 8,031,250
+  const PD = [4950000, 2250000, 2250000, 2250000];
+  const PDT = 11700000;
+  const COMMIT = N * PC + PDT;                   // 48,793,750
+  const EVEN = COMMIT / 5;                       // 9,758,750
+  const TARGET = 4750000, APRICOT = 10000, ESC = 0.03;
+  const SHARE = [1, 1, 1, 0.5, 0.25];
+  const THR = [0, 8, 25, 38], TS = [350000, 250000, 125200, 75000], TL = [200000, 190000, 180000, 170000], TI = [50000, 50000, 24800, 5000];
+  // Inside Claude the page gets shared storage and downloads from the viewer; anywhere else (GitHub Pages)
+  // it downloads directly and keeps the board in a JSON file in the repository.
+  const IN_CLAUDE = !!(window.claude && typeof window.claude.use === 'function');
+  // Sharing the board through a GitHub repo (token per person) is built but switched off: outside Claude,
+  // scenarios and term-sheet edits save in each person's browser.
+  const GH_SYNC = false;
+
+  const REFS = [
+    { id: 'A', name: 'A · Fixed schedule, up to 30', method: 'fixed', launch: [8, 17, 5, 0, 0] },
+    { id: 'B', name: 'B · As cities launch, 8/17', method: 'asl', launch: [8, 17, 0, 0, 0] },
+    { id: 'C3', name: 'C3 · As cities launch, 3 years', method: 'asl', launch: [8, 9, 8, 0, 0] },
+    { id: 'C4', name: 'C4 · As cities launch, 4 years', method: 'asl', launch: [8, 6, 6, 5, 0] }
+  ];
+  const DEFAULTS = { method: 'fixed', basis: 'network', fee: 'annual', term: 5, early: 0, launch: [8, 17, 5, 0, 0], cbos: 10, split: [50, 35, 15], cash: true };
+  const LS = { state: 'sdr-state-v2', ui: 'sdr-ui-v1', board: 'sdr-board-v1', gh: 'sdr-gh-v1', ght: 'sdr-gh-token-v1' };
+  const SEG = [{ k: 'platN', cls: 's-platN' }, { k: 'platC', cls: 's-platC' }, { k: 'feeA', cls: 's-feeA' }, { k: 'feeO', cls: 's-feeO' }, { k: 'pd', cls: 's-pd' }];
+
+  // ---------- Helpers ----------
+  const $ = (s, r) => (r || document).querySelector(s);
+  const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
+  const sum = (a) => a.reduce((x, y) => x + y, 0);
+  const zeros = () => new Array(Y).fill(0);
+  const step = (x) => { let s = 0; for (let i = 0; i < THR.length; i++) if (x >= THR[i]) s = i; return s; };
+  const clampInt = (v, lo, hi) => { const n = Math.floor(+v); return isFinite(n) ? Math.min(hi, Math.max(lo, n)) : lo; };
+  const escH = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const MINUS = '−';
+  function money(x) {
+    const a = Math.abs(x), s = x < -0.5 ? MINUS : '';
+    if (a >= 999500) return s + '$' + (a / 1e6).toFixed(2) + 'M';
+    if (a >= 9950) return s + '$' + Math.round(a / 1e3) + 'K';
+    if (a >= 1000) return s + '$' + (a / 1e3).toFixed(1) + 'K';
+    return s + '$' + Math.round(a);
+  }
+  const mm = (x) => '$' + (Math.round(x / 1e4) / 100).toFixed(2) + 'M';
+  const kd = (x) => { const k = Math.round(x / 100) / 10; return '$' + (k % 1 ? k.toFixed(1) : k.toFixed(0)) + 'K'; };
+  const usd = (x) => '$' + Math.round(x).toLocaleString('en-US');
+  const m2 = (x) => (Math.abs(x) < 5000 ? '–' : (x < 0 ? MINUS : '') + (Math.abs(x) / 1e6).toFixed(2));
+  const sm2 = (x) => (Math.abs(x) < 5000 ? '–' : (x > 0 ? '+' : MINUS) + (Math.abs(x) / 1e6).toFixed(2));
+  const cnt = (x) => (x ? String(x) : '–');
+  const pct = (x) => Math.round(x * 100) + '%';
+  const cities = (n) => (n === 1 ? 'city' : 'cities');
+  const WORDS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'];
+  const word = (n) => WORDS[n] || String(n);
+  const reduceMotion = () => !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  function paceText(l) {
+    const parts = l.map((c, i) => (c ? c + ' in Year ' + (i + 1) : null)).filter(Boolean);
+    if (!parts.length) return 'no launches set';
+    if (parts.length === 1) return parts[0];
+    return parts.slice(0, -1).join(', ') + ' and ' + parts[parts.length - 1];
+  }
+  function paceShort(l) { let last = 0; l.forEach((c, i) => { if (c) last = i; }); return l.slice(0, last + 1).join('/'); }
+  const useCap = (name) => (IN_CLAUDE ? Promise.resolve(window.claude.use(name)).catch(() => null) : Promise.resolve(null));
+  const store = {
+    get(k) { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { return null; } },
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* storage unavailable */ } },
+    raw(k, v) {
+      try {
+        if (v === undefined) return localStorage.getItem(k) || '';
+        if (v) localStorage.setItem(k, v); else localStorage.removeItem(k);
+      } catch (e) { /* storage unavailable */ }
+      return '';
+    }
+  };
+  const ses = {
+    get(k) { try { return sessionStorage.getItem(k) || ''; } catch (e) { return ''; } },
+    set(k, v) { try { if (v) sessionStorage.setItem(k, v); else sessionStorage.removeItem(k); } catch (e) { /* storage unavailable */ } }
+  };
+
+  // ---------- Model ----------
+  // Funded cities are the first 25 launched. Cities beyond 25 are carried by Bonterra: NSI pays nothing for them,
+  // and they pay their own share from their fourth year. The network subscription fee is either one network-wide
+  // fee counted evenly over the fee term, or charged per funded city. Early signings (network-wide only) start a
+  // Year 2 city's subscription in Year 1, paid by NSI out of the network fee, so NSI's total never changes.
+  function model(p) {
+    const launch = [0, 1, 2, 3, 4].map((i) => clampInt(p.launch[i], 0, 40));
+    const net = p.basis !== 'city';
+    const term = +p.term === 4 ? 4 : 5;
+    let rem = N;
+    const coh = launch.map((c, k) => { const f = Math.min(c, rem); rem -= f; return { k, c, f, b: c - f }; });
+    const earlyCap = Math.min(MAXE, coh[1].f);
+    const early = net ? Math.min(clampInt(p.early || 0, 0, MAXE), earlyCap) : 0;
+    const platN = zeros(), platC = zeros(), feeA = zeros(), feeO = zeros(), pd = zeros(), extraPay = zeros(), carried = zeros(), live = zeros(), launched = zeros();
+    for (let t = 0; t < 4; t++) pd[t] = PD[t];
+    coh.forEach(({ k, c, f, b }) => {
+      launched[k] += c;
+      for (let t = k; t < Y; t++) {
+        live[t] += c;
+        const ly = t - k + 1;
+        if (ly <= 5) {
+          const sh = SHARE[ly - 1];
+          platN[t] += f * F * sh;
+          platC[t] += c * F * (1 - sh);
+          extraPay[t] += b * F * (1 - sh);
+          carried[t] += b * F * sh;
+          if (!net && p.fee !== 'once') feeA[t] += f * FEE;
+        } else {
+          const pr = F * Math.pow(1 + ESC, ly - 5);
+          platC[t] += c * pr;
+          extraPay[t] += b * pr;
+        }
+      }
+      if (!net && p.fee === 'once') feeO[k] += f * SU;
+    });
+    const onb = early * F;
+    const pool = net ? POOL - onb : 0;
+    if (net) {
+      platN[0] += onb;
+      for (let t = 0; t < term; t++) feeA[t] += pool / term;
+    }
+    const asl = zeros().map((_, t) => platN[t] + feeA[t] + feeO[t] + pd[t]);
+    const aslTot = sum(asl);
+    const nic = p.method === 'fixed' ? zeros().map((_, t) => (t < 5 ? EVEN : 0)) : asl.slice();
+    const cash = zeros().map((_, t) => nic[t] + platC[t]);
+    const arrFloor = zeros().map((_, t) => platN[t] + platC[t]);
+    const arr = zeros().map((_, t) => arrFloor[t] + feeA[t]);
+    const earned = zeros().map((_, t) => arr[t] + feeO[t] + pd[t]);
+    const ahead = []; { let a = 0, n = 0; for (let t = 0; t < Y; t++) { a += asl[t]; n += nic[t]; ahead.push(n - a); } }
+    const live0 = zeros().map((_, t) => sum(launch.slice(0, Math.min(t, 5))));
+    let rc = PDT;
+    coh.forEach(({ k, c }) => {
+      if (!c) return;
+      rc += c * TI[step(live0[k])];
+      for (let t = k; t < Y && t - k < 5; t++) { const st = step(live0[t]); rc += c * (TS[st] + TL[st]) * SHARE[t - k]; }
+    });
+    const nicTotal = sum(nic);
+    let last = 0; for (let t = 0; t < Y; t++) if (nic[t] > 1) last = t + 1;
+    let lastFunded = -1; coh.forEach((x) => { if (x.f > 0) lastFunded = x.k; });
+    const total = sum(launch), funded = sum(coh.map((x) => x.f)), extra = sum(coh.map((x) => x.b));
+    return {
+      p, launch, coh, net, term, early, earlyCap, onb, pool, total, funded, extra,
+      platN, platC, feeA, feeO, pd, asl, aslTot, nic, nicTotal, cash, arr, arrFloor, earned, ahead, live, launched, carried,
+      rc, rcDiff: rc - nicTotal, last, termEnd: lastFunded >= 0 ? lastFunded + 5 : 0, liveByY2: launch[0] + launch[1],
+      byY2: nic[0] + nic[1], cash5: sum(cash.slice(0, 5)), cash10: sum(cash), earned5: sum(earned.slice(0, 5)), earned10: sum(earned),
+      y1arr: arr[0], y1arrFloor: arrFloor[0], extraValue: extra * PC, extraPayback: sum(extraPay), extraRun: extraPay[Y - 1],
+      unlaunchedPaid: p.method === 'fixed' ? Math.max(0, COMMIT - aslTot) : 0
+    };
+  }
+
+  // What early signing does to Year 1, for the explainer, the rail and the notes.
+  function exNums(m) {
+    const base = model(Object.assign({}, m.p, { basis: 'network', early: 0 }));
+    const T = base.term, cap = base.earlyCap;
+    const gain = F * (1 - 1 / T), gap = TARGET - base.y1arr;
+    const need = gap > 0.5 ? Math.ceil(gap / gain - 1e-9) : 0;
+    let E = m.net && m.early > 0 ? m.early : (need > 0 ? need : 1);
+    E = Math.max(1, Math.min(E, Math.max(cap, 1)));
+    const aft = model(Object.assign({}, m.p, { basis: 'network', early: E }));
+    return {
+      base, aft, T, cap, gap, need, E, n1: base.coh[0].f, live: base.platN[0] + base.platC[0],
+      feeB: base.feeA[0], feeE: aft.feeA[0], amt: aft.onb, cut: aft.onb / T, before: base.y1arr, now: aft.y1arr
+    };
+  }
+
+  // ---------- State ----------
+  function sanitize(v) {
+    v = v || {};
+    return {
+      method: v.method === 'asl' ? 'asl' : 'fixed',
+      basis: v.basis === 'city' ? 'city' : 'network',
+      fee: v.fee === 'once' ? 'once' : 'annual',
+      term: +v.term === 4 ? 4 : 5,
+      early: clampInt(v.early == null ? 0 : v.early, 0, MAXE),
+      launch: [0, 1, 2, 3, 4].map((i) => clampInt(Array.isArray(v.launch) ? v.launch[i] : 0, 0, 40)),
+      cbos: clampInt(v.cbos == null ? 10 : v.cbos, 1, 200),
+      split: Array.isArray(v.split) && v.split.length === 3 ? v.split.map((x) => Math.max(0, Math.min(100, +x || 0))) : [50, 35, 15],
+      cash: v.cash !== false
+    };
+  }
+  let S = sanitize(store.get(LS.state) || DEFAULTS);
+  const UI0 = { view: 'int', open: { chart: true, explain: false, schedule: true, city: true, decisions: true, notes: false }, refs: true };
+  const UIs = store.get(LS.ui) || {};
+  const UI = Object.assign({}, UI0, UIs, { open: Object.assign({}, UI0.open, UIs.open || {}) });
+  function saveUI() { store.set(LS.ui, UI); }
+  let CUR = model(S);
+  let PIN = null;   // the year whose math is pinned under the chart
+  let EXS = 0;      // explainer step
+
+  function syncInputs() {
+    const cur = { method: S.method, basis: S.basis, term: String(S.term), fee: S.fee };
+    $$('.seg button[data-k]').forEach((b) => b.setAttribute('aria-pressed', cur[b.dataset.k] === b.dataset.v ? 'true' : 'false'));
+    [1, 2, 3, 4, 5].forEach((i) => { const el = $('#y' + i); if (document.activeElement !== el) el.value = S.launch[i - 1]; });
+    if (document.activeElement !== $('#cbos')) $('#cbos').value = S.cbos;
+    [0, 1, 2].forEach((i) => { const el = $('#sp' + i); if (document.activeElement !== el) el.value = S.split[i]; });
+    const e = $('#early'); if (document.activeElement !== e) e.value = S.early;
+    e.disabled = S.basis !== 'network';
+    $('#cashline').checked = S.cash;
+  }
+
+  // ---------- Masthead ----------
+  function renderFigs(m) {
+    const gap = TARGET - m.y1arr;
+    const figs = [
+      { k: 'NSI pays', v: money(m.nicTotal), s: S.method === 'fixed' ? money(EVEN) + ' a year, Years 1–5' : 'As cities launch, through Year ' + m.last },
+      { k: 'Cities', v: String(m.total), s: m.extra > 0 ? m.funded + ' funded + ' + m.extra + ' added' : (m.total < N ? (N - m.funded) + ' short of ' + N : N + ' funded') },
+      { k: 'Live by end of Year 2', v: String(m.liveByY2), s: paceShort(m.launch) + ' rollout' },
+      { k: 'In by end of Year 2', v: money(m.byY2), s: 'NSI payments' },
+      { k: 'Revenue, Years 1–10', v: money(m.earned10), s: 'Years 1–5: ' + money(m.earned5), internal: true },
+      { k: 'Year 1 ARR', v: money(m.y1arr), s: gap > 0.5 ? money(gap) + ' short of ' + money(TARGET) : 'Above the ' + money(TARGET) + ' target', internal: true }
+    ];
+    $('#figs').innerHTML = figs.map((f) => '<div class="fig"' + (f.internal ? ' data-internal' : '') + '><span class="k">' + f.k + '</span><span class="v">' + f.v + '</span><span class="s">' + f.s + (f.internal ? ' <span class="lock">Internal</span>' : '') + '</span></div>').join('');
+    $('#mast-sub').textContent = N + '-city network · ' + (S.method === 'fixed' ? 'fixed invoice schedule' : 'invoiced as cities launch') + ' · ' + (m.net ? 'network-wide fee' : 'fee per city') + ' · working draft';
+  }
+
+  // ---------- Rail ----------
+  function renderPresets() {
+    $('#presets').innerHTML = REFS.map((r) => {
+      const on = r.method === S.method && r.launch.every((v, i) => v === S.launch[i]);
+      return '<button type="button" class="chip" data-ref="' + r.id + '" aria-pressed="' + on + '">' + r.id + ' · ' + paceShort(r.launch) + '</button>';
+    }).join('');
+  }
+  function renderRail(m) {
+    renderPresets();
+    let t = 'Total ' + m.total + '. ';
+    if (m.extra > 0) t += m.funded + ' funded, ' + m.extra + ' added at no cost.';
+    else if (m.total < N) t += (N - m.funded) + ' short of the ' + N + ' funded cities.';
+    else t += 'All ' + N + ' funded cities.';
+    $('#total-hint').textContent = t;
+
+    $('#seg-term').hidden = !m.net;
+    $('#seg-fee').hidden = m.net;
+    const fh = m.net
+      ? 'One fee for the whole network: ' + usd(m.pool / m.term) + ' a year, Years 1–' + m.term + '.'
+      : (S.fee === 'once' ? usd(SU) + ' per funded city, invoiced at go-live.' : usd(FEE) + ' a year per funded city, in its first five years.');
+    const fi = S.method === 'fixed' ? ' Changes when revenue counts, not the invoices.' : ' On this schedule it also sets the invoices.';
+    $('#fee-hint').innerHTML = escH(fh) + '<span data-internal>' + escH(fi) + '</span>';
+
+    const n2 = m.coh[1].f;
+    $('#early-of').textContent = 'of ' + n2 + ' Year 2 ' + cities(n2);
+    $('#early').max = String(Math.max(0, m.earlyCap));
+    let eh = '', ei = '';
+    if (!m.net) eh = 'Available with the network-wide fee.';
+    else if (m.early) {
+      eh = 'They start their subscription at signing in Year 1. NSI covers it from the network subscription fee.';
+      ei = ' Year 1 ARR ' + money(exNums(m).before) + ' → ' + money(m.y1arr) + '.';
+    } else {
+      eh = 'Year 2 cities that start their subscription at signing, before go-live.';
+      const x = exNums(m);
+      if (x.need > 0 && x.need <= x.cap) ei = ' ' + x.need + ' would reach the ' + money(TARGET) + ' Year 1 ARR target.';
+    }
+    $('#early-hint').innerHTML = escH(eh) + (ei ? '<span data-internal>' + escH(ei) + '</span>' : '');
+
+    const w = [];
+    if (S.launch[0] > 8) w.push('Year 1 above 8 launches needs implementation capacity sign-off.');
+    if (S.launch.some((x) => x > 17)) w.push('More than 17 launches in a year is beyond planned capacity.');
+    if (m.total > MAXC) w.push('The network allows up to ' + MAXC + ' cities.');
+    if (m.extra > 0 && S.method === 'asl') w.push('Cities beyond ' + N + ' apply only under the fixed invoice schedule.');
+    if (m.net && S.early > m.earlyCap) w.push(m.earlyCap ? 'Only ' + m.earlyCap + ' Year 2 cities can sign early here, so the model uses ' + m.earlyCap + '.' : 'This rollout has no funded Year 2 cities to sign early.');
+    const sp = S.split[0] + S.split[1] + S.split[2];
+    if (Math.abs(sp - 100) > 0.01) w.push('The cost-share split adds to ' + sp + '%, not 100%.');
+    $('#warns').innerHTML = w.map((x) => '<p class="warn">' + x + '</p>').join('');
+  }
+
+  // ---------- Chart ----------
+  function niceScale(v) {
+    if (!(v > 0)) return { max: 1e6, step: 2.5e5 };
+    const raw = v / 4, p = Math.pow(10, Math.floor(Math.log10(raw))), n = raw / p;
+    const st = (n <= 1 ? 1 : n <= 2 ? 2 : n <= 2.5 ? 2.5 : n <= 5 ? 5 : 10) * p;
+    return { max: Math.ceil(v / st - 1e-9) * st, step: st };
+  }
+  const tickLabel = (v) => (v === 0 ? '$0' : '$' + (+(v / 1e6).toFixed(2)) + 'M');
+  function peak(m, withCash) { let mx = 0; for (let t = 0; t < Y; t++) { mx = Math.max(mx, m.earned[t]); if (withCash) mx = Math.max(mx, m.cash[t]); } return mx; }
+  let UID = 0;
+  function stackSVG(m, o) {
+    const W = Math.max(260, Math.round(o.w)), H = o.h, pl = o.mini ? 40 : 52, pr = 6, pt = 10, pb = o.mini ? 20 : 28;
+    const pw = W - pl - pr, ph = H - pt - pb;
+    const y = (v) => pt + ph - (v / o.max) * ph;
+    const band = pw / Y, bw = Math.min(o.mini ? 14 : 24, band * 0.58);
+    const pid = 'h' + (++UID);
+    let s = '<svg viewBox="0 0 ' + W + ' ' + H + '" width="' + W + '" height="' + H + '" role="img" aria-label="' + escH(o.label) + '"><defs><pattern id="' + pid + '" patternUnits="userSpaceOnUse" width="6" height="6" patternTransform="rotate(45)"><rect width="6" height="6" class="hatch-bg"/><rect width="2" height="6" class="hatch-line"/></pattern></defs>';
+    if (!o.mini) for (let t = 0; t < Y; t++) s += '<rect class="selband' + (o.sel === t ? ' on' : '') + '" data-t="' + t + '" x="' + (pl + band * t + 2).toFixed(1) + '" y="' + (pt - 4) + '" width="' + Math.max(0, band - 4).toFixed(1) + '" height="' + (ph + 4) + '" rx="6"/>';
+    for (let v = 0; v <= o.max + 1; v += o.step) {
+      const yy = Math.round(y(v)) + 0.5;
+      s += '<line class="' + (v === 0 ? 'base' : 'grid') + '" x1="' + pl + '" x2="' + (W - pr) + '" y1="' + yy + '" y2="' + yy + '"/>';
+      s += '<text class="tick" x="' + (pl - 8) + '" y="' + (yy + 3.5) + '" text-anchor="end">' + tickLabel(v) + '</text>';
+    }
+    for (let t = 0; t < Y; t++) {
+      const x = pl + band * t + (band - bw) / 2;
+      const segs = SEG.map((sg) => ({ sg, v: m[sg.k][t] })).filter((d) => d.v > 0.5);
+      let acc = 0;
+      segs.forEach((d, i) => {
+        const top = y(acc + d.v), bot = y(acc) - (i > 0 ? 2 : 0), h = bot - top;
+        acc += d.v;
+        if (h <= 0.4) return;
+        const attr = d.sg.k === 'feeA' ? ' style="fill:url(#' + pid + ')"' : ' class="' + d.sg.cls + '"';
+        if (i === segs.length - 1) {
+          const r = Math.min(o.mini ? 2.5 : 4, h / 2, bw / 2);
+          s += '<path' + attr + ' d="M' + x.toFixed(1) + ',' + bot.toFixed(1) + ' V' + (top + r).toFixed(1) + ' Q' + x.toFixed(1) + ',' + top.toFixed(1) + ' ' + (x + r).toFixed(1) + ',' + top.toFixed(1) + ' H' + (x + bw - r).toFixed(1) + ' Q' + (x + bw).toFixed(1) + ',' + top.toFixed(1) + ' ' + (x + bw).toFixed(1) + ',' + (top + r).toFixed(1) + ' V' + bot.toFixed(1) + ' Z"/>';
+        } else {
+          s += '<rect' + attr + ' x="' + x.toFixed(1) + '" y="' + top.toFixed(1) + '" width="' + bw.toFixed(1) + '" height="' + h.toFixed(1) + '"/>';
+        }
+      });
+      s += '<text class="tick" x="' + (pl + band * t + band / 2).toFixed(1) + '" y="' + (H - pb + (o.mini ? 14 : 18)) + '" text-anchor="middle">' + (o.mini || W < 640 ? (t + 1) : 'Year ' + (t + 1)) + '</text>';
+    }
+    if (o.cash) {
+      const pts = m.cash.map((v, t) => [pl + band * t + band / 2, y(v)]);
+      s += '<polyline class="cashline" points="' + pts.map((q) => q[0].toFixed(1) + ',' + q[1].toFixed(1)).join(' ') + '"/>';
+      pts.forEach((q) => { s += '<circle class="cashdot" cx="' + q[0].toFixed(1) + '" cy="' + q[1].toFixed(1) + '" r="' + (o.mini ? 3 : 4) + '"/>'; });
+    }
+    for (let t = 0; t < Y; t++) {
+      if (o.mini) {
+        s += '<rect class="hitm" x="' + (pl + band * t).toFixed(1) + '" y="' + pt + '" width="' + band.toFixed(1) + '" height="' + ph + '"><title>Year ' + (t + 1) + ': revenue ' + money(m.earned[t]) + ', cash ' + money(m.cash[t]) + '</title></rect>';
+      } else {
+        s += '<rect class="hit" data-t="' + t + '" tabindex="0" role="button" aria-pressed="' + (o.sel === t) + '" aria-label="Year ' + (t + 1) + ': revenue ' + money(m.earned[t]) + ', cash received ' + money(m.cash[t]) + '. Show the math." x="' + (pl + band * t).toFixed(1) + '" y="' + pt + '" width="' + band.toFixed(1) + '" height="' + ph + '"/>';
+      }
+    }
+    return s + '</svg>';
+  }
+  function legendHTML(ms, cash) {
+    const keys = [['platN', 'Platform subscription, NSI share · ARR'], ['platC', 'Platform subscription, cities · ARR']];
+    if (ms.some((m) => sum(m.feeA) > 0.5)) keys.push(['feeA', 'Network subscription fee · ARR, pending finance']);
+    if (ms.some((m) => sum(m.feeO) > 0.5)) keys.push(['feeO', 'Network subscription fee · one-time']);
+    keys.push(['pd', 'Product development · one-time']);
+    let h = keys.map((k) => '<span class="key"><i class="sw ' + k[0] + '"></i>' + k[1] + '</span>').join('');
+    if (cash) h += '<span class="key"><i class="sw cash"></i>Cash received</span>';
+    return h;
+  }
+  function renderChart(m) {
+    const box = $('#chart');
+    $('#legend').innerHTML = legendHTML([m], S.cash);
+    const w = box.clientWidth;
+    if (!w) return;
+    const sc = niceScale(peak(m, S.cash));
+    const old = box.querySelector('svg'); if (old) old.remove();
+    box.insertAdjacentHTML('afterbegin', stackSVG(m, { w: w, h: w < 560 ? 250 : 330, max: sc.max, step: sc.step, cash: S.cash, sel: PIN, label: 'Revenue by year, stacked by type' }));
+    $('#tip').hidden = true;
+  }
+  function segLabel(k, m) {
+    if (k === 'platN') return 'Platform subscription, NSI share';
+    if (k === 'platC') return 'Platform subscription, paid by cities';
+    if (k === 'feeA') return m.net ? 'Network subscription fee, network-wide' : 'Network subscription fee, per city';
+    if (k === 'feeO') return 'Network subscription fee, one-time';
+    return 'Product development, one-time';
+  }
+  function showTip(t, target, kb) {
+    const m = CUR, tip = $('#tip'), box = $('#chart');
+    const rows = SEG.filter((sg) => m[sg.k][t] > 0.5).map((sg) => '<div class="row"><span><i class="sw ' + sg.k + '"></i>' + segLabel(sg.k, m) + '</span><b>' + money(m[sg.k][t]) + '</b></div>').join('');
+    tip.innerHTML = '<div class="tt">Year ' + (t + 1) + ' · ' + m.live[t] + ' ' + cities(m.live[t]) + ' live</div>' + rows +
+      '<div class="row tot"><span>Revenue</span><b>' + money(m.earned[t]) + '</b></div>' +
+      (S.cash ? '<div class="row"><span><i class="sw cash"></i>Cash received</span><b>' + money(m.cash[t]) + '</b></div>' : '') +
+      '<div class="more">' + (PIN === t ? 'The math is below the chart' : (kb ? 'Press Enter for the math' : 'Click for the math')) + '</div>';
+    tip.hidden = false;
+    const br = box.getBoundingClientRect(), r = target.getBoundingClientRect();
+    const tw = tip.offsetWidth;
+    let left = r.left - br.left + r.width / 2 - tw / 2;
+    left = Math.max(0, Math.min(br.width - tw, left));
+    tip.style.left = left + 'px';
+    tip.style.top = '4px';
+  }
+
+  // ---------- Show the math ----------
+  function joinFirst(parts) { return parts.map((p, i) => (i === 0 ? p.replace(/^(\d+) /, (a, n) => n + ' ' + cities(+n) + ' ') : p)).join(' + '); }
+  function mathRows(m, t) {
+    const rows = [];
+    if (m.platN[t] > 0.5) {
+      const by = {};
+      m.coh.forEach(({ k, f }) => { const ly = t - k + 1; if (f && ly >= 1 && ly <= 5) { const sh = SHARE[ly - 1]; by[sh] = (by[sh] || 0) + f; } });
+      const parts = [1, 0.5, 0.25].filter((sh) => by[sh]).map((sh) => by[sh] + ' × $310K × ' + pct(sh));
+      let x = parts.length ? joinFirst(parts) : '';
+      if (t === 0 && m.onb) x += (x ? ' + ' : '') + m.early + ' signed early × $310K';
+      rows.push({ k: 'platN', v: m.platN[t], x });
+    }
+    if (m.platC[t] > 0.5) {
+      const parts = [];
+      m.coh.forEach(({ k, c }) => {
+        const ly = t - k + 1; if (!c || ly < 1) return;
+        if (ly <= 5) { const s = 1 - SHARE[ly - 1]; if (s > 0) parts.push({ ly, x: c + ' × $310K × ' + pct(s) }); }
+        else parts.push({ ly, x: c + ' × ' + kd(F * Math.pow(1 + ESC, ly - 5)) + ' after renewal' });
+      });
+      parts.sort((a, b) => b.ly - a.ly);
+      rows.push({ k: 'platC', v: m.platC[t], x: joinFirst(parts.map((q) => q.x)) });
+    }
+    if (m.feeA[t] > 0.5) {
+      let x;
+      if (m.net) x = (m.early ? '(' + N + ' cities × ' + usd(SU) + ' − ' + m.early + ' signed early × $310K)' : N + ' cities × ' + usd(SU)) + ' ÷ ' + m.term + ' years';
+      else { let n = 0; m.coh.forEach(({ k, f }) => { const ly = t - k + 1; if (f && ly >= 1 && ly <= 5) n += f; }); x = n + ' ' + cities(n) + ' × ' + usd(FEE) + ' (' + usd(SU) + ' over five years)'; }
+      rows.push({ k: 'feeA', v: m.feeA[t], x });
+    }
+    if (m.feeO[t] > 0.5) { const n = m.coh[t] ? m.coh[t].f : 0; rows.push({ k: 'feeO', v: m.feeO[t], x: n + ' ' + cities(n) + ' going live × ' + usd(SU) }); }
+    if (m.pd[t] > 0.5) rows.push({ k: 'pd', v: m.pd[t], x: 'Year ' + (t + 1) + ' of 4 · ' + money(PDT) + ' in all' });
+    return rows;
+  }
+  function cashExpr(m, t) {
+    const c = money(m.platC[t]);
+    if (S.method === 'fixed') return t < 5 ? 'NSI fixed invoice ' + money(EVEN) + ' + cities ' + c : 'Cities ' + c + '; NSI invoices end in Year 5';
+    return m.nic[t] > 0.5 ? 'NSI as cities launch ' + money(m.nic[t]) + ' + cities ' + c : 'Cities ' + c;
+  }
+  function renderMath() {
+    const box = $('#math');
+    if (PIN == null) { box.hidden = true; return; }
+    const m = CUR, t = PIN;
+    let h = '<div class="math-head"><h3 class="math-title" id="math-title" tabindex="-1">Year ' + (t + 1) + ': the math</h3><span class="math-meta">' + m.live[t] + ' ' + cities(m.live[t]) + ' live</span>' +
+      '<div class="math-nav"><button type="button" class="iconbtn" data-math="prev" aria-label="Previous year"' + (t === 0 ? ' disabled' : '') + '>‹</button><button type="button" class="iconbtn" data-math="next" aria-label="Next year"' + (t === Y - 1 ? ' disabled' : '') + '>›</button><button type="button" class="linkbtn" data-math="close">Close</button></div></div>';
+    h += mathRows(m, t).map((r) => '<div class="mrow"><i class="sw ' + r.k + '"></i><div class="ml">' + segLabel(r.k, m) + '<em>' + r.x + '</em></div><b>' + money(r.v) + '</b></div>').join('');
+    h += '<div class="mrow tot"><i></i><div class="ml">Recurring revenue (ARR)<em>Platform subscriptions' + (m.feeA[t] > 0.5 ? ' + network subscription fee' : '') + '</em></div><b>' + money(m.arr[t]) + '</b></div>';
+    h += '<div class="mrow tot"><i></i><div class="ml">Total revenue<em>ARR' + (m.feeO[t] + m.pd[t] > 0.5 ? ' + one-time' : '') + '</em></div><b>' + money(m.earned[t]) + '</b></div>';
+    if (S.cash) h += '<div class="mrow"><i class="sw cash"></i><div class="ml">Cash received<em>' + cashExpr(m, t) + '</em></div><b>' + money(m.cash[t]) + '</b></div>';
+    const notes = [];
+    let nb = 0; m.coh.forEach(({ k, b }) => { const ly = t - k + 1; if (b && ly >= 1 && ly <= 5) nb += b; });
+    if (m.carried[t] > 0.5) notes.push(nb + ' added ' + cities(nb) + ' in ' + (nb === 1 ? 'its' : 'their') + ' first five years: Bonterra carries the NSI share (' + money(m.carried[t]) + '), so it isn’t invoiced or counted.');
+    if (t === 0 && m.early) notes.push('Includes ' + m.early + ' Year 2 ' + cities(m.early) + ' signed early. <button type="button" class="linkbtn u" data-math="explain">How early signing works</button>');
+    if (notes.length) h += '<p class="math-note">' + notes.join(' ') + '</p>';
+    box.innerHTML = h;
+    box.hidden = false;
+  }
+  function pin(t, focusTitle) {
+    PIN = t;
+    $$('#chart .selband').forEach((r) => r.classList.toggle('on', +r.dataset.t === t));
+    $$('#chart .hit').forEach((r) => r.setAttribute('aria-pressed', +r.dataset.t === t ? 'true' : 'false'));
+    renderMath();
+    if (focusTitle) { const h = $('#math-title'); if (h) h.focus(); }
+  }
+  function unpin(returnFocus) {
+    const t = PIN; PIN = null;
+    $$('#chart .selband').forEach((r) => r.classList.remove('on'));
+    $$('#chart .hit').forEach((r) => r.setAttribute('aria-pressed', 'false'));
+    $('#math').hidden = true;
+    if (returnFocus && t != null) { const r = $('#chart .hit[data-t="' + t + '"]'); if (r) r.focus(); }
+  }
+
+  // ---------- Early signing, explained ----------
+  const EXT = ['Where Year 1 stands', 'Sign early', 'Same money, moved', 'Year 1, after'];
+  function xbar(rows, max) {
+    const P = (v) => (Math.max(0, v) / max * 100).toFixed(3) + '%';
+    let h = '<div class="xb">';
+    rows.forEach((r, ri) => {
+      let acc = 0, inner = '';
+      const segs = r.segs.filter((s) => s.v > 0.5);
+      segs.forEach((s, i) => {
+        const tail = i < segs.length - 1 || r.gap > 0.5;
+        inner += '<span class="xb-seg ' + s.c + '" style="left:' + P(acc) + ';width:calc(' + P(s.v) + (tail ? ' - 2px' : '') + ')"></span>';
+        acc += s.v;
+      });
+      if (r.gap > 0.5) inner += '<span class="xb-seg gap" style="left:' + P(acc) + ';width:' + P(r.gap) + '"></span>';
+      inner += '<span class="xb-target" style="left:' + P(TARGET) + '">' + (ri === 0 ? '<span class="xb-tl">Target ' + mm(TARGET) + '</span>' : '') + '</span>';
+      h += '<div class="xb-row"><span class="xb-name">' + r.name + '</span><span class="xb-track" role="img" aria-label="' + escH(r.aria) + '">' + inner + '</span><span class="xb-val">' + mm(r.val) + '</span></div>';
+    });
+    return h + '</div>';
+  }
+  function xlist(items) {
+    return '<div class="xl">' + items.map((it) => '<div class="xr"><i class="sw ' + it.sw + '"></i><span>' + it.name + (it.x ? '<em>' + it.x + '</em>' : '') + '</span><b>' + it.v + '</b></div>').join('') + '</div>';
+  }
+  function xpool(n, moved) {
+    const T = n.T;
+    let h = '<div class="xp"><p class="xp-cap">Network subscription fee: ' + mm(POOL) + ', counted evenly over ' + T + ' years</p><div class="xp-cols" style="--n:' + T + '">';
+    for (let i = 0; i < T; i++) {
+      const netPct = moved ? n.feeE / n.feeB * 100 : 100, cutPct = moved ? n.cut / n.feeB * 100 : 0;
+      h += '<div class="xp-col' + (!moved && i > 0 ? ' dim' : '') + '"><span class="xp-amt">' + mm(moved ? n.feeE : n.feeB) + '</span><span class="xp-stack">' +
+        (moved ? '<span class="xp-seg cut" style="height:calc(' + cutPct.toFixed(2) + '% - 2px)"></span>' : '') +
+        '<span class="xp-seg net" style="height:' + netPct.toFixed(2) + '%"></span></span><span class="xp-yr">Year ' + (i + 1) + '</span></div>';
+    }
+    h += '</div>';
+    h += moved
+      ? '<p class="xp-note"><i class="sw early"></i>' + mm(n.amt) + ' ÷ ' + T + ' years = ' + mm(n.cut) + ' from each year, which pays for the early ' + (n.E === 1 ? 'start' : 'starts') + '</p>'
+      : '<p class="xp-note">Year 1 counts one ' + (T === 5 ? 'fifth' : 'quarter') + ': ' + mm(POOL) + ' ÷ ' + T + ' = ' + mm(n.feeB) + '</p>';
+    return h + '</div>';
+  }
+  function xtime(n) {
+    return '<div class="xt">' +
+      '<div class="xt-row xt-head"><span></span><span>Year 1</span><span>Years 2–6</span></div>' +
+      '<div class="xt-row"><span class="xt-name">Usual Year 2 city</span><span class="xt-cell setup"><b>Setup</b>Nothing billed</span><span class="xt-cell live"><b>Live</b>Five funded years</span></div>' +
+      '<div class="xt-row"><span class="xt-name">Signs in Year 1</span><span class="xt-cell paid"><b>Subscribed</b>$310K, NSI pays</span><span class="xt-cell live"><b>Live</b>Same five funded years</span></div>' +
+      '<p class="xt-sum">' + n.E + ' ' + cities(n.E) + ' × $310K = <b>' + mm(n.amt) + '</b> in Year 1</p></div>';
+  }
+  function xeq(n, s) {
+    const tok = (sw, txt, cls) => '<span class="tok' + (cls ? ' ' + cls : '') + '">' + (sw ? '<i class="sw ' + sw + '"></i>' : '') + txt + '</span>';
+    const op = (o) => '<span class="op">' + o + '</span>';
+    const past = (v) => v >= TARGET - 0.5;
+    let h = '<span class="eq-l">Year 1 ARR</span>' + tok('platN', mm(n.live) + ' live');
+    if (s >= 1) h += op('+') + tok('early', mm(n.amt) + ' signed early', s === 1 ? 'new' : '');
+    h += op('+') + (s === 0 ? tok('feeA', mm(n.feeB) + ' network fee') : s === 1 ? tok('feeA', 'network fee: step 3', 'pending') : tok('feeA', mm(n.feeE) + ' network fee', s === 2 ? 'new' : ''));
+    h += op('=') + (s === 0 ? tok('', mm(n.before), 'total') : s < 3 ? tok('', '…', 'pending') : tok('', mm(n.now), 'total'));
+    const note = s === 0 ? (past(n.before) ? 'Already past ' + mm(TARGET) : mm(TARGET - n.before) + ' short of ' + mm(TARGET))
+      : s === 1 ? 'Where does ' + mm(n.amt) + ' come from?'
+      : s === 2 ? 'NSI’s total is unchanged'
+      : (past(n.now) ? 'Past the ' + mm(TARGET) + ' target' : mm(TARGET - n.now) + ' short of ' + mm(TARGET));
+    return '<div class="ex-eq">' + h + '<span class="eq-note">' + note + '</span></div>';
+  }
+  function renderExplain(m) {
+    const box = $('#explain');
+    if (!m.net) {
+      box.innerHTML = '<div class="ex-msg"><p>Early signing works with the network-wide fee: one fee for the whole network can pay for a city’s early start without NSI paying more. With the fee charged per city, there’s nothing to move.</p><button type="button" class="btn" data-ex="to-network">Switch to network-wide</button></div>';
+      return;
+    }
+    if (!m.earlyCap) {
+      box.innerHTML = '<div class="ex-msg"><p>Early signing moves a Year 2 city’s subscription start into Year 1. This rollout has no funded Year 2 cities, so there’s nothing to move.</p></div>';
+      return;
+    }
+    const n = exNums(m), s = EXS, T = n.T, frac = T === 5 ? 'fifth' : 'quarter', fixed = m.p.method === 'fixed';
+    const max = Math.max(TARGET, n.before, n.now) * 1.07;
+    const short0 = TARGET - n.before, short1 = TARGET - n.now;
+    const inModel = m.early === n.E;
+    let head, caps, viz, extra = '';
+    if (s === 0) {
+      head = 'Where Year 1 stands';
+      caps = [
+        'In Year 1, ' + n.n1 + ' ' + cities(n.n1) + (n.n1 === 1 ? ' is' : ' are') + ' live, and each platform subscription counts as recurring revenue: ' + n.n1 + ' × $310K = <b>' + mm(n.live) + '</b>.',
+        'The network subscription fee is one fee for the whole network, ' + mm(POOL) + ', counted evenly over ' + T + ' years. Year 1 counts one ' + frac + ' of it: <b>' + mm(n.feeB) + '</b>.',
+        'Together: <b>' + mm(n.before) + '</b>' + (short0 > 0.5 ? ', which is ' + mm(short0) + ' short of the ' + mm(TARGET) + ' target.' : ', already past the ' + mm(TARGET) + ' target.')
+      ];
+      viz = xbar([{ name: 'Year 1', aria: 'Year 1 ARR ' + mm(n.before) + ' against a ' + mm(TARGET) + ' target', segs: [{ c: 'live', v: n.live }, { c: 'net', v: n.feeB }], val: n.before, gap: Math.max(0, short0) }], max) +
+        xlist([{ sw: 'platN', name: 'Live cities', x: n.n1 + ' × $310K', v: mm(n.live) }, { sw: 'feeA', name: 'Network subscription fee, Year 1', x: mm(POOL) + ' ÷ ' + T, v: mm(n.feeB) }].concat(short0 > 0.5 ? [{ sw: 'gap', name: 'Short of target', x: '', v: mm(short0) }] : [])) +
+        xpool(n, false);
+    } else if (s === 1) {
+      head = 'Sign ' + word(n.E) + ' Year 2 ' + cities(n.E) + ' a year early';
+      caps = [
+        'A city that launches in Year 2 spends Year 1 getting set up, and nothing is billed for that year.',
+        'If ' + n.E + ' of them sign in Year 1 instead, their subscription starts at signing. The setup year becomes a paid year: ' + n.E + ' × $310K = <b>' + mm(n.amt) + '</b>, counted in Year 1.',
+        'The ' + cities(n.E) + ' pay nothing extra: NSI covers it. Each still gets five funded years from go-live.'
+      ];
+      viz = xtime(n);
+    } else if (s === 2) {
+      head = 'Same money, moved';
+      caps = [
+        'NSI doesn’t pay a dollar more. The ' + mm(n.amt) + ' comes out of the network subscription fee, taken evenly from each of its ' + T + ' years: ' + mm(n.amt) + ' ÷ ' + T + ' = <b>' + mm(n.cut) + ' a year</b>.',
+        'The fee becomes <b>' + mm(n.feeE) + '</b> a year instead of ' + mm(n.feeB) + '. Add it all up and NSI’s total is still ' + money(COMMIT) + '.'
+      ];
+      viz = xpool(n, true);
+    } else {
+      head = 'Year 1, after';
+      caps = [
+        'Year 1 gains the whole ' + mm(n.amt) + ' but gives up only one ' + frac + ' of it, ' + mm(n.cut) + '.',
+        mm(n.live) + ' + ' + mm(n.amt) + ' + ' + mm(n.feeE) + ' = <b>' + mm(n.now) + '</b>' + (short1 > 0.5 ? ', still ' + mm(short1) + ' short of the ' + mm(TARGET) + ' target.' : ', past the ' + mm(TARGET) + ' target.')
+      ];
+      if (short1 > 0.5 && n.E >= n.cap) caps.push('This rollout has ' + n.cap + ' funded Year 2 ' + cities(n.cap) + ' to move' + (n.cap >= MAXE ? ', and the model allows up to ' + MAXE : '') + '.');
+      viz = xbar([
+        { name: 'Before', aria: 'Before: ' + mm(n.before), segs: [{ c: 'live', v: n.live }, { c: 'net', v: n.feeB }], val: n.before, gap: Math.max(0, short0) },
+        { name: 'After', aria: 'After: ' + mm(n.now), segs: [{ c: 'live', v: n.live }, { c: 'early', v: n.amt }, { c: 'net', v: n.feeE }], val: n.now, gap: Math.max(0, short1) }
+      ], max) + xlist([
+        { sw: 'platN', name: 'Live cities', x: n.n1 + ' × $310K', v: mm(n.live) },
+        { sw: 'early', name: 'Signed early', x: n.E + ' × $310K', v: mm(n.amt) },
+        { sw: 'feeA', name: 'Network subscription fee, Year 1', x: '(' + mm(POOL) + ' − ' + mm(n.amt) + ') ÷ ' + T, v: mm(n.feeB) + ' → ' + mm(n.feeE) }
+      ]);
+      extra = '<div class="ex-facts">' +
+        '<div><h4>What doesn’t change</h4><ul><li>NSI’s total: ' + money(COMMIT) + '</li>' + (fixed ? '<li>The invoices: ' + money(EVEN) + ' a year</li>' : '') + '<li>What any city pays</li><li>Five funded years from go-live, for every city</li></ul></div>' +
+        '<div><h4>What it takes</h4><ul><li>' + n.E + ' Year 2 ' + cities(n.E) + ' ready to sign in Year 1</li><li>Finance agrees a subscription during setup counts as ARR</li></ul></div>' +
+        '<div><h4>The trade-off</h4><ul><li>Years 2–' + T + ' each count ' + mm(n.cut) + ' less fee</li><li>Nothing is added over the ' + T + ' years: the revenue comes earlier</li>' + (fixed ? '' : '<li>As cities launch, Year 1’s invoice rises by ' + mm(n.now - n.before) + ' and Years 2–' + T + ' fall by ' + mm(n.cut) + ' each</li>') + '</ul></div></div>';
+    }
+    const nav = '<div class="ex-nav"><button type="button" class="btn" data-ex="prev"' + (s === 0 ? ' disabled' : '') + '>Back</button>' +
+      (s < 3
+        ? '<button type="button" class="btn dark go" data-ex="next">Next: ' + EXT[s + 1] + '</button>'
+        : '<button type="button" class="linkbtn" data-ex="go" data-s="0">Start over</button>' +
+          (inModel ? '<span class="ex-in">' + n.E + ' early ' + (n.E === 1 ? 'signing is' : 'signings are') + ' in the model now.</span>'
+                   : '<button type="button" class="btn dark go" data-ex="apply" data-n="' + n.E + '">Use ' + n.E + ' early ' + (n.E === 1 ? 'signing' : 'signings') + ' in the model</button>')) + '</div>';
+    box.innerHTML = '<ol class="ex-steps">' + EXT.map((t, i) => '<li><button type="button" data-ex="go" data-s="' + i + '"' + (i === s ? ' aria-current="step"' : '') + (i < s ? ' class="done"' : '') + '><span class="n">Step ' + (i + 1) + '</span><span class="t">' + t + '</span></button></li>').join('') + '</ol>' +
+      '<div class="ex-stage"><div class="ex-copy"><h3 class="ex-h" id="ex-h" tabindex="-1">' + head + '</h3>' + caps.map((c) => '<p>' + c + '</p>').join('') + '</div><div class="ex-viz">' + viz + '</div></div>' +
+      extra + xeq(n, s) + nav;
+  }
+  function openExplain() {
+    UI.open.explain = true; saveUI(); applySections();
+    if ($('#p-model').hidden) { showTab('model'); if (location.hash !== '#model') location.hash = 'model'; }
+    const sec = $('.sec[data-sec="explain"]');
+    requestAnimationFrame(() => {
+      sec.scrollIntoView({ behavior: reduceMotion() ? 'auto' : 'smooth', block: 'start' });
+      $('.sec-head', sec).focus({ preventScroll: true });
+    });
+  }
+
+  // ---------- Payment schedule ----------
+  function renderSchedule(m) {
+    const cum = [5, 8, 10];
+    let h = '<thead><tr><th>$M</th>' + Array.from({ length: Y }, (_, i) => '<th title="Year ' + (i + 1) + '">Y' + (i + 1) + '</th>').join('') + cum.map((c) => '<th class="cum" title="Years 1–' + c + '">Yrs 1–' + c + '</th>').join('') + '</tr></thead><tbody>';
+    const span = Y + 1 + cum.length;
+    const grp = (label, internal) => { h += '<tr class="grp"' + (internal ? ' data-internal' : '') + '><td colspan="' + span + '">' + label + '</td></tr>'; };
+    const row = (label, arr, cls, internal) => {
+      h += '<tr' + (cls ? ' class="' + cls + '"' : '') + (internal ? ' data-internal' : '') + '><td>' + label + '</td>' + arr.map((v) => '<td>' + m2(v) + '</td>').join('') + cum.map((c) => '<td class="cum">' + m2(sum(arr.slice(0, c))) + '</td>').join('') + '</tr>';
+    };
+    grp('Rollout');
+    if (m.early) h += '<tr><td>Signed early, onboarding</td>' + zeros().map((_, t) => '<td>' + (t === 0 ? m.early : '–') + '</td>').join('') + cum.map(() => '<td class="cum">' + m.early + '</td>').join('') + '</tr>';
+    h += '<tr><td>Cities launched</td>' + m.launched.map((v) => '<td>' + cnt(v) + '</td>').join('') + cum.map((c) => '<td class="cum">' + sum(m.launched.slice(0, c)) + '</td>').join('') + '</tr>';
+    h += '<tr><td>Cities live</td>' + m.live.map((v) => '<td>' + cnt(v) + '</td>').join('') + cum.map((c) => '<td class="cum">' + m.live[c - 1] + '</td>').join('') + '</tr>';
+    grp('Payments');
+    row(S.method === 'fixed' ? 'NSI invoices (fixed schedule)' : 'NSI invoices (as cities launch)', m.nic);
+    row('Cities’ own payments', m.platC);
+    row('Total payments', m.cash, 'tot');
+    grp('Revenue earned, as delivered', true);
+    row('ARR · platform subscription, NSI share', m.platN, 'arr', true);
+    row('ARR · platform subscription, cities', m.platC, 'arr', true);
+    if (sum(m.feeA) > 0.5) row('ARR · network subscription fee, ' + (m.net ? 'network-wide' : 'per city') + ' (pending finance)', m.feeA, 'arr', true);
+    if (sum(m.feeO) > 0.5) row('One-time · network subscription fee', m.feeO, 'one', true);
+    row('One-time · product development', m.pd, 'one', true);
+    row('Total revenue', m.earned, 'tot', true);
+    if (S.method === 'fixed') {
+      h += '<tr data-internal><td>Paid ahead (+) or behind (' + MINUS + ') of delivery, running</td>' + m.ahead.map((v) => '<td>' + sm2(v) + '</td>').join('') + cum.map((c) => '<td class="cum">' + sm2(m.ahead[c - 1]) + '</td>').join('') + '</tr>';
+    }
+    $('#sched').innerHTML = h + '</tbody>';
+  }
+
+  // ---------- Per-City Fees ----------
+  function renderCity(m) {
+    const net = m.net, annual = !net && S.fee !== 'once', once = !net && S.fee === 'once';
+    const fy = annual ? FEE : null, r6 = F * (1 + ESC), r7 = F * Math.pow(1 + ESC, 2);
+    const rows = [];
+    if (net && m.early) rows.push(['Onboarding year, if signed early', F, 0, null, F]);
+    if (once) rows.push(['At go-live', null, null, SU, SU]);
+    rows.push(['Years 1–3, each', F, 0, fy, F + (fy || 0)]);
+    rows.push(['Year 4', 0.5 * F, 0.5 * F, fy, F + (fy || 0)]);
+    rows.push(['Year 5', 0.25 * F, 0.75 * F, fy, F + (fy || 0)]);
+    rows.push(['Year 6', null, r6, null, r6]);
+    rows.push(['Year 7', null, r7, null, r7]);
+    const c = (v) => (v == null ? '–' : usd(v));
+    $('#bill').innerHTML = '<thead><tr><th rowspan="2">City’s year</th><th colspan="2" class="span">Platform subscription</th>' + (net ? '' : '<th rowspan="2" class="wrap">Network subscription fee (NSI)</th>') + '<th rowspan="2" class="wrap">Total to Bonterra</th></tr><tr><th>NSI</th><th>City</th></tr></thead><tbody>' +
+      rows.map((r) => '<tr><td>' + r[0] + '</td><td>' + c(r[1]) + '</td><td>' + c(r[2]) + '</td>' + (net ? '' : '<td>' + c(r[3]) + '</td>') + '<td class="strong">' + c(r[4]) + '</td></tr>').join('') + '</tbody>';
+    const sp = S.split.map((x) => x / 100);
+    const cbo = F * sp[2], per = cbo / S.cbos;
+    $('#share').innerHTML = '<thead><tr><th>Source</th><th>Share</th><th>Per year</th></tr></thead><tbody>' +
+      '<tr><td>City/jurisdiction budget</td><td>' + S.split[0] + '%</td><td>' + money(F * sp[0]) + '</td></tr>' +
+      '<tr><td>Grants and philanthropy</td><td>' + S.split[1] + '%</td><td>' + money(F * sp[1]) + '</td></tr>' +
+      '<tr><td>CBOs (' + S.cbos + ')</td><td>' + S.split[2] + '%</td><td>' + money(cbo) + '</td></tr>' +
+      '<tr><td>Per CBO</td><td></td><td>' + money(per) + '</td></tr>' +
+      '<tr data-internal><td>Apricot alone, per CBO</td><td></td><td>' + money(APRICOT) + '</td></tr>' +
+      '<tr class="tot"><td>Platform subscription</td><td>' + (S.split[0] + S.split[1] + S.split[2]) + '%</td><td>' + money(F) + '</td></tr></tbody>';
+    let note;
+    if (net) note = 'Network subscription fee: ' + usd(m.pool / m.term) + ' a year for the whole network in Years 1–' + m.term + ', paid by NSI. It is not charged per city.' + (m.early ? ' NSI also covers the onboarding-year subscription for the ' + m.early + ' ' + cities(m.early) + ' that sign early.' : '');
+    else if (annual) note = 'NSI pays the network subscription fee: ' + usd(FEE) + ' a year per city, ' + usd(SU) + ' over its first five years.';
+    else note = 'NSI pays the network subscription fee, ' + usd(SU) + ' per city, at go-live.';
+    $('#city-note').textContent = note + ' From Year 6 each city pays the platform subscription directly; it rises 3% at renewal and 3% a year after that. NSI’s SafeStat license is separate.';
+  }
+
+  // ---------- Decision points ----------
+  // Funded launches and additional (beyond-25) launches, described separately so they never read as additive.
+  function launchLines(m) {
+    const fundedBy = m.coh.map((x) => x.f), extraBy = m.coh.map((x) => x.b);
+    const funded = sum(fundedBy), extra = sum(extraBy);
+    let lastF = -1; fundedBy.forEach((v, i) => { if (v) lastF = i; });
+    let f;
+    if (!funded) f = 'none scheduled yet.';
+    else if (funded >= N) f = paceText(fundedBy) + ', with all ' + N + ' live by the end of Year ' + (lastF + 1) + '.';
+    else f = paceText(fundedBy) + ', with the remaining ' + (N - funded) + ' to be scheduled.';
+    return { funded: f, extra: extra ? paceText(extraBy) : '', extraN: extra };
+  }
+  function decisionItems(m) {
+    const fixed = S.method === 'fixed', gap = TARGET - m.y1arr, L = launchLines(m);
+    const fee = m.net
+      ? usd(m.pool / m.term) + ' a year for the whole network in Years 1–' + m.term + (m.early ? ', after ' + m.early + ' early ' + (m.early === 1 ? 'start' : 'starts') : '') + ', alongside the ' + usd(F) + ' platform subscription per city.'
+      : (S.fee === 'once' ? usd(SU) + ' per city, invoiced at go-live.' : usd(FEE) + ' a year per city for its first five years, alongside the ' + usd(F) + ' platform subscription.');
+    return [
+      ['Payment structure', fixed ? 'Fixed invoice schedule: ' + money(EVEN) + ' a year in Years 1–5 (' + money(COMMIT) + ').' : 'Invoiced as cities launch: ' + money(m.nicTotal) + ' through Year ' + m.last + '.'],
+      fixed ? ['Commitment', 'The commitment is fixed and does not change with the timing of city readiness or launch.'] : null,
+      ['Network subscription fee', fee],
+      m.early ? ['Early subscription', m.early + ' Year 2 ' + cities(m.early) + ' start the platform subscription at signing in Year 1, covered by NSI from the network subscription fee.'] : null,
+      ['Cities', N + ' funded' + (fixed ? ', plus up to ' + (MAXC - N) + ' additional at no added cost, launching anywhere in the term' + (L.extraN ? ' (target: ' + L.extra + ')' : '') : '') + '.'],
+      ['Launch pace', 'Funded cities: ' + L.funded],
+      ['City share after NSI funding', kd(0.5 * F) + ' in Year 4, ' + kd(0.75 * F) + ' in Year 5, then ' + kd(F * (1 + ESC)) + ' from Year 6, rising 3% a year.'],
+      ['Product development', money(PD[0]) + ' in Year 1, then ' + money(PD[1]) + ' a year in Years 2–4.'],
+      ['Term', m.termEnd ? 'Five years from the launch of the final funded cohort: through Year ' + m.termEnd + '.' : 'Five years from the launch of the final funded cohort.'],
+      ['Year 1 ARR', money(m.y1arr) + ' against the ' + money(TARGET) + ' target' + (gap > 0.5 ? ' (' + money(gap) + ' short)' : '') + (m.feeA[0] > 0.5 ? ', counting the network subscription fee as ARR (' + money(m.y1arrFloor) + ' from platform subscriptions alone).' : ', from platform subscriptions alone.'), true]
+    ].filter(Boolean);
+  }
+  function renderDecisions(m) {
+    const items = decisionItems(m);
+    $('#decisions').innerHTML = items.map((d) => '<div class="d"' + (d[2] ? ' data-internal' : '') + '><dt>' + d[0] + (d[2] ? '<span class="tag">Internal</span>' : '') + '</dt><dd>' + d[1] + '</dd></div>').join('');
+    const n = UI.view === 'share' ? items.filter((d) => !d[2]).length : items.length;
+    $('#sum-decisions').textContent = n + ' decisions';
+  }
+
+  // ---------- Internal notes ----------
+  function renderNotes(m) {
+    const gap = TARGET - m.y1arr, n = [];
+    n.push('<b>Contracting party.</b> The term sheet names NSI for now; the contracting entity will be NICJR.');
+    if (m.net) {
+      const x = exNums(m);
+      let t = '<b>Year 1 ARR.</b> ' + money(m.y1arr) + ' with the network-wide fee counted evenly over ' + m.term + ' years' + (m.early ? ' and ' + m.early + ' early ' + (m.early === 1 ? 'signing' : 'signings') : '') + '. ';
+      if (gap > 0.5) t += x.need <= x.cap ? 'Reaching ' + money(TARGET) + ' takes ' + x.need + ' early ' + (x.need === 1 ? 'signing' : 'signings') + ' in all. ' : 'Even ' + x.cap + ' early signings leave it short. ';
+      else t += 'Above the target. ';
+      n.push(t + 'Finance to confirm the treatment. <button type="button" class="linkbtn u" data-open-explain>Early signing, explained</button>');
+    } else {
+      const alt = model(Object.assign({}, S, { basis: 'network', early: 0 }));
+      n.push('<b>Year 1 ARR.</b> ' + money(m.y1arr) + (m.feeA[0] > 0.5 ? ' with the per-city fee counted as ARR' : ' at the platform rate') + '. The network-wide fee would count ' + money(alt.y1arr) + ' in Year 1, before any early signings.');
+    }
+    n.push('<b>Network subscription fee.</b> Network-wide by default: one fee of ' + money(POOL) + ' (' + N + ' × ' + usd(SU) + ') for the network, counted evenly over the fee term. On the fixed schedule the basis changes when revenue counts, not what anyone pays; as cities launch, it also sets the invoices.');
+    n.push('<b>Revenue.</b> ' + money(m.earned5) + ' through Year 5 and ' + money(m.earned10) + ' through Year 10, counting cities’ own payments.');
+    n.push('<b>Rate card.</b> This rollout on the network-size rate card: ' + money(m.rc) + ' from NSI, ' + (m.rcDiff >= 0 ? money(m.rcDiff) + ' more than the fixed price' : money(-m.rcDiff) + ' less than the fixed price') + '.');
+    if (m.extra > 0) n.push('<b>Added cities.</b> ' + m.extra + ' at no added cost, worth ' + money(m.extraValue) + ' at the funded per-city price. Their own payments return ' + money(m.extraPayback) + ' through Year 10, then about ' + money(m.extraRun) + ' a year.');
+    if (m.unlaunchedPaid > 0) n.push('<b>Unlaunched cities.</b> The fixed schedule still collects ' + money(COMMIT) + '; paid as cities launch, NSI would pay ' + money(m.aslTot) + '.');
+    n.push('<b>8-year commitment (side note).</b> If needed: a city that commits to eight years, funded and self-funded combined, gets a firm ' + money(F) + ', flat until renewal.');
+    n.push('<b>Cities onboarding in Year 5.</b> Price range of $245K–$310K, set by complexity drivers.');
+    n.push('<b>Naming.</b> Contract and invoices say “network subscription fee.” The ramp-up rationale stays in the Ballmer conversation.');
+    n.push('<b>Separate tracks.</b> City tiers (small-city $25–50K, $150K base, custom for the largest) and standalone CBO pricing ($10–15K).');
+    $('#notes').innerHTML = n.map((x) => '<li>' + x + '</li>').join('');
+    $('#sum-notes').textContent = 'Year 1 ARR ' + money(m.y1arr);
+  }
+
+  function renderSums(m) {
+    $('#sum-chart').textContent = money(m.earned10) + ' revenue, Years 1–10';
+    $('#sum-schedule').textContent = S.method === 'fixed' ? 'NSI: ' + money(EVEN) + ' a year, Years 1–5' : 'NSI: as cities launch, through Year ' + m.last;
+    let ex;
+    if (!m.net) ex = 'Needs the network-wide fee';
+    else if (!m.earlyCap) ex = 'No Year 2 cities to move';
+    else {
+      const x = exNums(m);
+      if (m.early) ex = m.early + ' early: Year 1 ARR ' + money(x.before) + ' → ' + money(m.y1arr);
+      else if (!x.need) ex = 'Year 1 already clears ' + money(TARGET);
+      else ex = x.need <= x.cap ? x.need + ' early ' + (x.need === 1 ? 'signing reaches ' : 'signings reach ') + money(TARGET) : 'Even ' + x.cap + ' leave Year 1 short';
+    }
+    $('#sum-explain').textContent = ex;
+  }
+
+  // ---------- Board ----------
+  let BOARD = [], BOARD_MODE = 'pending', DB = null;
+  function parseScenario(id, d) {
+    if (!d || typeof d !== 'object') return null;
+    const s = sanitize(Object.assign({ basis: 'city' }, d));   // scenarios saved before the network-wide fee were per city
+    const name = typeof d.name === 'string' && d.name.trim() ? d.name.trim().slice(0, 80) : 'Untitled scenario';
+    return Object.assign(s, { id: String(id || d.id || 'x' + Math.random().toString(36).slice(2, 8)), name, created: +d.created || 0 });
+  }
+  function feeShort(p) { return p.basis === 'city' ? (p.fee === 'once' ? 'fee per city at go-live' : 'fee per city, yearly') : 'network-wide fee, ' + (+p.term === 4 ? 4 : 5) + ' yrs'; }
+  function autoName(s) { return (s.method === 'fixed' ? 'Fixed' : 'As launched') + ' · ' + paceShort(s.launch) + ' · ' + feeShort(s) + (s.basis !== 'city' && s.early ? ' · ' + s.early + ' early' : ''); }
+  function boardStatus(t) { $('#board-status').textContent = t; }
+  function scenarioParams(sc) { return { method: sc.method, basis: sc.basis, fee: sc.fee, term: sc.term, early: sc.early, launch: sc.launch, cbos: sc.cbos, split: sc.split }; }
+  const canEdit = () => BOARD_MODE === 'local' || BOARD_MODE === 'db' || (BOARD_MODE === 'gh' && GH.mode === 'rw');
+  function renderBoard() {
+    $('#show-refs').checked = !!UI.refs;
+    const list = [{ kind: 'cur', id: 'cur', name: 'Current model', params: S }];
+    if (UI.refs) REFS.forEach((r) => list.push({ kind: 'ref', id: r.id, name: r.name, params: { method: r.method, launch: r.launch, basis: S.basis, fee: S.fee, term: S.term, early: S.early } }));
+    BOARD.forEach((b) => list.push({ kind: 'sav', id: b.id, name: b.name, params: scenarioParams(b) }));
+    const ms = list.map((x) => model(x.params));
+    $('#legend2').innerHTML = legendHTML(ms, true);
+    const sc = niceScale(Math.max.apply(null, ms.map((m) => peak(m, true))));
+    const wrap = $('#cards'), edit = canEdit();
+    wrap.innerHTML = list.map((x, i) => {
+      const m = ms[i];
+      const meta = (x.params.method === 'fixed' ? 'Fixed schedule' : 'As cities launch') + ' · ' + paceShort(m.launch) + ' · ' + feeShort(x.params) + (m.early ? ' · ' + m.early + ' early' : '');
+      let acts = '';
+      if (x.kind === 'ref') acts = '<button type="button" class="linkbtn" data-act="load" data-id="' + x.id + '">Load into model</button>';
+      if (x.kind === 'sav') acts = '<button type="button" class="linkbtn" data-act="load" data-id="' + escH(x.id) + '">Load</button>' + (edit ? '<button type="button" class="linkbtn" data-act="rename" data-id="' + escH(x.id) + '">Rename</button><button type="button" class="linkbtn" data-act="remove" data-id="' + escH(x.id) + '">Remove</button>' : '');
+      return '<article class="card ' + x.kind + '" data-id="' + escH(x.id) + '"><p class="nm">' + escH(x.name) + '</p><div class="meta">' + meta + '</div><div class="mini" data-i="' + i + '"></div>' +
+        '<dl><div><dt>NSI pays</dt><dd>' + money(m.nicTotal) + '</dd></div><div><dt>In by Year 2</dt><dd>' + money(m.byY2) + '</dd></div><div><dt>Revenue, Years 1–10</dt><dd>' + money(m.earned10) + '</dd></div><div><dt>Year 1 ARR</dt><dd>' + money(m.y1arr) + '</dd></div></dl>' +
+        '<div class="acts">' + acts + '</div></article>';
+    }).join('');
+    $$('.mini', wrap).forEach((el) => {
+      const i = +el.dataset.i, w = el.clientWidth;
+      if (!w) return;
+      el.innerHTML = stackSVG(ms[i], { w: w, h: 150, mini: true, max: sc.max, step: sc.step, cash: true, label: list[i].name + ': revenue by year' });
+    });
+    $('#board-empty').hidden = BOARD.length > 0 || BOARD_MODE === 'pending';
+  }
+  function afterBoardChange() {
+    if (!$('#p-compare').hidden) renderBoard(); else $('#board-empty').hidden = BOARD.length > 0 || BOARD_MODE === 'pending';
+    renderSources();
+    if (!$('#p-terms').hidden) refreshSheet();
+  }
+  const newId = (p) => p + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  async function addScenario(name) {
+    const sc = Object.assign(sanitize(S), { name: (name || '').trim().slice(0, 80) || autoName(S), created: Date.now() });
+    delete sc.cash;
+    if (BOARD_MODE === 'db' && DB) {
+      try { await DB.collection('scenarios').add(sc); return 'Added “' + sc.name + '” to the board.'; }
+      catch (e) {
+        if (e && e.code === 'quota_exceeded') return 'The board is full. Remove a scenario first.';
+        if (e && e.code === 'invalid_argument') return 'You can view this board but not add to it.';
+        return 'Couldn’t save just now. Try again in a moment.';
+      }
+    }
+    if (BOARD_MODE === 'gh') {
+      if (GH.mode !== 'rw') return 'Connect to GitHub on the Compare tab to add to the shared board.';
+      sc.id = newId('g');
+      try { await ghWriteDoc((doc) => { doc.scenarios = doc.scenarios.concat([sc]); }, 'Deal Room: add ' + sc.name); return 'Added “' + sc.name + '” to the shared board.'; }
+      catch (msg) { return String(msg); }
+    }
+    sc.id = newId('l');
+    BOARD.push(sc); store.set(LS.board, BOARD); afterBoardChange();
+    return 'Added “' + sc.name + '” to the board (saved in this browser).';
+  }
+  async function renameScenario(id, name) {
+    name = (name || '').trim().slice(0, 80);
+    if (!name) { renderBoard(); return; }
+    if (BOARD_MODE === 'db' && DB) { try { await DB.doc('scenarios/' + id).update({ name }); } catch (e) { boardStatus('Couldn’t rename just now.'); renderBoard(); } return; }
+    if (BOARD_MODE === 'gh') {
+      boardStatus('Saving to GitHub…');
+      try { await ghWriteDoc((doc) => { doc.scenarios = doc.scenarios.map((x) => (x.id === id ? Object.assign({}, x, { name }) : x)); }, 'Deal Room: rename ' + name); boardStatus('Renamed.'); }
+      catch (msg) { boardStatus(String(msg)); renderBoard(); }
+      return;
+    }
+    const b = BOARD.find((x) => x.id === id); if (b) { b.name = name; store.set(LS.board, BOARD); afterBoardChange(); }
+  }
+  async function removeScenario(id) {
+    const tk = 'sav:' + id;   // the scenario's term-sheet edits go with it
+    if (BOARD_MODE === 'db' && DB) {
+      try { await DB.doc('scenarios/' + id).delete(); } catch (e) { boardStatus('Couldn’t remove just now.'); renderBoard(); return; }
+      if (validKey(tk)) DB.doc('terms/' + tk).delete().catch(() => {});
+      return;
+    }
+    if (BOARD_MODE === 'gh') {
+      boardStatus('Saving to GitHub…');
+      try { await ghWriteDoc((doc) => { doc.scenarios = doc.scenarios.filter((x) => x.id !== id); delete doc.terms[tk]; }, 'Deal Room: remove a scenario'); boardStatus('Removed.'); }
+      catch (msg) { boardStatus(String(msg)); renderBoard(); }
+      return;
+    }
+    BOARD = BOARD.filter((x) => x.id !== id); store.set(LS.board, BOARD);
+    delete TE.drafts[tk]; saveLocalTerms();
+    afterBoardChange();
+  }
+  function useLocal() {
+    BOARD_MODE = 'local'; GH.mode = 'off';
+    BOARD = (store.get(LS.board) || []).map((x) => parseScenario(x.id, x)).filter(Boolean);
+    TE.drafts = cleanDrafts(store.get(LS_TERMS));
+    storeLine(); afterBoardChange(); termsReady();
+  }
+  function loadParams(p) { S = sanitize(Object.assign({}, S, p, { cash: S.cash })); syncInputs(); render(); }
+
+  // ---------- GitHub board (page hosted outside Claude, e.g. GitHub Pages) ----------
+  // The board is a JSON file in the repository, read and written through GitHub's API with a fine-grained token
+  // the viewer pastes in. Without a token, a public repository's board can still be viewed.
+  const GH = { cfg: null, token: '', mode: 'off', last: 0, busy: false };
+  const GH_FILE = 'deal-room-scenarios.json';
+  function ghDetect() {
+    const m = /^([a-z0-9-]+)\.github\.io$/i.exec(location.hostname);
+    if (!m) return null;
+    const seg = location.pathname.split('/').filter(Boolean)[0];
+    return { owner: m[1], repo: seg && !/\.html?$/i.test(seg) ? seg : m[1] + '.github.io', branch: '', path: GH_FILE };
+  }
+  function ghClean(c) {
+    c = c || {};
+    const ok = (s, re) => (typeof s === 'string' && re.test(s.trim()) ? s.trim() : '');
+    return {
+      owner: ok(c.owner, /^[A-Za-z0-9-]{1,39}$/),
+      repo: ok(c.repo, /^[A-Za-z0-9._-]{1,100}$/),
+      branch: ok(c.branch, /^[A-Za-z0-9._\/-]{1,200}$/),
+      path: ok(c.path, /^[A-Za-z0-9._\/-]{1,200}\.json$/) || GH_FILE
+    };
+  }
+  const ghReady = () => !!(GH.cfg && GH.cfg.owner && GH.cfg.repo);
+  const ghRepoURL = (c) => 'https://api.github.com/repos/' + encodeURIComponent(c.owner) + '/' + encodeURIComponent(c.repo);
+  const ghFileURL = (c) => ghRepoURL(c) + '/contents/' + c.path.split('/').map(encodeURIComponent).join('/');
+  async function ghFetch(url, opts) {
+    const headers = { Accept: 'application/vnd.github+json' };
+    if (GH.token) headers.Authorization = 'Bearer ' + GH.token;
+    if (opts && opts.body) headers['Content-Type'] = 'application/json';
+    return fetch(url, Object.assign({ cache: 'no-store' }, opts || {}, { headers }));
+  }
+  function ghError(r) {
+    const s = r ? r.status : 0;
+    if (!s) return 'Couldn’t reach GitHub. Check the connection and try again.';
+    if (s === 401) return 'GitHub didn’t accept the token. It may have expired.';
+    if (s === 403 || s === 429) return r.headers.get('x-ratelimit-remaining') === '0' ? 'GitHub’s rate limit is reached. Try again in a few minutes.' : 'The token can’t write here. It needs Contents set to read and write on this repository.';
+    if (s === 404) return 'Repository not found, or the token can’t see it.';
+    if (s === 409) return 'Someone saved at the same moment. Refresh and try again.';
+    if (s === 422) return 'GitHub couldn’t save the file. Check the branch and file name.';
+    return 'GitHub returned an error (' + s + ').';
+  }
+  function b64enc(str) {
+    const bytes = new TextEncoder().encode(str);
+    let bin = '';
+    for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+    return btoa(bin);
+  }
+  function b64dec(b64) {
+    const bin = atob(String(b64).replace(/\s/g, ''));
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return new TextDecoder().decode(bytes);
+  }
+  async function ghRead() {
+    const c = GH.cfg;
+    let r;
+    try { r = await ghFetch(ghFileURL(c) + (c.branch ? '?ref=' + encodeURIComponent(c.branch) : '')); } catch (e) { throw ghError(null); }
+    if (r.status === 404) return { sha: null, list: [], terms: {} };
+    if (!r.ok) throw ghError(r);
+    const j = await r.json();
+    let data = null;
+    try { data = JSON.parse(b64dec(j.content || '')); } catch (e) { data = null; }
+    const arr = data && Array.isArray(data.scenarios) ? data.scenarios : (Array.isArray(data) ? data : []);
+    return { sha: j.sha || null, list: arr.slice(0, 200).map((x) => parseScenario(x && x.id, x)).filter(Boolean), terms: cleanDrafts(data && data.terms) };
+  }
+  const KEEP = ['id', 'name', 'created', 'method', 'basis', 'fee', 'term', 'early', 'launch', 'cbos', 'split'];
+  const pick = (s) => { const o = {}; KEEP.forEach((k) => { if (s[k] !== undefined) o[k] = s[k]; }); return o; };
+  // Read the latest file, apply the change, write it back; a simultaneous save is retried once on the fresh copy.
+  async function ghWriteDoc(mutate, message) {
+    for (let attempt = 0; attempt < 2; attempt++) {
+      const cur = await ghRead();
+      const doc = { scenarios: cur.list.slice(), terms: Object.assign({}, cur.terms) };
+      mutate(doc);
+      const body = { message: message.slice(0, 120), content: b64enc(JSON.stringify({ version: 1, saved: new Date().toISOString(), scenarios: doc.scenarios.map(pick), terms: doc.terms }, null, 2) + '\n') };
+      if (cur.sha) body.sha = cur.sha;
+      if (GH.cfg.branch) body.branch = GH.cfg.branch;
+      let r;
+      try { r = await ghFetch(ghFileURL(GH.cfg), { method: 'PUT', body: JSON.stringify(body) }); } catch (e) { throw ghError(null); }
+      if (r.ok) { BOARD = doc.scenarios; mergeTerms(doc.terms); GH.last = Date.now(); afterBoardChange(); return; }
+      if ((r.status === 409 || r.status === 422) && attempt === 0) continue;
+      throw ghError(r);
+    }
+  }
+  async function ghLoad(quiet) {
+    if (GH.busy || !ghReady()) return;
+    GH.busy = true;
+    if (!quiet) boardStatus('Loading the shared board…');
+    try {
+      const cur = await ghRead();
+      BOARD = cur.list; mergeTerms(cur.terms); GH.last = Date.now();
+      afterBoardChange();
+      if (!quiet) boardStatus('');
+    } catch (msg) { boardStatus(String(msg)); }
+    finally { GH.busy = false; }
+  }
+  async function ghStart() {
+    GH.cfg = store.get(LS.gh) ? ghClean(store.get(LS.gh)) : ghDetect();
+    GH.token = store.raw(LS.ght) || ses.get(LS.ght);
+    if (ghReady() && GH.token) { GH.mode = 'rw'; BOARD_MODE = 'gh'; storeLine(); await ghLoad(true); termsReady(); return; }
+    if (ghReady()) {
+      // A public repository's board can be viewed without a token.
+      const tok = GH.token; GH.token = '';
+      try {
+        const r = await ghFetch(ghRepoURL(GH.cfg));
+        if (r.ok) { const cur = await ghRead(); GH.mode = 'ro'; BOARD_MODE = 'gh'; BOARD = cur.list; TE.drafts = cur.terms; GH.last = Date.now(); storeLine(); afterBoardChange(); termsReady(); return; }
+      } catch (e) { /* fall back to this browser */ }
+      GH.token = tok;
+    }
+    useLocal();
+  }
+  function storeLine() {
+    const el = $('#store');
+    el.hidden = IN_CLAUDE;
+    if (IN_CLAUDE) return;
+    const repo = ghReady() ? GH.cfg.owner + '/' + GH.cfg.repo : '';
+    const btn = (a, t) => '<button type="button" class="linkbtn u" data-gh="' + a + '">' + t + '</button>';
+    if (GH.mode === 'rw') { $('#store-text').textContent = 'Shared board, saved to ' + repo + ' on GitHub.'; $('#store-acts').innerHTML = btn('refresh', 'Refresh') + btn('disconnect', 'Disconnect'); }
+    else if (GH.mode === 'ro') { $('#store-text').textContent = 'Shared board from ' + repo + ', view only.'; $('#store-acts').innerHTML = btn('connect', 'Connect to add scenarios') + btn('refresh', 'Refresh'); }
+    else { $('#store-text').textContent = 'Scenarios and term-sheet edits save in this browser only.'; $('#store-acts').innerHTML = GH_SYNC ? btn('connect', 'Share through GitHub') : ''; }
+  }
+  function ghFormStatus(t) { $('#gh-status').textContent = t; }
+  function openGhForm() {
+    const c = GH.cfg || ghDetect() || { owner: '', repo: '', branch: '', path: GH_FILE };
+    $('#gh-repo').value = c.owner && c.repo ? c.owner + '/' + c.repo : '';
+    $('#gh-branch').value = c.branch || '';
+    $('#gh-path').value = c.path && c.path !== GH_FILE ? c.path : '';
+    $('#gh-token').value = '';
+    $('#gh-remember').checked = !!store.raw(LS.ght);
+    ghFormStatus('');
+    $('#ghform').hidden = false;
+    ($('#gh-repo').value ? $('#gh-token') : $('#gh-repo')).focus();
+  }
+  async function ghConnect() {
+    const raw = $('#gh-repo').value.trim().replace(/^https?:\/\/(www\.)?github\.com\//i, '').replace(/\.git$/i, '').replace(/\/+$/, '');
+    const parts = raw.split('/');
+    const cfg = ghClean({ owner: parts[0], repo: parts[1], branch: $('#gh-branch').value, path: $('#gh-path').value.trim() || GH_FILE });
+    const token = $('#gh-token').value.trim();
+    if (!cfg.owner || !cfg.repo || parts.length !== 2) { ghFormStatus('Enter the repository as owner/repo.'); return; }
+    if (!token) { ghFormStatus('Paste an access token to connect.'); return; }
+    ghFormStatus('Connecting…');
+    const prev = { cfg: GH.cfg, token: GH.token };
+    GH.cfg = cfg; GH.token = token;
+    try {
+      let r;
+      try { r = await ghFetch(ghRepoURL(cfg)); } catch (e) { throw ghError(null); }
+      if (!r.ok) throw ghError(r);
+      const cur = await ghRead();
+      store.set(LS.gh, cfg);
+      if ($('#gh-remember').checked) { store.raw(LS.ght, token); ses.set(LS.ght, ''); } else { store.raw(LS.ght, ''); ses.set(LS.ght, token); }
+      GH.mode = 'rw'; BOARD_MODE = 'gh'; BOARD = cur.list; mergeTerms(cur.terms); GH.last = Date.now();
+      $('#ghform').hidden = true; $('#gh-token').value = '';
+      storeLine(); afterBoardChange(); termsReady();
+      boardStatus('Connected. Scenarios you add now save to ' + cfg.owner + '/' + cfg.repo + '.');
+    } catch (msg) {
+      GH.cfg = prev.cfg; GH.token = prev.token;
+      ghFormStatus(String(msg));
+    }
+  }
+  async function ghDisconnect() {
+    store.raw(LS.ght, ''); ses.set(LS.ght, '');
+    GH.token = ''; GH.mode = 'off';
+    await ghStart();
+    boardStatus('Disconnected. The token is removed from this browser.');
+  }
+  function nativeSave(o) {
+    const url = URL.createObjectURL(o.data);
+    const a = document.createElement('a');
+    a.href = url; a.download = o.filename; a.rel = 'noopener';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 10000);
+    return Promise.resolve({ status: 'saved' });
+  }
+
+  // ---------- Term sheet ----------
+  function termRows(m) {
+    const p = m.p, fixed = p.method === 'fixed', net = m.net, annual = !net && p.fee !== 'once';
+    const rows = [];
+    rows.push(['Parties', ['Bonterra (“Provider”) and NSI (“Partner”).']]);
+    rows.push(['Network', ['A SafeStat network of ' + N + ' funded cities' + (fixed ? ', with up to ' + (MAXC - N) + ' additional cities at no added cost.' : '.')]]);
+    rows.push(['Services per city', ['Platform licenses for 200 users; a Premier support package, with implementation and training; and the data pipeline with SafeStat reporting.']]);
+    const fees = ['Platform subscription: ' + usd(F) + ' a year per city.'];
+    if (net) fees.push('Network subscription fee: ' + usd(m.pool / m.term) + ' a year in Years 1–' + m.term + ', for the network as a whole, covering the data pipeline, data standards, cross-city SafeStat reporting and network support.');
+    else if (annual) fees.push('Network subscription fee: ' + usd(FEE) + ' a year per city for each of its first five years, paid by NSI.');
+    else fees.push('Network subscription fee: ' + usd(SU) + ' per city, invoiced when the city goes live and paid by NSI.');
+    rows.push(['Fees', fees]);
+    if (net && m.early) rows.push(['Early subscription', ['A city may begin its platform subscription at signing, before go-live. NSI covers the subscription from signing until go-live.', 'Early starts are funded from the network subscription fee, so NSI’s commitment does not change. The fee above reflects ' + word(m.early) + ' early ' + (m.early === 1 ? 'start' : 'starts') + '.']]);
+    rows.push(['Product development', [usd(PD[0]) + ' in Year 1 and ' + usd(PD[1]) + ' a year in Years 2–4 (' + usd(PDT) + ' in total).']]);
+    rows.push(['NSI commitment', [usd(COMMIT) + ' for the ' + N + ' funded cities, including product development.']]);
+    let asl;
+    if (net) asl = 'Invoiced as cities launch: NSI’s share of each live city’s platform subscription, the network subscription fee each year in Years 1–' + m.term + ', and product development on the schedule above.';
+    else if (annual) asl = 'Invoiced as cities launch: NSI’s share of each live city’s platform subscription and its network subscription fee, with product development on the schedule above.';
+    else asl = 'Invoiced as cities launch: NSI’s share of each live city’s platform subscription, each city’s network subscription fee at go-live, and product development on the schedule above.';
+    rows.push(['Invoicing', fixed ? ['Fixed invoice schedule: ' + usd(EVEN) + ' a year in Years 1–5.', 'The commitment is fixed and does not change with the timing of city readiness or launch.'] : [asl]]);
+    rows.push(['NSI funding share', ['NSI covers each city’s platform subscription in full in its first three years after go-live, 50% in its fourth year and 25% in its fifth.', 'Each city pays the balance: ' + usd(F * 0.5) + ' in Year 4 and ' + usd(F * 0.75) + ' in Year 5.']]);
+    const L = launchLines(m);
+    const sched = ['Funded cities: ' + L.funded];
+    if (fixed) sched.push('Additional cities: up to ' + (MAXC - N) + ' beyond the ' + N + ' funded, with no change to NSI’s commitment and on the same terms as funded cities. They may launch at any point in the term' + (L.extraN ? ' (target: ' + L.extra + ').' : '.'));
+    rows.push(['Launch schedule', sched]);
+    rows.push(['After the funded period', ['From its sixth year, each city subscribes directly. The platform subscription rises 3% at renewal (' + usd(F * (1 + ESC)) + ' in Year 6) and 3% a year after that.']]);
+    rows.push(['Term', [m.termEnd ? 'Five years from the launch of the final funded cohort (through Year ' + m.termEnd + ').' : 'Five years from the launch of the final funded cohort.']]);
+    rows.push(['Exclusions', ['NSI’s SafeStat license fees, and work outside CVI and SafeStat workflows.']]);
+    return rows.map((r) => ({ k: TERM_KEYS[r[0]], t: r[0], p: r[1] }));
+  }
+  const TERM_KEYS = { 'Parties': 'parties', 'Network': 'network', 'Services per city': 'services', 'Fees': 'fees', 'Early subscription': 'early', 'Product development': 'pd', 'NSI commitment': 'commit', 'Invoicing': 'invoicing', 'NSI funding share': 'share', 'Launch schedule': 'launch', 'After the funded period': 'after', 'Term': 'term', 'Exclusions': 'exclusions' };
+  const FOOT = 'This summary is for discussion only and creates no binding obligation. Final terms are subject to a definitive agreement.';
+  const today = () => new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  function sourceParams() {
+    const v = $('#ts-src').value || 'cur';
+    if (v.indexOf('ref:') === 0) { const r = REFS.find((x) => 'ref:' + x.id === v); if (r) return { key: v, name: r.name, p: { method: r.method, launch: r.launch, basis: S.basis, fee: S.fee, term: S.term, early: S.early } }; }
+    if (v.indexOf('sav:') === 0) { const b = BOARD.find((x) => 'sav:' + x.id === v); if (b) return { key: v, name: b.name, p: scenarioParams(b) }; }
+    return { key: 'cur', name: 'Current model', p: S };
+  }
+  function renderSources() {
+    const sel = $('#ts-src'), cur = sel.value || 'cur';
+    let h = '<option value="cur">Current model</option>' + REFS.map((r) => '<option value="ref:' + r.id + '">' + escH(r.name) + '</option>').join('');
+    if (BOARD.length) h += '<optgroup label="Saved scenarios">' + BOARD.map((b) => '<option value="sav:' + escH(b.id) + '">' + escH(b.name) + '</option>').join('') + '</optgroup>';
+    sel.innerHTML = h;
+    sel.value = Array.from(sel.options).some((o) => o.value === cur) ? cur : 'cur';
+  }
+  // ---------- Term sheet edits ----------
+  // Edits are kept per source (current model, a structure A–C4, or a saved scenario): title and text overrides for
+  // each term, with the model text they replaced so a later model change is flagged; added terms; removed terms.
+  // They save with the board: shared in Claude and on a connected GitHub repo, otherwise in this browser.
+  const TE = { editing: false, drafts: {}, pending: new Set(), ver: {}, saving: false, err: '', timer: null, loaded: false, confirmReset: false };
+  const LS_TERMS = 'sdr-terms-v1', LS_TERMS_PENDING = 'sdr-terms-pending-v1';
+  const TERM_KEY = /^[a-z]{2,16}$/;
+  const validKey = (k) => typeof k === 'string' && /^(cur|ref:[A-Z0-9]{1,3}|sav:[A-Za-z0-9_-]{1,64})$/.test(k);
+  const clip = (s, n) => String(s == null ? '' : s).slice(0, n);
+  const normText = (s) => String(s || '').split('\n').map((x) => x.trim()).filter(Boolean).join('\n');
+  function cleanDraft(d) {
+    const out = { rows: {}, removed: [], custom: [], updated: 0 };
+    if (!d || typeof d !== 'object') return out;
+    if (d.rows && typeof d.rows === 'object') Object.keys(d.rows).slice(0, 40).forEach((k) => {
+      const r = d.rows[k];
+      if (!TERM_KEY.test(k) || !r || typeof r !== 'object') return;
+      const o = {};
+      if (typeof r.t === 'string') { o.t = clip(r.t, 120); o.bt = clip(r.bt, 120); }
+      if (typeof r.p === 'string') { o.p = clip(r.p, 4000); o.bp = clip(r.bp, 4000); }
+      if (o.t != null || o.p != null) out.rows[k] = o;
+    });
+    if (Array.isArray(d.removed)) out.removed = d.removed.filter((k) => typeof k === 'string' && TERM_KEY.test(k)).slice(0, 40);
+    if (Array.isArray(d.custom)) out.custom = d.custom.slice(0, 30).filter((c) => c && typeof c === 'object').map((c) => ({ id: clip(c.id, 24).replace(/[^A-Za-z0-9]/g, '') || newId('c'), t: clip(c.t, 120), p: clip(c.p, 4000) }));
+    out.updated = +d.updated || 0;
+    return out;
+  }
+  const draftEmpty = (d) => !d || (!Object.keys(d.rows).length && !d.removed.length && !d.custom.length);
+  function draftFor(key) { if (!TE.drafts[key]) TE.drafts[key] = cleanDraft(null); return TE.drafts[key]; }
+  function cleanDrafts(obj) { const out = {}; if (obj && typeof obj === 'object') Object.keys(obj).slice(0, 200).forEach((k) => { if (validKey(k)) out[k] = cleanDraft(obj[k]); }); return out; }
+  function mergeTerms(remote) { const next = cleanDrafts(remote); TE.pending.forEach((k) => { if (TE.drafts[k]) next[k] = TE.drafts[k]; }); TE.drafts = next; }
+
+  // What prints and exports: the model's terms with edits applied, removed terms left out, added terms at the end.
+  function sheetRows(src) {
+    const gen = termRows(model(src.p)), d = TE.drafts[src.key] || cleanDraft(null), rows = [];
+    gen.forEach((g) => {
+      if (d.removed.indexOf(g.k) >= 0) return;
+      const o = d.rows[g.k] || {}, gp = g.p.join('\n'), text = o.p != null ? o.p : gp;
+      rows.push({ k: g.k, t: (o.t != null && o.t) || g.t, p: text.split('\n').map((s) => s.trim()).filter(Boolean), edited: o.t != null || o.p != null, stale: (o.p != null && o.bp !== gp) || (o.t != null && o.bt !== g.t) });
+    });
+    d.custom.forEach((c) => rows.push({ k: 'custom', id: c.id, t: c.t || 'New term', p: normText(c.p).split('\n').filter(Boolean), custom: true }));
+    return rows;
+  }
+  function autoSize(el) { el.style.height = 'auto'; el.style.height = (el.scrollHeight + 2) + 'px'; }
+  function rowActs(r) {
+    if (r.custom) return '<button type="button" class="linkbtn" data-te="remove-custom" data-id="' + r.id + '">Remove</button>';
+    return (r.edited ? '<button type="button" class="linkbtn" data-te="reset" data-k="' + r.k + '">Reset to model</button>' : '') + '<button type="button" class="linkbtn" data-te="remove" data-k="' + r.k + '">Remove</button>';
+  }
+  function editRowHTML(r, i) {
+    const ref = r.custom ? ' data-id="' + r.id + '"' : ' data-k="' + r.k + '"';
+    const flag = r.stale ? '<p class="t-flag">The model has changed since this edit. <button type="button" class="linkbtn u" data-te="reset" data-k="' + r.k + '">Use model text</button> · <button type="button" class="linkbtn u" data-te="keep" data-k="' + r.k + '">Keep my edit</button></p>' : '';
+    return '<tr class="ed"><td><div class="t-head"><span class="num">' + (i + 1) + '.</span><textarea class="t-title"' + ref + ' rows="1" maxlength="120" aria-label="Term ' + (i + 1) + ' title">' + escH(r.t) + '</textarea></div><div class="t-acts">' + rowActs(r) + '</div>' + flag + '</td>' +
+      '<td><textarea class="t-text"' + ref + ' rows="2" maxlength="4000" aria-label="Term ' + (i + 1) + ' text, one paragraph per line">' + escH(r.p.join('\n')) + '</textarea></td></tr>';
+  }
+  function renderSheet() {
+    const src = sourceParams(), rows = sheetRows(src), d = TE.drafts[src.key];
+    let body;
+    if (TE.editing) {
+      const gone = termRows(model(src.p)).filter((g) => d && d.removed.indexOf(g.k) >= 0);
+      body = rows.map(editRowHTML).join('') + gone.map((g) => '<tr class="removed"><td colspan="2">Removed: ' + escH(g.t) + ' · <button type="button" class="linkbtn u" data-te="restore" data-k="' + g.k + '">Restore</button></td></tr>').join('');
+    } else {
+      body = rows.map((r, i) => '<tr><td><span class="num">' + (i + 1) + '.</span>' + escH(r.t) +
+        (r.custom ? '<span class="t-mark" data-internal>Added</span>' : r.stale ? '<span class="t-mark warn" data-internal>Edited · model changed</span>' : r.edited ? '<span class="t-mark" data-internal>Edited</span>' : '') +
+        '</td><td>' + r.p.map((p) => '<p>' + escH(p) + '</p>').join('') + '</td></tr>').join('');
+    }
+    $('#sheet').innerHTML = '<div class="kick">SafeStat Network</div><h2>Summary of Proposed Terms</h2><p class="sub">Draft for discussion · Non-binding · ' + today() + '</p>' +
+      '<table><tbody>' + body + '</tbody></table>' + (TE.editing ? '<div class="t-add"><button type="button" class="btn" data-te="add">Add a term</button></div>' : '') +
+      '<p class="foot">' + FOOT + '</p>';
+    if (TE.editing) $$('#sheet textarea').forEach(autoSize);
+    const b = $('#ts-edit'); b.textContent = TE.editing ? 'Done editing' : 'Edit terms'; b.setAttribute('aria-pressed', TE.editing ? 'true' : 'false');
+    renderEditStatus(src, rows);
+    return rows;
+  }
+  // Background updates never rebuild the sheet while someone is typing in it.
+  function refreshSheet() { if (TE.editing) renderEditStatusCur(); else renderSheet(); }
+  function termsMode() {
+    if (BOARD_MODE === 'db' && DB) return 'db';
+    if (BOARD_MODE === 'gh') return GH.mode === 'rw' ? 'gh' : 'ghro';
+    if (BOARD_MODE === 'local') return 'local';
+    return 'pending';
+  }
+  function saveWord() {
+    const mode = termsMode();
+    if (TE.err) return 'Not saved: ' + escH(TE.err) + ' <button type="button" class="linkbtn u" data-te="retry">Try again</button>';
+    if (mode === 'ghro') return 'Not saved: connect to GitHub on the Compare tab to save edits. They still export.';
+    if (TE.saving || mode === 'pending' || (TE.pending.size && (mode === 'db' || mode === 'gh'))) return 'Saving…';
+    if (mode === 'db') return 'Saved for everyone who can open this page.';
+    if (mode === 'gh') return 'Saved to GitHub.';
+    return 'Saved in this browser.';
+  }
+  function renderEditStatus(src, rows) {
+    const el = $('#ts-edits'), d = TE.drafts[src.key];
+    const counts = [[rows.filter((r) => r.edited).length, 'edited'], [rows.filter((r) => r.custom).length, 'added'], [d ? d.removed.length : 0, 'removed']].filter((c) => c[0]);
+    const nStale = rows.filter((r) => r.stale).length;
+    let h = '';
+    if (counts.length) {
+      h = counts.map((c, i) => c[0] + (i === 0 ? (c[0] === 1 ? ' term ' : ' terms ') : ' ') + c[1]).join(', ') + (nStale ? ' (' + nStale + ' out of date with the model)' : '') + '. ' + saveWord() + ' ';
+      h += TE.confirmReset
+        ? 'Reset every term to the model? <button type="button" class="linkbtn u" data-te="reset-all-yes">Reset all</button> · <button type="button" class="linkbtn u" data-te="reset-all-no">Keep edits</button>'
+        : '<button type="button" class="linkbtn u" data-te="reset-all">Reset all to the model</button>';
+    } else if (TE.editing) {
+      const mode = termsMode();
+      h = 'Click into any term to change it; each line is a paragraph. ' + (mode === 'ghro' ? 'Edits export, but connect to GitHub on the Compare tab to save them.' : 'Edits save automatically' + ({ db: ' for everyone who can open this page.', gh: ' to GitHub.', local: ' in this browser.' }[mode] || '.'));
+    }
+    el.innerHTML = h;
+    el.hidden = !h;
+  }
+  function renderEditStatusCur() { if (!$('#p-terms').hidden) { const src = sourceParams(); renderEditStatus(src, sheetRows(src)); } }
+  function saveLocalTerms() { const out = {}; Object.keys(TE.drafts).forEach((k) => { if (!draftEmpty(TE.drafts[k])) out[k] = TE.drafts[k]; }); store.set(LS_TERMS, out); }
+  function savePending() { const out = {}; TE.pending.forEach((k) => { if (TE.drafts[k]) out[k] = TE.drafts[k]; }); store.set(LS_TERMS_PENDING, out); }
+  function changed(key) {
+    draftFor(key).updated = Date.now();
+    TE.ver[key] = (TE.ver[key] || 0) + 1;
+    TE.err = ''; TE.confirmReset = false;
+    const mode = termsMode();
+    if (mode === 'local') saveLocalTerms();
+    else {
+      // Until the shared copy is saved, this browser keeps the edit so a closed tab or failed save loses nothing.
+      TE.pending.add(key); savePending();
+      if (mode === 'db' || mode === 'gh') { clearTimeout(TE.timer); TE.timer = setTimeout(flushTerms, mode === 'gh' ? 4000 : 1200); }
+    }
+    renderEditStatusCur();
+  }
+  async function flushTerms() {
+    clearTimeout(TE.timer);
+    const mode = termsMode();
+    if (TE.saving || !TE.pending.size || (mode !== 'db' && mode !== 'gh')) return;
+    TE.saving = true; renderEditStatusCur();
+    const keys = Array.from(TE.pending), vers = {};
+    keys.forEach((k) => { vers[k] = TE.ver[k] || 0; });
+    try {
+      if (mode === 'db') {
+        for (const k of keys) { const d = TE.drafts[k]; if (draftEmpty(d)) await DB.doc('terms/' + k).delete(); else await DB.doc('terms/' + k).set(d); }
+      } else {
+        await ghWriteDoc((doc) => { keys.forEach((k) => { const d = TE.drafts[k]; if (draftEmpty(d)) delete doc.terms[k]; else doc.terms[k] = d; }); }, 'Deal Room: term sheet edits');
+      }
+      keys.forEach((k) => { if ((TE.ver[k] || 0) === vers[k]) TE.pending.delete(k); });
+      savePending(); TE.err = '';
+    } catch (e) {
+      TE.err = typeof e === 'string' ? e : (e && e.code === 'invalid_argument' ? 'this view can’t save edits.' : e && e.code === 'quota_exceeded' ? 'storage is full.' : 'try again in a moment.');
+    } finally {
+      TE.saving = false;
+      if (TE.pending.size && !TE.err) TE.timer = setTimeout(flushTerms, 1200);
+      renderEditStatusCur();
+    }
+  }
+  // Called once a storage mode has loaded its edits: bring back anything this browser still holds unsaved.
+  function termsReady() {
+    const raw = store.get(LS_TERMS_PENDING) || {};
+    Object.keys(raw).forEach((k) => { if (validKey(k)) { TE.drafts[k] = cleanDraft(raw[k]); TE.pending.add(k); } });
+    const mode = termsMode();
+    if (mode === 'local' && TE.pending.size) { TE.pending.clear(); saveLocalTerms(); store.set(LS_TERMS_PENDING, {}); }
+    if ((mode === 'db' || mode === 'gh') && TE.pending.size) flushTerms();
+    if (!$('#p-terms').hidden) refreshSheet();
+  }
+  function sheetInlineHTML(rows) {
+    const td = 'style="border-bottom:1px solid #cccccc;padding:8px 10px 8px 0;vertical-align:top;font-family:Georgia,serif;font-size:11pt"';
+    return '<div style="font-family:Georgia,serif;color:#1c1c1c"><p style="font-family:Arial,sans-serif;font-size:8pt;letter-spacing:2px;color:#555555;margin:0">SAFESTAT NETWORK</p>' +
+      '<p style="font-size:17pt;font-weight:bold;margin:4px 0 2px">Summary of Proposed Terms</p><p style="font-style:italic;color:#555555;margin:0 0 14px">Draft for discussion · Non-binding · ' + today() + '</p>' +
+      '<table style="border-collapse:collapse;width:100%;border-top:1.5px solid #1c1c1c">' + rows.map((r, i) => '<tr><td ' + td + ' width="30%"><b>' + (i + 1) + '. ' + escH(r.t) + '</b></td><td ' + td + '>' + r.p.map((p) => escH(p)).join('<br>') + '</td></tr>').join('') + '</table>' +
+      '<p style="font-style:italic;color:#555555;margin-top:14px">' + FOOT + '</p></div>';
+  }
+  function sheetText(rows) {
+    return 'SAFESTAT NETWORK\nSummary of Proposed Terms\nDraft for discussion · Non-binding · ' + today() + '\n\n' + rows.map((r, i) => (i + 1) + '. ' + r.t + '\n' + r.p.join('\n')).join('\n\n') + '\n\n' + FOOT + '\n';
+  }
+  const xe = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  function wrun(t, o) {
+    o = o || {};
+    return '<w:r><w:rPr>' + (o.b ? '<w:b/>' : '') + (o.i ? '<w:i/>' : '') + (o.sz ? '<w:sz w:val="' + o.sz + '"/><w:szCs w:val="' + o.sz + '"/>' : '') + (o.color ? '<w:color w:val="' + o.color + '"/>' : '') + '</w:rPr><w:t xml:space="preserve">' + xe(t) + '</w:t></w:r>';
+  }
+  const wpara = (runs, o) => { o = o || {}; return '<w:p><w:pPr><w:spacing w:before="' + (o.before || 0) + '" w:after="' + (o.after == null ? 120 : o.after) + '"/></w:pPr>' + runs + '</w:p>'; };
+  const wcell = (inner, w) => '<w:tc><w:tcPr><w:tcW w:w="' + w + '" w:type="dxa"/></w:tcPr>' + inner + '</w:tc>';
+  async function buildDocx(rows) {
+    const zip = new window.JSZip();
+    zip.file('[Content_Types].xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/></Types>');
+    zip.file('_rels/.rels', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>');
+    zip.file('word/_rels/document.xml.rels', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>');
+    zip.file('word/styles.xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="Georgia" w:hAnsi="Georgia" w:cs="Georgia" w:eastAsia="Georgia"/><w:sz w:val="21"/><w:szCs w:val="21"/><w:color w:val="1C1C1C"/></w:rPr></w:rPrDefault><w:pPrDefault><w:pPr><w:spacing w:after="120" w:line="276" w:lineRule="auto"/></w:pPr></w:pPrDefault></w:docDefaults></w:styles>');
+    const border = (tag, sz, color) => '<w:' + tag + ' w:val="single" w:sz="' + sz + '" w:space="0" w:color="' + color + '"/>';
+    let body = wpara(wrun('SAFESTAT NETWORK', { sz: 16, color: '555555' }), { after: 40 }) +
+      wpara(wrun('Summary of Proposed Terms', { b: true, sz: 34 }), { after: 40 }) +
+      wpara(wrun('Draft for discussion · Non-binding · ' + today(), { i: true, sz: 19, color: '555555' }), { after: 240 });
+    body += '<w:tbl><w:tblPr><w:tblW w:w="9360" w:type="dxa"/><w:tblLayout w:type="fixed"/><w:tblBorders>' + border('top', 12, '1C1C1C') + border('bottom', 4, 'CCCCCC') + border('insideH', 4, 'CCCCCC') + '</w:tblBorders><w:tblCellMar><w:top w:w="110" w:type="dxa"/><w:bottom w:w="110" w:type="dxa"/><w:right w:w="140" w:type="dxa"/></w:tblCellMar></w:tblPr><w:tblGrid><w:gridCol w:w="2700"/><w:gridCol w:w="6660"/></w:tblGrid>';
+    rows.forEach((r, i) => {
+      const paras = r.p.length ? r.p : [''];
+      body += '<w:tr>' + wcell(wpara(wrun((i + 1) + '. ' + r.t, { b: true }), { after: 0 }), 2700) + wcell(paras.map((p, j) => wpara(wrun(p), { after: j === paras.length - 1 ? 0 : 80 })).join(''), 6660) + '</w:tr>';
+    });
+    body += '</w:tbl>' + wpara(wrun(FOOT, { i: true, sz: 18, color: '555555' }), { before: 280 });
+    body += '<w:sectPr><w:pgSz w:w="12240" w:h="15840"/><w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440" w:header="720" w:footer="720" w:gutter="0"/></w:sectPr>';
+    zip.file('word/document.xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>' + body + '</w:body></w:document>');
+    return zip.generateAsync({ type: 'blob', mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+  }
+  function tsStatus(t) { $('#ts-status').textContent = t; }
+
+  // ---------- View, tabs, sections ----------
+  function applyView() {
+    document.body.classList.toggle('share', UI.view === 'share');
+    $('#v-int').setAttribute('aria-pressed', UI.view !== 'share');
+    $('#v-share').setAttribute('aria-pressed', UI.view === 'share');
+  }
+  const TABS = ['model', 'compare', 'terms'];
+  function showTab(name) {
+    if (TABS.indexOf(name) < 0) name = 'model';
+    $$('.tab').forEach((t) => t.setAttribute('aria-selected', t.dataset.tab === name ? 'true' : 'false'));
+    $('#p-model').hidden = name !== 'model';
+    $('#p-compare').hidden = name !== 'compare';
+    $('#p-terms').hidden = name !== 'terms';
+    if (name === 'model') renderChart(CUR);
+    if (name === 'compare') { renderBoard(); if (BOARD_MODE === 'gh' && Date.now() - GH.last > 20000) ghLoad(true); }
+    if (name === 'terms') renderSheet();
+  }
+  function applySections() {
+    $$('.sec').forEach((sec) => {
+      const k = sec.dataset.sec, open = UI.open[k] !== false;
+      sec.dataset.open = open ? 'true' : 'false';
+      $('.sec-head', sec).setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+  }
+
+  // ---------- Render ----------
+  function render() {
+    store.set(LS.state, S);
+    CUR = model(S);
+    renderFigs(CUR);
+    renderRail(CUR);
+    renderSums(CUR);
+    renderChart(CUR);
+    renderMath();
+    renderExplain(CUR);
+    renderSchedule(CUR);
+    renderCity(CUR);
+    renderDecisions(CUR);
+    renderNotes(CUR);
+    if (!$('#p-compare').hidden) renderBoard();
+    if (!$('#p-terms').hidden) refreshSheet();
+  }
+
+  // ---------- Wiring ----------
+  $$('.seg button[data-k]').forEach((b) => b.addEventListener('click', () => { const k = b.dataset.k; S[k] = k === 'term' ? +b.dataset.v : b.dataset.v; syncInputs(); render(); }));
+  [1, 2, 3, 4, 5].forEach((i) => $('#y' + i).addEventListener('input', (e) => { S.launch[i - 1] = clampInt(e.target.value, 0, 40); render(); }));
+  $('#early').addEventListener('input', (e) => { S.early = clampInt(e.target.value, 0, MAXE); render(); });
+  $('#cbos').addEventListener('input', (e) => { S.cbos = clampInt(e.target.value, 1, 200); render(); });
+  [0, 1, 2].forEach((i) => $('#sp' + i).addEventListener('input', (e) => { S.split[i] = Math.max(0, Math.min(100, +e.target.value || 0)); render(); }));
+  $('#cashline').addEventListener('change', (e) => { S.cash = e.target.checked; render(); });
+  $('#presets').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-ref]'); if (!b) return;
+    const r = REFS.find((x) => x.id === b.dataset.ref);
+    if (r) { S.method = r.method; S.launch = r.launch.slice(); syncInputs(); render(); $('#rail-status').textContent = 'Loaded ' + r.name + '.'; }
+  });
+  $('#reset').addEventListener('click', () => { S = sanitize(DEFAULTS); PIN = null; syncInputs(); render(); $('#rail-status').textContent = 'Reset to the fixed schedule, up to 30 cities, network-wide fee.'; });
+  $('#explain-open').addEventListener('click', openExplain);
+  $('#add-rail').addEventListener('click', async () => { $('#rail-status').textContent = 'Saving…'; $('#rail-status').textContent = await addScenario(''); });
+  $('#add-board').addEventListener('click', async () => {
+    if (BOARD_MODE === 'gh' && GH.mode !== 'rw') { openGhForm(); boardStatus('Connect to GitHub to add to the shared board.'); return; }
+    const el = $('#add-name'); boardStatus('Saving…'); boardStatus(await addScenario(el.value)); el.value = '';
+  });
+  $('#show-refs').addEventListener('change', (e) => { UI.refs = e.target.checked; saveUI(); renderBoard(); });
+  $('#cards').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-act]'); if (!b) return;
+    const id = b.dataset.id, act = b.dataset.act;
+    if (act === 'load') {
+      const r = REFS.find((x) => x.id === id);
+      const sv = BOARD.find((x) => x.id === id);
+      if (r) loadParams({ method: r.method, launch: r.launch.slice() });
+      else if (sv) loadParams(scenarioParams(sv));
+      location.hash = 'model';
+      return;
+    }
+    const card = b.closest('.card'), acts = $('.acts', card);
+    if (act === 'rename') {
+      const sv = BOARD.find((x) => x.id === id);
+      acts.innerHTML = '<input type="text" maxlength="60" aria-label="New name" value="' + escH(sv ? sv.name : '') + '"><button type="button" class="linkbtn" data-act="save-name" data-id="' + escH(id) + '">Save</button><button type="button" class="linkbtn" data-act="cancel" data-id="' + escH(id) + '">Cancel</button>';
+      $('input', acts).focus();
+    } else if (act === 'save-name') {
+      renameScenario(id, $('input', acts).value);
+    } else if (act === 'remove') {
+      acts.innerHTML = '<span>Remove this scenario?</span><button type="button" class="linkbtn" data-act="confirm-remove" data-id="' + escH(id) + '">Remove</button><button type="button" class="linkbtn" data-act="cancel" data-id="' + escH(id) + '">Keep</button>';
+    } else if (act === 'confirm-remove') {
+      removeScenario(id);
+    } else if (act === 'cancel') {
+      renderBoard();
+    }
+  });
+  $('#store-acts').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-gh]'); if (!b) return;
+    const a = b.dataset.gh;
+    if (a === 'connect') openGhForm();
+    else if (a === 'refresh') ghLoad(false);
+    else if (a === 'disconnect') ghDisconnect();
+  });
+  $('#ghform').addEventListener('submit', (e) => { e.preventDefault(); ghConnect(); });
+  $('#gh-cancel').addEventListener('click', () => { $('#ghform').hidden = true; $('#gh-token').value = ''; });
+  window.addEventListener('focus', () => { if (BOARD_MODE === 'gh' && !$('#p-compare').hidden && Date.now() - GH.last > 20000) ghLoad(true); });
+  $('#ts-src').addEventListener('change', () => { flushTerms(); TE.confirmReset = false; renderSheet(); });
+  $('#ts-edit').addEventListener('click', () => {
+    TE.editing = !TE.editing; TE.confirmReset = false;
+    if (!TE.editing) flushTerms();
+    renderSheet();
+  });
+  $('#sheet').addEventListener('input', (e) => {
+    const el = e.target;
+    if (!TE.editing || !el.classList || !(el.classList.contains('t-title') || el.classList.contains('t-text'))) return;
+    const src = sourceParams(), d = draftFor(src.key), isTitle = el.classList.contains('t-title');
+    autoSize(el);
+    const title = isTitle ? el.value.replace(/\s+/g, ' ').trim() : '';
+    if (el.dataset.id) {
+      const c = d.custom.find((x) => x.id === el.dataset.id); if (!c) return;
+      if (isTitle) c.t = clip(title, 120); else c.p = clip(normText(el.value), 4000);
+    } else {
+      const g = termRows(model(src.p)).find((x) => x.k === el.dataset.k); if (!g) return;
+      const o = d.rows[g.k] || {};
+      if (isTitle) { if (!title || title === g.t) { delete o.t; delete o.bt; } else { o.t = clip(title, 120); o.bt = g.t; } }
+      else { const v = normText(el.value), gp = g.p.join('\n'); if (v === gp) { delete o.p; delete o.bp; } else { o.p = clip(v, 4000); o.bp = gp; } }
+      if (o.t == null && o.p == null) delete d.rows[g.k]; else d.rows[g.k] = o;
+      const acts = el.closest('tr').querySelector('.t-acts');
+      if (acts) acts.innerHTML = rowActs({ k: g.k, edited: !!d.rows[g.k] });
+    }
+    changed(src.key);
+  });
+  $('#sheet').addEventListener('keydown', (e) => { if (e.key === 'Enter' && e.target.classList && e.target.classList.contains('t-title')) e.preventDefault(); });
+  $('#sheet').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-te]'); if (!b || !TE.editing) return;
+    const src = sourceParams(), d = draftFor(src.key), a = b.dataset.te, k = b.dataset.k;
+    let focusId = null;
+    if (a === 'reset') delete d.rows[k];
+    else if (a === 'keep') { const g = termRows(model(src.p)).find((x) => x.k === k), o = d.rows[k]; if (g && o) { if (o.p != null) o.bp = g.p.join('\n'); if (o.t != null) o.bt = g.t; } }
+    else if (a === 'remove') { delete d.rows[k]; if (d.removed.indexOf(k) < 0) d.removed.push(k); }
+    else if (a === 'restore') d.removed = d.removed.filter((x) => x !== k);
+    else if (a === 'remove-custom') d.custom = d.custom.filter((c) => c.id !== b.dataset.id);
+    else if (a === 'add') { focusId = newId('c'); d.custom.push({ id: focusId, t: 'New term', p: '' }); }
+    else return;
+    changed(src.key);
+    renderSheet();
+    if (focusId) { const inp = $('#sheet .t-title[data-id="' + focusId + '"]'); if (inp) { inp.focus(); inp.select(); } }
+  });
+  $('#ts-edits').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-te]'); if (!b) return;
+    const a = b.dataset.te, src = sourceParams();
+    if (a === 'reset-all') { TE.confirmReset = true; renderEditStatusCur(); }
+    else if (a === 'reset-all-no') { TE.confirmReset = false; renderEditStatusCur(); }
+    else if (a === 'reset-all-yes') { TE.drafts[src.key] = cleanDraft(null); changed(src.key); renderSheet(); }
+    else if (a === 'retry') { TE.err = ''; flushTerms(); }
+  });
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') flushTerms(); });
+  $('#ts-copy').addEventListener('click', () => {
+    const rows = sheetRows(sourceParams()), html = sheetInlineHTML(rows), text = sheetText(rows);
+    const fallback = () => {
+      const p = navigator.clipboard && navigator.clipboard.writeText ? navigator.clipboard.writeText(text) : Promise.reject();
+      p.then(() => tsStatus('Copied as plain text.'), () => { const sel = window.getSelection(); sel.removeAllRanges(); const rg = document.createRange(); rg.selectNodeContents($('#sheet')); sel.addRange(rg); tsStatus('Copy is blocked here. The term sheet is selected; copy it with your keyboard.'); });
+    };
+    try {
+      if (navigator.clipboard && navigator.clipboard.write && window.ClipboardItem) {
+        navigator.clipboard.write([new ClipboardItem({ 'text/html': new Blob([html], { type: 'text/html' }), 'text/plain': new Blob([text], { type: 'text/plain' }) })])
+          .then(() => tsStatus('Copied. Paste into Word or Google Docs.'), fallback);
+      } else fallback();
+    } catch (e) { fallback(); }
+  });
+  let DL = null;
+  $('#ts-docx').addEventListener('click', async () => {
+    if (!DL || !window.JSZip) return;
+    const rows = sheetRows(sourceParams());
+    tsStatus('Preparing the Word file…');
+    try {
+      const blob = await buildDocx(rows);
+      const src = sourceParams();
+      const fname = 'SafeStat term sheet - ' + src.name.replace(/[^A-Za-z0-9 ._-]+/g, ' ').replace(/\s+/g, ' ').trim() + '.docx';
+      const res = await DL.save({ filename: fname, data: blob });
+      tsStatus(res && res.status === 'delivered' ? 'Sent.' : (IN_CLAUDE ? 'Saved ' : 'Downloaded ') + fname + '.');
+    } catch (e) {
+      const c = e && e.code;
+      if (c === 'declined') tsStatus('Download canceled.');
+      else if (c === 'rate_limited') tsStatus('A download is already waiting for you. Try again in a moment.');
+      else if (c === 'host_unavailable') { tsStatus('This app can’t save files. Open the page in a browser to download.'); $('#ts-docx').hidden = true; }
+      else { tsStatus('Download isn’t available here. Use Copy formatted instead.'); $('#ts-docx').hidden = true; }
+    }
+  });
+  $('#v-int').addEventListener('click', () => { UI.view = 'int'; saveUI(); applyView(); render(); });
+  $('#v-share').addEventListener('click', () => { UI.view = 'share'; saveUI(); applyView(); render(); });
+  $$('.tab').forEach((t) => t.addEventListener('click', () => { if (location.hash !== '#' + t.dataset.tab) location.hash = t.dataset.tab; else showTab(t.dataset.tab); }));
+  window.addEventListener('hashchange', () => showTab(location.hash.slice(1)));
+  $$('.sec-head').forEach((h) => h.addEventListener('click', () => {
+    const sec = h.closest('.sec'), k = sec.dataset.sec;
+    UI.open[k] = sec.dataset.open !== 'true'; saveUI(); applySections();
+    if (k === 'chart' && UI.open[k]) renderChart(CUR);
+  }));
+  $('#collapse-all').addEventListener('click', () => { Object.keys(UI.open).forEach((k) => { UI.open[k] = false; }); saveUI(); applySections(); });
+  $('#expand-all').addEventListener('click', () => { Object.keys(UI.open).forEach((k) => { UI.open[k] = true; }); saveUI(); applySections(); renderChart(CUR); });
+
+  const chartBox = $('#chart');
+  const hitOf = (e) => (e.target.closest ? e.target.closest('.hit') : null);
+  chartBox.addEventListener('mouseover', (e) => { const r = hitOf(e); if (r) showTip(+r.dataset.t, r, false); });
+  chartBox.addEventListener('focusin', (e) => { const r = hitOf(e); if (r) showTip(+r.dataset.t, r, true); });
+  chartBox.addEventListener('click', (e) => { const r = hitOf(e); if (r) { pin(+r.dataset.t, false); showTip(+r.dataset.t, r, false); } });
+  chartBox.addEventListener('keydown', (e) => { const r = hitOf(e); if (r && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); pin(+r.dataset.t, true); } });
+  chartBox.addEventListener('mouseleave', () => { $('#tip').hidden = true; });
+  chartBox.addEventListener('focusout', () => { $('#tip').hidden = true; });
+  $('#math').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-math]'); if (!b) return;
+    const a = b.dataset.math;
+    if (a === 'close') { unpin(true); return; }
+    if (a === 'explain') { openExplain(); return; }
+    if (a === 'prev' && PIN > 0) pin(PIN - 1, false);
+    if (a === 'next' && PIN < Y - 1) pin(PIN + 1, false);
+    const nb = $('#math [data-math="' + a + '"]');
+    if (nb && !nb.disabled) nb.focus(); else { const h = $('#math-title'); if (h) h.focus(); }
+  });
+  $('#math').addEventListener('keydown', (e) => { if (e.key === 'Escape') unpin(true); });
+  $('#explain').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-ex]'); if (!b) return;
+    const a = b.dataset.ex;
+    if (a === 'apply') {
+      S.basis = 'network'; S.early = clampInt(b.dataset.n, 0, MAXE); syncInputs(); render();
+      $('#rail-status').textContent = 'Using ' + S.early + ' early ' + (S.early === 1 ? 'signing' : 'signings') + '. Year 1 ARR is now ' + money(CUR.y1arr) + '.';
+      return;
+    }
+    if (a === 'to-network') { S.basis = 'network'; syncInputs(); render(); return; }
+    if (a === 'next') EXS = Math.min(3, EXS + 1);
+    else if (a === 'prev') EXS = Math.max(0, EXS - 1);
+    else if (a === 'go') EXS = clampInt(b.dataset.s, 0, 3);
+    renderExplain(CUR);
+    const h = $('#ex-h'); if (h) h.focus({ preventScroll: true });
+  });
+  $('#notes').addEventListener('click', (e) => { if (e.target.closest('[data-open-explain]')) openExplain(); });
+
+  let rT = null;
+  const onResize = () => { clearTimeout(rT); rT = setTimeout(() => { if (!$('#p-model').hidden) renderChart(CUR); if (!$('#p-compare').hidden) renderBoard(); if (!$('#p-terms').hidden && TE.editing) $$('#sheet textarea').forEach(autoSize); }, 120); };
+  if (window.ResizeObserver) new ResizeObserver(onResize).observe(document.body); else window.addEventListener('resize', onResize);
+
+  // ---------- Storage and downloads ----------
+  if (IN_CLAUDE) {
+    useCap('downloads').then((d) => { DL = d; $('#ts-docx').hidden = !(d && window.JSZip); });
+    useCap('db').then((db) => {
+      if (!db) { useLocal(); boardStatus('Saved scenarios stay in this browser.'); return; }
+      DB = db; BOARD_MODE = 'db';
+      boardStatus('Loading saved scenarios…');
+      const timer = setTimeout(() => boardStatus('Saved scenarios can’t be reached right now.'), 10000);
+      db.collection('scenarios').orderBy('created').onSnapshot((snap) => {
+        if (!snap.metadata.fromCache) clearTimeout(timer);
+        BOARD = snap.docs.map((d) => parseScenario(d.id, d.data())).filter(Boolean);
+        boardStatus('Saved scenarios are shared with everyone who can open this page.');
+        afterBoardChange();
+      }, () => {
+        clearTimeout(timer);
+        boardStatus('Saved scenarios are unavailable right now.');
+      });
+      // Term-sheet edits, one document per source (cur, ref:A, sav:<id>), shared like the board.
+      db.collection('terms').onSnapshot((snap) => {
+        const next = {};
+        snap.docs.forEach((d) => { if (validKey(d.id)) next[d.id] = cleanDraft(d.data()); });
+        TE.pending.forEach((k) => { if (TE.drafts[k]) next[k] = TE.drafts[k]; });
+        TE.drafts = next;
+        if (!TE.loaded) { TE.loaded = true; termsReady(); } else if (!$('#p-terms').hidden) refreshSheet();
+      }, () => { if (!TE.loaded) { TE.loaded = true; termsReady(); } });
+    });
+  } else {
+    // Hosted elsewhere: the browser downloads the Word file itself, and the board lives in GitHub or this browser.
+    DL = { save: nativeSave };
+    $('#ts-docx').hidden = !window.JSZip;
+    if (GH_SYNC) ghStart(); else useLocal();
+  }
+
+  // ---------- Start ----------
+  syncInputs();
+  applyView();
+  applySections();
+  renderSources();
+  storeLine();
+  render();
+  showTab(location.hash.slice(1));
+  window.__room = { model: model, exNums: exNums, consts: { COMMIT, EVEN, SU, FEE, PC, POOL }, inClaude: IN_CLAUDE };
+})();
+</script>
+</body>
+</html>
