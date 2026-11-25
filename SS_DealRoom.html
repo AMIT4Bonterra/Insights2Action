@@ -1597,6 +1597,7 @@ ul.notes b{color:var(--ink); font-weight:600}
     const rows = [];
     rows.push(['Parties', ['Bonterra (“Provider”) and NSI (“Partner”).']]);
     rows.push(['Network', ['A SafeStat network of ' + N + ' funded cities' + (fixed ? ', with up to ' + (MAXC - N) + ' additional cities at no added cost.' : '.')]]);
+    rows.push(['NSI commitment', [usd(COMMIT) + ' for the ' + N + ' funded cities, including product development.']]);
     rows.push(['Services per city', ['Platform licenses for 200 users; a Premier support package, with implementation and training; and the data pipeline with SafeStat reporting.']]);
     const fees = ['Platform subscription: ' + usd(F) + ' a year per city.'];
     if (net) fees.push('Network subscription fee: ' + usd(m.pool / m.term) + ' a year in Years 1–' + m.term + ', for the network as a whole, covering the data pipeline, data standards, cross-city SafeStat reporting and network support.');
@@ -1605,7 +1606,6 @@ ul.notes b{color:var(--ink); font-weight:600}
     rows.push(['Fees', fees]);
     if (net && m.early) rows.push(['Early subscription', ['A city may begin its platform subscription at signing, before go-live. NSI covers the subscription from signing until go-live.', 'Early starts are funded from the network subscription fee, so NSI’s commitment does not change. The fee above reflects ' + word(m.early) + ' early ' + (m.early === 1 ? 'start' : 'starts') + '.']]);
     rows.push(['Product development', [usd(PD[0]) + ' in Year 1 and ' + usd(PD[1]) + ' a year in Years 2–4 (' + usd(PDT) + ' in total).']]);
-    rows.push(['NSI commitment', [usd(COMMIT) + ' for the ' + N + ' funded cities, including product development.']]);
     let asl;
     if (net) asl = 'Invoiced as cities launch: NSI’s share of each live city’s platform subscription, the network subscription fee each year in Years 1–' + m.term + ', and product development on the schedule above.';
     else if (annual) asl = 'Invoiced as cities launch: NSI’s share of each live city’s platform subscription and its network subscription fee, with product development on the schedule above.';
