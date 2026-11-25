@@ -16,6 +16,7 @@
 :root{
   --page:#ffffff; --rail:#f4f5f7; --ink:#0f1a2a; --ink-2:#3a4657; --muted:#667183; --rule:#e3e6eb; --rule-2:#cbd1d9;
   --mast:#0f1a2a; --mast-ink:#ffffff; --mast-muted:#9aa7b9; --mast-rule:#24324a; --mast-chip:#17243a;
+  --tab-bg:rgba(255,255,255,.08); --tab-bg-hover:rgba(255,255,255,.15); --tab-ink:#d5dde8; --tab-line:rgba(255,255,255,.10); --tab-active-line:#ffffff;
   --focus:#244f9c; --sel:#ebf1fb;
   --arr1:#244f9c; --arr2:#5f93e6; --one1:#b85c14; --one2:#dba041; --hatch-bg:#dbe6f8; --hatch-line:#244f9c;
   --arr-bg:#eaf1fc; --one-bg:#fdf2e3; --warn:#8a5300; --warn-bg:#fff3dc; --on-fill:#ffffff;
@@ -28,6 +29,7 @@
   :root:not([data-theme="light"]){
     --page:#0d131c; --rail:#111924; --ink:#e6ebf1; --ink-2:#b5c0cd; --muted:#8a96a6; --rule:#1e2836; --rule-2:#2e3b4c;
     --mast:#060a10; --mast-ink:#f3f6fa; --mast-muted:#8b9ab0; --mast-rule:#1b2636; --mast-chip:#111a27;
+    --tab-bg:rgba(255,255,255,.05); --tab-bg-hover:rgba(255,255,255,.10); --tab-ink:#b3c0d1; --tab-line:rgba(255,255,255,.08); --tab-active-line:#2e3b4c;
     --focus:#6f9ee8; --sel:#16223a;
     --arr1:#3566c4; --arr2:#6f9ee8; --one1:#a14d12; --one2:#c3922f; --hatch-bg:#18294a; --hatch-line:#6f9ee8;
     --arr-bg:#13233e; --one-bg:#2b1f10; --warn:#f0b55c; --warn-bg:#2d2310; --on-fill:#ffffff;
@@ -37,6 +39,7 @@
 :root[data-theme="dark"]{
   --page:#0d131c; --rail:#111924; --ink:#e6ebf1; --ink-2:#b5c0cd; --muted:#8a96a6; --rule:#1e2836; --rule-2:#2e3b4c;
   --mast:#060a10; --mast-ink:#f3f6fa; --mast-muted:#8b9ab0; --mast-rule:#1b2636; --mast-chip:#111a27;
+  --tab-bg:rgba(255,255,255,.05); --tab-bg-hover:rgba(255,255,255,.10); --tab-ink:#b3c0d1; --tab-line:rgba(255,255,255,.08); --tab-active-line:#2e3b4c;
   --focus:#6f9ee8; --sel:#16223a;
   --arr1:#3566c4; --arr2:#6f9ee8; --one1:#a14d12; --one2:#c3922f; --hatch-bg:#18294a; --hatch-line:#6f9ee8;
   --arr-bg:#13233e; --one-bg:#2b1f10; --warn:#f0b55c; --warn-bg:#2d2310; --on-fill:#ffffff;
@@ -67,9 +70,12 @@ h1{font-size:clamp(30px, 4.4vw, 44px); line-height:1.04; letter-spacing:-.025em;
 .fig .v{display:block; font-size:27px; font-weight:600; letter-spacing:-.015em; line-height:1.2; margin-top:4px}
 .fig .s{display:block; font-size:12.5px; color:var(--mast-muted)}
 .lock{font-size:9.5px; letter-spacing:.08em; border:1px solid var(--mast-rule); border-radius:3px; padding:0 4px; color:var(--mast-muted)}
-.tabs{display:flex; gap:28px; margin-top:22px; overflow-x:auto}
-.tab{font-size:14px; font-weight:600; color:var(--mast-muted); background:none; border:0; border-bottom:2px solid transparent; padding:10px 0 12px; cursor:pointer; white-space:nowrap}
-.tab[aria-selected="true"]{color:var(--mast-ink); border-bottom-color:var(--mast-ink)}
+/* Folder tabs: the open tab is cut from the page itself, with a blue top edge; the others read as chips on the masthead. */
+.tabs{display:flex; gap:6px; margin-top:24px; overflow-x:auto; scrollbar-width:none}
+.tab{display:inline-flex; align-items:center; gap:8px; font-size:15px; font-weight:700; letter-spacing:-.005em; color:var(--tab-ink); background:var(--tab-bg); border:1px solid var(--tab-line); border-bottom:0; border-radius:10px 10px 0 0; padding:11px 20px 12px; cursor:pointer; white-space:nowrap; transition:background-color .15s ease, color .15s ease}
+.tab:hover{background:var(--tab-bg-hover); color:var(--mast-ink)}
+.tab[aria-selected="true"]{background:var(--page); color:var(--ink); border-color:var(--tab-active-line); box-shadow:inset 0 3px 0 var(--focus)}
+.tab-ic{width:16px; height:16px; flex:none; fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round}
 
 /* Main */
 main .inner{padding-block:28px 72px}
@@ -358,7 +364,8 @@ ul.notes b{color:var(--ink); font-weight:600}
   .sec-head{flex-wrap:wrap; row-gap:2px}
   .sec-sum{flex-basis:100%; text-align:left; margin-left:26px}
   .fig .v{font-size:22px}
-  .tabs{gap:20px}
+  .tabs{gap:4px}
+  .tab{font-size:14px; padding:10px 12px 11px; gap:6px}
   .dl .d{grid-template-columns:minmax(0, 1fr)}
   th:first-child, td:first-child{min-width:150px}
   .ex-steps .t{display:none}
@@ -366,7 +373,7 @@ ul.notes b{color:var(--ink); font-weight:600}
   .sheet td{display:block; width:auto !important; padding:2px 0; border:0}
   .sheet tr{display:block; padding:12px 0; border-bottom:1px solid var(--sheet-rule)}
 }
-@media (prefers-reduced-motion: reduce){.chev{transition:none}}
+@media (prefers-reduced-motion: reduce){.chev, .tab{transition:none}}
 </style>
 </head>
 <body>
@@ -383,9 +390,9 @@ ul.notes b{color:var(--ink); font-weight:600}
     <p class="mast-sub" id="mast-sub">25-city network · working draft</p>
     <div class="figs" id="figs"></div>
     <nav class="tabs" role="tablist" aria-label="Sections">
-      <button type="button" class="tab" role="tab" id="t-model" data-tab="model" aria-controls="p-model" aria-selected="true">Model</button>
-      <button type="button" class="tab" role="tab" id="t-compare" data-tab="compare" aria-controls="p-compare" aria-selected="false">Compare</button>
-      <button type="button" class="tab" role="tab" id="t-terms" data-tab="terms" aria-controls="p-terms" aria-selected="false">Term sheet</button>
+      <button type="button" class="tab" role="tab" id="t-model" data-tab="model" aria-controls="p-model" aria-selected="true"><svg class="tab-ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 13.5h11M4.5 11.5v-4M8 11.5v-8M11.5 11.5v-6"/></svg>Model</button>
+      <button type="button" class="tab" role="tab" id="t-compare" data-tab="compare" aria-controls="p-compare" aria-selected="false"><svg class="tab-ic" viewBox="0 0 16 16" aria-hidden="true"><rect x="2" y="2.5" width="5" height="11" rx="1.2"/><rect x="9" y="2.5" width="5" height="11" rx="1.2"/></svg>Compare</button>
+      <button type="button" class="tab" role="tab" id="t-terms" data-tab="terms" aria-controls="p-terms" aria-selected="false"><svg class="tab-ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 1.8h5.2L12.5 5v9.2H4z"/><path d="M9 1.8V5.2h3.4M6.2 8.2h4.2M6.2 11h4.2"/></svg>Term sheet</button>
     </nav>
   </div></div>
 </header>
